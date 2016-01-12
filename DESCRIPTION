@@ -1,0 +1,24 @@
+Package: ggcorrplot
+Type: Package
+Title: Visualization of a correlation matrix using ggplot2
+Version: 0.1.1.9000
+Date: 2016-01-12
+Authors@R: c(
+    person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
+Description: The ggcorrplot package can be used to visualize easily a
+    correlation matrix using ggplot2. It provides solution for reordering the
+    correlation matrix and displays the significance level on the correlogram. It
+    includes also a function for computing a matrix of correlation p-values. It's
+    inspired from the package corrplot.
+License: GPL-2
+LazyData: TRUE
+Depends:
+    ggplot2
+Imports:
+    reshape2
+Suggests:
+    knitr
+VignetteBuilder: knitr
+URL: http://www.sthda.com
+BugReports: https://github.com/kassambara/ggcorrplot/issues
+RoxygenNote: 5.0.1
