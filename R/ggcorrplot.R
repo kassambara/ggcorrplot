@@ -221,7 +221,7 @@ cor_pmat <- function(x, ...) {
   diag(p.mat) <- 0
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
-      tmp <- cor.test(mat[, i], mat[, j], ...)
+      tmp <- stats::cor.test(mat[, i], mat[, j], ...)
       p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
     }
   }
@@ -257,16 +257,9 @@ cor_pmat <- function(x, ...) {
 }
 
 # hc.order correlation matrix
-.hc.order_cormat <- function(cormat, hc.method = "complete") {
-  # Use correlation between variables as distance
-  dd <- as.dist((1 - cormat) / 2)
-  hc <- hclust(dd, method = hc.method)
-  cormat <- cormat[hc$order, hc$order]
-}
-
 .hc_cormat_order <- function(cormat, hc.method = "complete") {
-  dd <- as.dist((1 - cormat) / 2)
-  hc <- hclust(dd, method = hc.method)
+  dd <- stats::as.dist((1 - cormat) / 2)
+  hc <- stats::hclust(dd, method = hc.method)
   hc$order
 }
 
