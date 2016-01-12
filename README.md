@@ -93,13 +93,14 @@ Correlation matrix visualization
 ``` r
 # Visualize the correlation matrix
 # --------------------------------
-# method = "square" or "circle"
+# method = "square" (default)
 ggcorrplot(corr)
 ```
 
 ![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-1.png)
 
 ``` r
+# method = "circle"
 ggcorrplot(corr, method = "circle")
 ```
 

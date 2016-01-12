@@ -50,7 +50,7 @@ library(ggcorrplot)
 The *mtcars* data set will be used in the following R code. The function **cor_pmat()** [in **ggcorrplot**] computes a matrix of correlation p-values. 
      
      
-```{r}
+```{r, fig.show = "asis"}
 # Compute a correlation matrix
 data(mtcars)
 corr <- round(cor(mtcars), 1)
@@ -68,8 +68,9 @@ p.mat
 ```{r demo-ggcorrplot, fig.show = "asis", fig.width=5, fig.height=5}
 # Visualize the correlation matrix
 # --------------------------------
-# method = "square" or "circle"
+# method = "square" (default)
 ggcorrplot(corr)
+# method = "circle"
 ggcorrplot(corr, method = "circle")
 
 # Reordering the correlation matrix
