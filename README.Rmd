@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**. It's inspired from the package [corrplot](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram).  
    
    
-Find out more at http://www.sthda.com/english/ggcorrplot.
+Find out more at http://www.sthda.com/english/wiki/ggcorrplot.
     
    
      
