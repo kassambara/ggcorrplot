@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 # ggcorrplot: Visualization of a correlation matrix using ggplot2
     
     
-The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**. It's inspired from the package [corrplot](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram).  
+The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides a solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**. It's inspired from the package [corrplot](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram).  
    
    
 Find out more at http://www.sthda.com/english/wiki/ggcorrplot.
@@ -28,6 +28,15 @@ Find out more at http://www.sthda.com/english/wiki/ggcorrplot.
      
 ## Installation and loading
     
+    
+ggcorrplot can be installed from CRAN as follow:
+   
+```{r, eval = FALSE}
+install.packages("ggcorrplot")
+```
+    
+    
+Or, install the latest version from GitHub:  
     
 ```{r, eval = FALSE}
 # Install
@@ -55,11 +64,11 @@ The *mtcars* data set will be used in the following R code. The function **cor_p
 # Compute a correlation matrix
 data(mtcars)
 corr <- round(cor(mtcars), 1)
-corr
+head(corr[, 1:6])
 
 # Compute a matrix of correlation p-values
 p.mat <- cor_pmat(mtcars)
-p.mat
+head(p.mat[, 1:4])
 ```
     
     
