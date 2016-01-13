@@ -91,7 +91,6 @@ text label (variable names).}
 Compute the matrix of correlation p-values
 }
 \examples{
-\donttest{
 # Compute a correlation matrix
 data(mtcars)
 corr <- round(cor(mtcars), 1)
@@ -144,6 +143,6 @@ ggcorrplot(corr, hc.order = TRUE,
 # Leave blank on no significant coefficient
 ggcorrplot(corr, p.mat = p.mat, hc.order = TRUE,
     type = "lower", insig = "blank")
-}
+
 }
 

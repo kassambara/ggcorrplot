@@ -45,7 +45,6 @@
 #'  \item cor_pmat(): Returns a matrix containing the p-values of correlations
 #'  }
 #' @examples
-#' \donttest{
 #' # Compute a correlation matrix
 #' data(mtcars)
 #' corr <- round(cor(mtcars), 1)
@@ -98,7 +97,7 @@
 #' # Leave blank on no significant coefficient
 #' ggcorrplot(corr, p.mat = p.mat, hc.order = TRUE,
 #'     type = "lower", insig = "blank")
-#' }
+#'
 #' @name ggcorrplot
 #' @rdname ggcorrplot
 #' @export
