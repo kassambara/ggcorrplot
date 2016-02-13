@@ -182,7 +182,8 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
   if (lab)
     p <- p +
     ggplot2::geom_text(
-      ggplot2::aes_string("Var1", "Var2", label = label),
+      ggplot2::aes_string("Var1", "Var2"),
+      label = label,
       color = lab_col, size = lab_size
     )
 
