@@ -138,6 +138,7 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
   }
   # Melt corr and pmat
   corr <- reshape2::melt(corr, na.rm = TRUE)
+  colnames(corr) <- c("Var1", "Var2", "value")
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
   if (!is.null(p.mat)) {
