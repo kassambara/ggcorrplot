@@ -39,6 +39,8 @@
 #'   insig is "pch").
 #' @param tl.cex,tl.col,tl.srt the size, the color and the string rotation of
 #'   text label (variable names).
+#' @param circle.scale to be used as a scaling factor for circles. Depending on
+#'   the output device it may be necessary to adjust this parameter.
 #' @return
 #' \itemize{
 #'  \item ggcorrplot(): Returns a ggplot2
@@ -110,7 +112,8 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
                         lab = FALSE, lab_col = "black", lab_size = 4,
                         p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
                         pch = 4, pch.col = "black", pch.cex = 5,
-                        tl.cex = 12, tl.col = "black", tl.srt = 45) {
+                        tl.cex = 12, tl.col = "black", tl.srt = 45,
+                        circle.scale = 1) {
 
   type <- match.arg(type)
   method <- match.arg(method)
@@ -151,7 +154,7 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
       corr$value <- corr$value * corr$signif
   }
 
-  corr$abs_corr <- abs(corr$value) * 10
+  corr$abs_corr <- abs(corr$value) * 10 * circle.scale
 
   # Heatmap
   p <-
@@ -161,7 +164,7 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
   else if (method == "circle") {
     p <- p + ggplot2::geom_point(color = outline.color,
                                  shape = 21, ggplot2::aes_string(size = "abs_corr")) +
-      ggplot2::scale_size(range = c(4, 10)) + ggplot2::guides(size = FALSE)
+      ggplot2::scale_size(range = c(4, 10*circle.scale)) + ggplot2::guides(size = FALSE)
   }
 
   p <-
