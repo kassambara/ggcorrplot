@@ -41,6 +41,7 @@
 #'   text label (variable names).
 #' @param circle.scale to be used as a scaling factor for circles. Depending on
 #'   the output device it may be necessary to adjust this parameter.
+#' @param mirror.axis.text logical value. If TRUE, axis text of plot is mirrored
 #' @return
 #' \itemize{
 #'  \item ggcorrplot(): Returns a ggplot2
@@ -113,7 +114,7 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
                         p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
                         pch = 4, pch.col = "black", pch.cex = 5,
                         tl.cex = 12, tl.col = "black", tl.srt = 45,
-                        circle.scale = 1) {
+                        circle.scale = 1, mirror.axis.text = F) {
 
   type <- match.arg(type)
   method <- match.arg(method)
@@ -173,14 +174,29 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
       midpoint = 0, limit = c(-1,1), space = "Lab",
       name = legend.title
     ) +
-    ggtheme() +
-    ggplot2::theme(
+    ggtheme()
+
+  if(mirror.axis.text) {
+    p <- 
+      p + scale_x_discrete(position = "top") +
+      scale_y_discrete(position = "right") +
+      ggplot2::theme(
+        axis.text.x = ggplot2::element_text(
+          angle = tl.srt, vjust = 0, size = tl.cex, hjust = 0
+        ),
+        axis.text.y = ggplot2::element_text(hjust=0, size = tl.cex),
+        legend.position = "left"
+      )
+  } else {
+    p <- 
+      p + ggplot2::theme(
       axis.text.x = ggplot2::element_text(
         angle = tl.srt, vjust = 1, size = tl.cex, hjust = 1
       ),
-      axis.text.y = ggplot2::element_text(size = tl.cex)
-    ) +
-    ggplot2::coord_fixed()
+      axis.text.y = ggplot2::element_text(hjust=0, size = tl.cex)
+    )
+  }
+  p <- p + ggplot2::coord_fixed() 
 
   label <- round(corr[, "value"], 2)
   if (lab)
