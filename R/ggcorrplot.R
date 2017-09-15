@@ -108,8 +108,8 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
                         type = c("full", "lower", "upper"),
                         ggtheme = ggplot2::theme_minimal,
                         title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE,
-                        colors = c("blue", "white", "red"), outline.color = "gray",
-                        hc.order = FALSE, hc.method = "complete",
+                        colors = c("blue", "white", "red"), colors.position = c(-1, 0, 1),
+                        outline.color = "gray", hc.order = FALSE, hc.method = "complete",
                         lab = FALSE, lab_col = "black", lab_size = 4,
                         p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
                         pch = 4, pch.col = "black", pch.cex = 5,
@@ -165,14 +165,14 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
   else if (method == "circle") {
     p <- p + ggplot2::geom_point(color = outline.color,
                                  shape = 21, ggplot2::aes_string(size = "abs_corr")) +
-      ggplot2::scale_size(range = c(4, 10*circle.scale)) + ggplot2::guides(size = FALSE)
+      ggplot2::scale_size(range = c(4, 10*circle.scale)) + ggplot2::guides(fill = guide_colorbar(barwidth = 8, barheight = 1, raster=TRUE, title=""), size = FALSE)
   }
 
   p <-
-    p + ggplot2::scale_fill_gradient2(
-      low = colors[1], high = colors[3], mid = colors[2],
-      midpoint = 0, limit = c(-1,1), space = "Lab",
-      name = legend.title
+    p + ggplot2::scale_fill_gradientn(
+      colours = colors,
+      values = colors.position,
+      limit = c(-1,1)
     ) +
     ggtheme()
 
@@ -185,7 +185,7 @@ ggcorrplot <- function (corr, method = c("square", "circle"),
           angle = tl.srt, vjust = 0, size = tl.cex, hjust = 0
         ),
         axis.text.y = ggplot2::element_text(hjust=0, size = tl.cex),
-        legend.position = "left"
+        legend.position = "bottom"
       )
   } else {
     p <- 
