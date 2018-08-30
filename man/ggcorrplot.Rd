@@ -11,8 +11,9 @@ ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower",
   colors = c("blue", "white", "red"), outline.color = "gray",
   hc.order = FALSE, hc.method = "complete", lab = FALSE,
   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05,
-  insig = c("pch", "blank"), pch = 4, pch.col = "black", pch.cex = 5,
-  tl.cex = 12, tl.col = "black", tl.srt = 45)
+  insig = c("pch", "blank"), pch = 4, pch.col = "black",
+  pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45,
+  digits = 2)
 
 cor_pmat(x, ...)
 }
@@ -73,6 +74,9 @@ insig is "pch").}
 
 \item{tl.cex, tl.col, tl.srt}{the size, the color and the string rotation of
 text label (variable names).}
+
+\item{digits}{Decides the number of decimal digits to be displayed (Default:
+`2`).}
 
 \item{x}{numeric matrix or data frame}
 

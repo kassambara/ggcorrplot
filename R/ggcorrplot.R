@@ -40,6 +40,8 @@
 #'   insig is "pch").
 #' @param tl.cex,tl.col,tl.srt the size, the color and the string rotation of
 #'   text label (variable names).
+#' @param digits Decides the number of decimal digits to be displayed (Default:
+#'   `2`).
 #' @return
 #' \itemize{
 #'  \item ggcorrplot(): Returns a ggplot2
@@ -50,22 +52,22 @@
 #' data(mtcars)
 #' corr <- round(cor(mtcars), 1)
 #' corr
-#'
+#' 
 #' # Compute a matrix of correlation p-values
 #' p.mat <- cor_pmat(mtcars)
 #' p.mat
-#'
+#' 
 #' # Visualize the correlation matrix
 #' # --------------------------------
 #' # method = "square" or "circle"
 #' ggcorrplot(corr)
 #' ggcorrplot(corr, method = "circle")
-#'
+#' 
 #' # Reordering the correlation matrix
 #' # --------------------------------
 #' # using hierarchical clustering
 #' ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
-#'
+#' 
 #' # Types of correlogram layout
 #' # --------------------------------
 #' # Get the lower triangle
@@ -78,7 +80,7 @@
 #'   hc.order = TRUE, type = "upper",
 #'   outline.col = "white"
 #' )
-#'
+#' 
 #' # Change colors and theme
 #' # --------------------------------
 #' # Argument colors
@@ -88,7 +90,7 @@
 #'   ggtheme = ggplot2::theme_gray,
 #'   colors = c("#6D9EC1", "white", "#E46726")
 #' )
-#'
+#' 
 #' # Add correlation coefficients
 #' # --------------------------------
 #' # argument lab = TRUE
@@ -97,7 +99,7 @@
 #'   lab = TRUE,
 #'   ggtheme = ggplot2::theme_dark(),
 #' )
-#'
+#' 
 #' # Add correlation significance level
 #' # --------------------------------
 #' # Argument p.mat
@@ -123,7 +125,7 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
                        lab = FALSE, lab_col = "black", lab_size = 4,
                        p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
                        pch = 4, pch.col = "black", pch.cex = 5,
-                       tl.cex = 12, tl.col = "black", tl.srt = 45) {
+                       tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -133,11 +135,14 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
   }
   corr <- as.matrix(corr)
 
+  corr <- base::round(x = corr, digits = digits)
+
   if (hc.order) {
     ord <- .hc_cormat_order(corr)
     corr <- corr[ord, ord]
     if (!is.null(p.mat)) {
       p.mat <- p.mat[ord, ord]
+      p.mat <- base::round(x = p.mat, digits = digits)
     }
   }
 
