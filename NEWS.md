@@ -1,6 +1,10 @@
 # ggcorrplot 0.1.2
    
    
+## Minor changes
+   
+- New argument ggtheme added to `ggcorrplot()` (@IndrajeetPatil, [#11](https://github.com/kassambara/ggcorrplot/pull/11).
+   
 ## Bug fixes
    
 - Bug fix for label argument inside ggplot2::geom_text (@alekrutkowski, [#1](https://github.com/kassambara/ggcorrplot/pull/1))
