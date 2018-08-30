@@ -3,6 +3,7 @@
    
 ## Minor changes
    
+- New argument `digits` added to `ggcorrplot()` (@IndrajeetPatil, [#12](https://github.com/kassambara/ggcorrplot/pull/12).
 - New argument ggtheme added to `ggcorrplot()` (@IndrajeetPatil, [#11](https://github.com/kassambara/ggcorrplot/pull/11).
    
 ## Bug fixes
