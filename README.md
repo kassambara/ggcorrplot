@@ -28,7 +28,6 @@ devtools::install_github("kassambara/ggcorrplot")
 ``` r
 # Loading
 library(ggcorrplot)
-#> Loading required package: ggplot2
 ```
 
 Getting started
