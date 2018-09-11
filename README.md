@@ -36,7 +36,7 @@ Getting started
 
 ### Compute a correlation matrix
 
-The *mtcars* data set will be used in the following R code. The function **cor\_pmat()** [in **ggcorrplot**] computes a matrix of correlation p-values.
+The *mtcars* data set will be used in the following R code. The function **cor\_pmat()** \[in **ggcorrplot**\] computes a matrix of correlation p-values.
 
 ``` r
 # Compute a correlation matrix
@@ -56,11 +56,11 @@ p.mat <- cor_pmat(mtcars)
 head(p.mat[, 1:4])
 #>               mpg          cyl         disp           hp
 #> mpg  0.000000e+00 6.112687e-10 9.380327e-10 1.787835e-07
-#> cyl  6.112687e-10 0.000000e+00 1.803002e-12 3.477861e-09
-#> disp 9.380327e-10 1.803002e-12 0.000000e+00 7.142679e-08
+#> cyl  6.112687e-10 0.000000e+00 1.802838e-12 3.477861e-09
+#> disp 9.380327e-10 1.802838e-12 0.000000e+00 7.142679e-08
 #> hp   1.787835e-07 3.477861e-09 7.142679e-08 0.000000e+00
 #> drat 1.776240e-05 8.244636e-06 5.282022e-06 9.988772e-03
-#> wt   1.293959e-10 1.217567e-07 1.222311e-11 4.145827e-05
+#> wt   1.293959e-10 1.217567e-07 1.222320e-11 4.145827e-05
 ```
 
 Correlation matrix visualization
@@ -73,14 +73,14 @@ Correlation matrix visualization
 ggcorrplot(corr)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-1.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-1.png)
 
 ``` r
 # method = "circle"
 ggcorrplot(corr, method = "circle")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-2.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-2.png)
 
 ``` r
 
@@ -90,7 +90,7 @@ ggcorrplot(corr, method = "circle")
 ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-3.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-3.png)
 
 ``` r
 
@@ -101,7 +101,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower",
      outline.col = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-4.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-4.png)
 
 ``` r
 # Get the upeper triangle
@@ -109,7 +109,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "upper",
      outline.col = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-5.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-5.png)
 
 ``` r
 
@@ -122,7 +122,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower",
    colors = c("#6D9EC1", "white", "#E46726"))
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-6.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-6.png)
 
 ``` r
 
@@ -133,7 +133,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower",
    lab = TRUE)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-7.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-7.png)
 
 ``` r
 
@@ -145,7 +145,7 @@ ggcorrplot(corr, hc.order = TRUE,
     type = "lower", p.mat = p.mat)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-8.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-8.png)
 
 ``` r
 # Leave blank on no significant coefficient
@@ -153,4 +153,4 @@ ggcorrplot(corr, p.mat = p.mat, hc.order = TRUE,
     type = "lower", insig = "blank")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](README-demo-ggcorrplot-9.png)
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-9.png)
