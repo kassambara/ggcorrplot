@@ -116,16 +116,33 @@
 #' @name ggcorrplot
 #' @rdname ggcorrplot
 #' @export
-ggcorrplot <- function(corr, method = c("square", "circle"),
+
+# function body
+ggcorrplot <- function(corr,
+                       method = c("square", "circle"),
                        type = c("full", "lower", "upper"),
                        ggtheme = ggplot2::theme_minimal,
-                       title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE,
-                       colors = c("blue", "white", "red"), outline.color = "gray",
-                       hc.order = FALSE, hc.method = "complete",
-                       lab = FALSE, lab_col = "black", lab_size = 4,
-                       p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
-                       pch = 4, pch.col = "black", pch.cex = 5,
-                       tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2) {
+                       title = "",
+                       show.legend = TRUE,
+                       legend.title = "Corr",
+                       show.diag = FALSE,
+                       colors = c("blue", "white", "red"),
+                       outline.color = "gray",
+                       hc.order = FALSE,
+                       hc.method = "complete",
+                       lab = FALSE,
+                       lab_col = "black",
+                       lab_size = 4,
+                       p.mat = NULL,
+                       sig.level = 0.05,
+                       insig = c("pch", "blank"),
+                       pch = 4,
+                       pch.col = "black",
+                       pch.cex = 5,
+                       tl.cex = 12,
+                       tl.col = "black",
+                       tl.srt = 45,
+                       digits = 2) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -183,7 +200,8 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
       color = outline.color,
       shape = 21, ggplot2::aes_string(size = "abs_corr")
     ) +
-      ggplot2::scale_size(range = c(4, 10)) + ggplot2::guides(size = FALSE)
+      ggplot2::scale_size(range = c(4, 10)) +
+      ggplot2::guides(size = FALSE)
   }
 
   p <-
@@ -223,21 +241,28 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
   if (!is.null(p.mat) & insig == "pch") {
     p <- p + ggplot2::geom_point(
       data = p.mat,
-      ggplot2::aes_string("Var1", "Var2"),
-      shape = pch, size = pch.cex, color = pch.col
+      mapping = ggplot2::aes_string("Var1", "Var2"),
+      shape = pch,
+      size = pch.cex,
+      color = pch.col
     )
   }
 
-  # Add titles
+  # add titles
   if (title != "") {
-    p <- p + ggplot2::ggtitle(title)
+    p <- p +
+      ggplot2::ggtitle(title)
   }
+
+  # removing legend
   if (!show.legend) {
-    p <- p + ggplot2::theme(legend.position = "none")
+    p <- p +
+      ggplot2::theme(legend.position = "none")
   }
 
 
-  p <- p + .no_panel()
+  p <- p +
+    .no_panel()
   p
 }
 
@@ -249,21 +274,29 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
 #' @param ... other arguments to be passed to the function cor.test.
 #' @rdname ggcorrplot
 #' @export
+
 cor_pmat <- function(x, ...) {
+
+  # initializing values
   mat <- as.matrix(x)
   n <- ncol(mat)
   p.mat <- matrix(NA, n, n)
   diag(p.mat) <- 0
+
+  # creating the p-value matrix
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
       tmp <- stats::cor.test(mat[, i], mat[, j], ...)
       p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
     }
   }
+
+  # name rows and columns of the p-value matrix
   colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+
+  # return the final matrix
   p.mat
 }
-
 
 
 

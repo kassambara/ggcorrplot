@@ -5,3 +5,4 @@
 ^NEWS\.md$
 ^cran-comments\.md$
 ^revdep$
+^docs$

@@ -5,14 +5,15 @@
 \alias{cor_pmat}
 \title{Visualization of a correlation matrix using ggplot2}
 \usage{
-ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower",
-  "upper"), ggtheme = ggplot2::theme_minimal, title = "",
+ggcorrplot(corr, method = c("square", "circle"), type = c("full",
+  "lower", "upper"), ggtheme = ggplot2::theme_minimal, title = "",
   show.legend = TRUE, legend.title = "Corr", show.diag = FALSE,
   colors = c("blue", "white", "red"), outline.color = "gray",
   hc.order = FALSE, hc.method = "complete", lab = FALSE,
   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05,
-  insig = c("pch", "blank"), pch = 4, pch.col = "black", pch.cex = 5,
-  tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2)
+  insig = c("pch", "blank"), pch = 4, pch.col = "black",
+  pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45,
+  digits = 2)
 
 cor_pmat(x, ...)
 }
@@ -91,8 +92,6 @@ text label (variable names).}
 \itemize{ \item ggcorrplot(): A graphical display of a
   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
   matrix p-values. }
-
-Compute the matrix of correlation p-values
 }
 \examples{
 # Compute a correlation matrix
