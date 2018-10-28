@@ -5,11 +5,10 @@
 ## R CMD check results
 There were no ERRORs, WARNINGs or NOTEs. 
 
-## Downstream dependencies
-There are currently no downstream dependencies for this package
+I have also run R CMD check on downstream dependencies of ggcorrplot. 
+All packages that I could install passed.
 
-## Resubmission
-This is a resubmission. In this version I have:
+## Update
 
-* single quoted, in DESCRIPTION, the following software names: 'ggcorrplot' and 'ggplot' 
-* removed \donttest{} in the example section
+This is an update version 0.1.2
+
