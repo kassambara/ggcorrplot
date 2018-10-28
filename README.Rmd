@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 ```
     
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/ggcorrplot)](http://cran.r-project.org/package=ggcorrplot)
+[![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.9000-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
 
 # ggcorrplot: Visualization of a correlation matrix using ggplot2
     
@@ -31,7 +33,7 @@ Find out more at <http://www.sthda.com/english/wiki/ggcorrplot>.
 
 ## Installation and loading
     
-ggcorrplot can be installed from CRAN as follow:
+ggcorrplot can be installed from `CRAN` as follow:
 
 ```{r, eval = FALSE}
 install.packages("ggcorrplot")
@@ -90,6 +92,7 @@ ggcorrplot(corr,
            hc.order = TRUE,
            type = "lower",
            outline.color = "white")
+
 # Get the upeper triangle
 ggcorrplot(corr,
            hc.order = TRUE,
@@ -124,6 +127,7 @@ ggcorrplot(corr,
            hc.order = TRUE,
            type = "lower",
            p.mat = p.mat)
+
 # Leave blank on no significant coefficient
 ggcorrplot(
   corr,

@@ -112,19 +112,19 @@ ggcorrplot(corr, method = "circle")
 # Reordering the correlation matrix
 # --------------------------------
 # using hierarchical clustering
-ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
+ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 
 # Types of correlogram layout
 # --------------------------------
 # Get the lower triangle
 ggcorrplot(corr,
   hc.order = TRUE, type = "lower",
-  outline.col = "white"
+  outline.color = "white"
 )
 # Get the upeper triangle
 ggcorrplot(corr,
   hc.order = TRUE, type = "upper",
-  outline.col = "white"
+  outline.color = "white"
 )
 
 # Change colors and theme
@@ -132,7 +132,7 @@ ggcorrplot(corr,
 # Argument colors
 ggcorrplot(corr,
   hc.order = TRUE, type = "lower",
-  outline.col = "white",
+  outline.color = "white",
   ggtheme = ggplot2::theme_gray,
   colors = c("#6D9EC1", "white", "#E46726")
 )

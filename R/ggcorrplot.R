@@ -66,19 +66,19 @@
 #' # Reordering the correlation matrix
 #' # --------------------------------
 #' # using hierarchical clustering
-#' ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
+#' ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 #' 
 #' # Types of correlogram layout
 #' # --------------------------------
 #' # Get the lower triangle
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "lower",
-#'   outline.col = "white"
+#'   outline.color = "white"
 #' )
 #' # Get the upeper triangle
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "upper",
-#'   outline.col = "white"
+#'   outline.color = "white"
 #' )
 #' 
 #' # Change colors and theme
@@ -86,7 +86,7 @@
 #' # Argument colors
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "lower",
-#'   outline.col = "white",
+#'   outline.color = "white",
 #'   ggtheme = ggplot2::theme_gray,
 #'   colors = c("#6D9EC1", "white", "#E46726")
 #' )
@@ -172,11 +172,13 @@ ggcorrplot <- function(corr,
     corr <- .get_upper_tri(corr, show.diag)
     p.mat <- .get_upper_tri(p.mat, show.diag)
   }
+
   # Melt corr and pmat
   corr <- reshape2::melt(corr, na.rm = TRUE)
   colnames(corr) <- c("Var1", "Var2", "value")
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
+
   if (!is.null(p.mat)) {
     p.mat <- reshape2::melt(p.mat, na.rm = TRUE)
     corr$coef <- corr$value
@@ -190,24 +192,37 @@ ggcorrplot <- function(corr,
 
   corr$abs_corr <- abs(corr$value) * 10
 
-  # Heatmap
+  # heatmap
   p <-
-    ggplot2::ggplot(corr, ggplot2::aes_string("Var1", "Var2", fill = "value"))
+    ggplot2::ggplot(
+      data = corr,
+      mapping = ggplot2::aes_string(x = "Var1", y = "Var2", fill = "value")
+    )
+
+  # modification based on method
   if (method == "square") {
-    p <- p + ggplot2::geom_tile(color = outline.color)
+    p <- p +
+      ggplot2::geom_tile(color = outline.color)
   } else if (method == "circle") {
-    p <- p + ggplot2::geom_point(
-      color = outline.color,
-      shape = 21, ggplot2::aes_string(size = "abs_corr")
-    ) +
+    p <- p +
+      ggplot2::geom_point(
+        color = outline.color,
+        shape = 21,
+        ggplot2::aes_string(size = "abs_corr")
+      ) +
       ggplot2::scale_size(range = c(4, 10)) +
       ggplot2::guides(size = FALSE)
   }
 
+  # adding colors
   p <-
     p + ggplot2::scale_fill_gradient2(
-      low = colors[1], high = colors[3], mid = colors[2],
-      midpoint = 0, limit = c(-1, 1), space = "Lab",
+      low = colors[1],
+      high = colors[3],
+      mid = colors[2],
+      midpoint = 0,
+      limit = c(-1, 1),
+      space = "Lab",
       name = legend.title
     )
 
@@ -222,26 +237,33 @@ ggcorrplot <- function(corr,
   p <- p +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
-        angle = tl.srt, vjust = 1, size = tl.cex, hjust = 1
+        angle = tl.srt,
+        vjust = 1,
+        size = tl.cex,
+        hjust = 1
       ),
       axis.text.y = ggplot2::element_text(size = tl.cex)
     ) +
     ggplot2::coord_fixed()
 
   label <- round(corr[, "value"], 2)
+
+  # matrix cell labels
   if (lab) {
     p <- p +
       ggplot2::geom_text(
-        ggplot2::aes_string("Var1", "Var2"),
+        mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
         label = label,
-        color = lab_col, size = lab_size
+        color = lab_col,
+        size = lab_size
       )
   }
 
+  # matrix cell glyphs
   if (!is.null(p.mat) & insig == "pch") {
     p <- p + ggplot2::geom_point(
       data = p.mat,
-      mapping = ggplot2::aes_string("Var1", "Var2"),
+      mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
       shape = pch,
       size = pch.cex,
       color = pch.col
@@ -260,7 +282,7 @@ ggcorrplot <- function(corr,
       ggplot2::theme(legend.position = "none")
   }
 
-
+  # removing panel
   p <- p +
     .no_panel()
   p
