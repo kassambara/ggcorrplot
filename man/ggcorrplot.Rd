@@ -159,4 +159,13 @@ ggcorrplot(corr,
   p.mat = p.mat, hc.order = TRUE,
   type = "lower", insig = "blank"
 )
+
+# Changing number of digits for correlation coeffcient
+# --------------------------------
+ggcorrplot(cor(mtcars),
+  type = "lower",
+  insig = "blank",
+  lab = TRUE,
+  digits = 3
+)
 }
