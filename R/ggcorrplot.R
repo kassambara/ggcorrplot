@@ -52,22 +52,22 @@
 #' data(mtcars)
 #' corr <- round(cor(mtcars), 1)
 #' corr
-#' 
+#'
 #' # Compute a matrix of correlation p-values
 #' p.mat <- cor_pmat(mtcars)
 #' p.mat
-#' 
+#'
 #' # Visualize the correlation matrix
 #' # --------------------------------
 #' # method = "square" or "circle"
 #' ggcorrplot(corr)
 #' ggcorrplot(corr, method = "circle")
-#' 
+#'
 #' # Reordering the correlation matrix
 #' # --------------------------------
 #' # using hierarchical clustering
 #' ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
-#' 
+#'
 #' # Types of correlogram layout
 #' # --------------------------------
 #' # Get the lower triangle
@@ -80,7 +80,7 @@
 #'   hc.order = TRUE, type = "upper",
 #'   outline.color = "white"
 #' )
-#' 
+#'
 #' # Change colors and theme
 #' # --------------------------------
 #' # Argument colors
@@ -90,7 +90,7 @@
 #'   ggtheme = ggplot2::theme_gray,
 #'   colors = c("#6D9EC1", "white", "#E46726")
 #' )
-#' 
+#'
 #' # Add correlation coefficients
 #' # --------------------------------
 #' # argument lab = TRUE
@@ -99,7 +99,7 @@
 #'   lab = TRUE,
 #'   ggtheme = ggplot2::theme_dark(),
 #' )
-#' 
+#'
 #' # Add correlation significance level
 #' # --------------------------------
 #' # Argument p.mat
@@ -246,7 +246,7 @@ ggcorrplot <- function(corr,
     ) +
     ggplot2::coord_fixed()
 
-  label <- round(corr[, "value"], 2)
+  label <- round(x = corr[, "value"], digits = digits)
 
   # matrix cell labels
   if (lab) {
