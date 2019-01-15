@@ -103,7 +103,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower",
 ![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-4.png)
 
 ``` r
-# Get the upeper triangle
+# Get the upper triangle
 ggcorrplot(corr, hc.order = TRUE, type = "upper",
      outline.col = "white")
 ```
