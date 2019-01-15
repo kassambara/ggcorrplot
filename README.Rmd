@@ -96,7 +96,7 @@ ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
 # Get the lower triangle
 ggcorrplot(corr, hc.order = TRUE, type = "lower",
      outline.col = "white")
-# Get the upeper triangle
+# Get the upper triangle
 ggcorrplot(corr, hc.order = TRUE, type = "upper",
      outline.col = "white")
 
