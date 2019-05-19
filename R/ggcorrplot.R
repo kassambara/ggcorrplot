@@ -156,6 +156,13 @@ ggcorrplot <- function(corr,
   method <- match.arg(method)
   insig <- match.arg(insig)
 
+  if(inherits(corr, "cor_mat")){
+    # cor_mat object from rstatix
+    cor.mat <- corr
+    corr <- .tibble_to_matrix(cor.mat)
+    p.mat <- .tibble_to_matrix(attr(cor.mat, "pvalue"))
+  }
+
   if (!is.matrix(corr) & !is.data.frame(corr)) {
     stop("Need a matrix or data frame!")
   }
@@ -371,4 +378,13 @@ cor_pmat <- function(x, ...) {
     axis.title.x = ggplot2::element_blank(),
     axis.title.y = ggplot2::element_blank()
   )
+}
+
+
+# Convert a tbl to matrix
+.tibble_to_matrix <- function(x){
+  x <-  as.data.frame(x)
+  rownames(x) <- x[, 1]
+  x <- x[, -1]
+  as.matrix(x)
 }
