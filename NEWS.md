@@ -1,5 +1,17 @@
 # ggcorrplot 0.1.2.999
    
+## Minor changes
+   
+Merging with pull request 16 (@IndrajeetPatil, [#16](https://github.com/kassambara/ggcorrplot/pull/16)), which addresses the following issues: 
+
+1. In all `README` and `roxygen` examples, the argument `outline.color` was written as `outline.col`, which created `warnings` in `RStudio` scripts about the partial matching of arguments. Fixed that.
+2. The resolution of figures in `README` was poor and text in figures was not legible in `README` available on `CRAN`. The update fixes that using `dpi` of 300 and output width of 100%.
+3. It is advised not to include the date in the `DESCRIPTION` file (https://github.com/jrowen/rhandsontable/issues/83). Removed the date accordingly (This was also creating problems for a stricter version of `devtools::check()`).
+4. Styled the code in `tidyverse` style guide (both in `R` script and `README` file).
+5. Added spelling tests to make sure no spelling error fall through the cracks.
+6. Bumped up the package version to highlight that this is the development version. Added a few more badges to `README` to convey the same thing. 
+7. The `digits` argument (introduced in #12) wasn't working properly (https://github.com/IndrajeetPatil/ggstatsplot/issues/93).  This is now fixed. Also added an example to show that this works.
+
 
 # ggcorrplot 0.1.2
    
