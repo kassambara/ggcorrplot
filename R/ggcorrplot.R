@@ -206,6 +206,7 @@ ggcorrplot <- function(corr,
     }
   }
 
+
   corr$abs_corr <- abs(corr$value) * 10
 
   # heatmap
@@ -263,6 +264,10 @@ ggcorrplot <- function(corr,
     ggplot2::coord_fixed()
 
   label <- round(x = corr[, "value"], digits = digits)
+  if(!is.null(p.mat) & insig == "blank"){
+    ns <- corr$pvalue > sig.level
+    if(sum(ns) > 0) label[ns] <- " "
+  }
 
   # matrix cell labels
   if (lab) {

@@ -15,6 +15,10 @@ Merging with pull request 16 (@IndrajeetPatil, [#16](https://github.com/kassamba
 5. The `digits` argument (introduced in #12) wasn't working properly (https://github.com/IndrajeetPatil/ggstatsplot/issues/93).  This is now fixed. Also added an example to show that this works.
 
 
+## Bug fixes
+   
+- When `insig = "blank"` correlation labels are no longer displayed for insignificant correlations (@axitamm, [#17](https://github.com/kassambara/ggcorrplot/pull/17))
+
 # ggcorrplot 0.1.2
    
    
