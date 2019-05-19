@@ -73,20 +73,19 @@
 <div id="ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2" class="anchor"></a>ggcorrplot: Visualization of a correlation matrix using ggplot2</h1></div>
-<p>The <strong>ggcorrplot</strong> package can be used to <strong>visualize easily</strong> a <strong>correlation matrix</strong> using <strong>ggplot2</strong>. It provides a solution for <strong>reordering</strong> the correlation matrix and displays the <strong>significance level</strong> on the correlogram. It includes also a function for computing a matrix of <strong>correlation p-values</strong>. It’s inspired from the package <a href="http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram">corrplot</a>.</p>
+<p>The <strong>ggcorrplot</strong> package can be used to <strong>visualize easily</strong> a <strong>correlation matrix</strong> using <strong>ggplot2</strong>. It provides a solution for <strong>reordering</strong> the correlation matrix and displays the <strong>significance level</strong> on the correlogram. It includes also a function for computing a matrix of <strong>correlation p-values</strong>.</p>
 <p>Find out more at <a href="http://www.sthda.com/english/wiki/ggcorrplot" class="uri">http://www.sthda.com/english/wiki/ggcorrplot</a>.</p>
 <div id="installation-and-loading" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation-and-loading" class="anchor"></a>Installation and loading</h2>
-<p>ggcorrplot can be installed from CRAN as follow:</p>
+<p>ggcorrplot can be installed from <code>CRAN</code> as follow:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"ggcorrplot"</span>)</code></pre></div>
 <p>Or, install the latest version from GitHub:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Install</span>
 <span class="cf">if</span>(<span class="op">!</span><span class="kw">require</span>(devtools)) <span class="kw">install.packages</span>(<span class="st">"devtools"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"kassambara/ggcorrplot"</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Loading</span>
-<span class="kw">library</span>(ggcorrplot)
-<span class="co">#&gt; Le chargement a nécessité le package : ggplot2</span></code></pre></div>
+<span class="kw">library</span>(ggcorrplot)</code></pre></div>
 </div>
 <div id="getting-started" class="section level2">
 <h2 class="hasAnchor">
@@ -142,7 +141,7 @@ ggcorrplot: visualize correlation matrix using ggplot2
 <span class="co"># Reordering the correlation matrix</span>
 <span class="co"># --------------------------------</span>
 <span class="co"># using hierarchical clustering</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">outline.col =</span> <span class="st">"white"</span>)</code></pre></div>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">outline.color =</span> <span class="st">"white"</span>)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-3.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
@@ -152,16 +151,21 @@ ggcorrplot: visualize correlation matrix using ggplot2
 <span class="co"># Types of correlogram layout</span>
 <span class="co"># --------------------------------</span>
 <span class="co"># Get the lower triangle</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"lower"</span>,
-     <span class="dt">outline.col =</span> <span class="st">"white"</span>)</code></pre></div>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr,
+           <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+           <span class="dt">type =</span> <span class="st">"lower"</span>,
+           <span class="dt">outline.color =</span> <span class="st">"white"</span>)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-4.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
 </p>
 </div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the upeper triangle</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"upper"</span>,
-     <span class="dt">outline.col =</span> <span class="st">"white"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># Get the upper triangle</span>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr,
+           <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+           <span class="dt">type =</span> <span class="st">"upper"</span>,
+           <span class="dt">outline.color =</span> <span class="st">"white"</span>)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-5.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
@@ -171,10 +175,14 @@ ggcorrplot: visualize correlation matrix using ggplot2
 <span class="co"># Change colors and theme</span>
 <span class="co"># --------------------------------</span>
 <span class="co"># Argument colors</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"lower"</span>,
-   <span class="dt">outline.col =</span> <span class="st">"white"</span>,
-   <span class="dt">ggtheme =</span> ggplot2<span class="op">::</span>theme_gray,
-   <span class="dt">colors =</span> <span class="kw">c</span>(<span class="st">"#6D9EC1"</span>, <span class="st">"white"</span>, <span class="st">"#E46726"</span>))</code></pre></div>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(
+  corr,
+  <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+  <span class="dt">type =</span> <span class="st">"lower"</span>,
+  <span class="dt">outline.color =</span> <span class="st">"white"</span>,
+  <span class="dt">ggtheme =</span> ggplot2<span class="op">::</span>theme_gray,
+  <span class="dt">colors =</span> <span class="kw">c</span>(<span class="st">"#6D9EC1"</span>, <span class="st">"white"</span>, <span class="st">"#E46726"</span>)
+)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-6.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
@@ -184,8 +192,10 @@ ggcorrplot: visualize correlation matrix using ggplot2
 <span class="co"># Add correlation coefficients</span>
 <span class="co"># --------------------------------</span>
 <span class="co"># argument lab = TRUE</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"lower"</span>,
-   <span class="dt">lab =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr,
+           <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+           <span class="dt">type =</span> <span class="st">"lower"</span>,
+           <span class="dt">lab =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-7.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
@@ -196,16 +206,24 @@ ggcorrplot: visualize correlation matrix using ggplot2
 <span class="co"># --------------------------------</span>
 <span class="co"># Argument p.mat</span>
 <span class="co"># Barring the no significant coefficient</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
-    <span class="dt">type =</span> <span class="st">"lower"</span>, <span class="dt">p.mat =</span> p.mat)</code></pre></div>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr,
+           <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+           <span class="dt">type =</span> <span class="st">"lower"</span>,
+           <span class="dt">p.mat =</span> p.mat)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-8.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
 </p>
 </div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Leave blank on no significant coefficient</span>
-<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(corr, <span class="dt">p.mat =</span> p.mat, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
-    <span class="dt">type =</span> <span class="st">"lower"</span>, <span class="dt">insig =</span> <span class="st">"blank"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># Leave blank on no significant coefficient</span>
+<span class="kw"><a href="reference/ggcorrplot.html">ggcorrplot</a></span>(
+  corr,
+  <span class="dt">p.mat =</span> p.mat,
+  <span class="dt">hc.order =</span> <span class="ot">TRUE</span>,
+  <span class="dt">type =</span> <span class="st">"lower"</span>,
+  <span class="dt">insig =</span> <span class="st">"blank"</span>
+)</code></pre></div>
 <div class="figure">
 <img src="tools/README-demo-ggcorrplot-9.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="480"><p class="caption">
 ggcorrplot: visualize correlation matrix using ggplot2
@@ -241,7 +259,9 @@ ggcorrplot: visualize correlation matrix using ggplot2
       <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="http://cran.r-project.org/package=ggcorrplot"><img src="http://www.r-pkg.org/badges/version/ggcorrplot" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/package=ggcorrplot"><img src="https://www.r-pkg.org/badges/version/ggcorrplot" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/web/checks/check_results_ggcorrplot.html"><img src="https://cranchecks.info/badges/summary/ggcorrplot" alt="CRAN Checks"></a></li>
+<li><a href="https://github.com/kassambara/ggcorrplot"><img src="https://img.shields.io/badge/Package%20version-0.1.2.999-orange.svg?style=flat-square" alt="packageversion"></a></li>
 </ul>
 </div>
 </div>

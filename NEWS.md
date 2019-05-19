@@ -1,5 +1,9 @@
 # ggcorrplot 0.1.2.999
+  
+## New features
    
+- Support an object of class `cor_mat` as returned by the function `cor_mat()` [rstatix package]
+
 ## Minor changes
    
 Merging with pull request 16 (@IndrajeetPatil, [#16](https://github.com/kassambara/ggcorrplot/pull/16)), which addresses the following issues: 

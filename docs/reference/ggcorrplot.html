@@ -317,24 +317,24 @@ text label (variable names).</p></td>
 <span class='co'># Reordering the correlation matrix</span>
 <span class='co'># --------------------------------</span>
 <span class='co'># using hierarchical clustering</span>
-<span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>, <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>outline.col</span> <span class='kw'>=</span> <span class='st'>"white"</span>)</div><div class='img'><img src='ggcorrplot-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>, <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>outline.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>)</div><div class='img'><img src='ggcorrplot-3.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Types of correlogram layout</span>
 <span class='co'># --------------------------------</span>
 <span class='co'># Get the lower triangle</span>
 <span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>,
   <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"lower"</span>,
-  <span class='kw'>outline.col</span> <span class='kw'>=</span> <span class='st'>"white"</span>
+  <span class='kw'>outline.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>
 )</div><div class='img'><img src='ggcorrplot-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># Get the upeper triangle</span>
 <span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>,
   <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"upper"</span>,
-  <span class='kw'>outline.col</span> <span class='kw'>=</span> <span class='st'>"white"</span>
+  <span class='kw'>outline.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>
 )</div><div class='img'><img src='ggcorrplot-5.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Change colors and theme</span>
 <span class='co'># --------------------------------</span>
 <span class='co'># Argument colors</span>
 <span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>,
   <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"lower"</span>,
-  <span class='kw'>outline.col</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>outline.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>ggtheme</span> <span class='kw'>=</span> <span class='kw pkg'>ggplot2</span><span class='kw ns'>::</span><span class='no'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/ggtheme'>theme_gray</a></span>,
   <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"#6D9EC1"</span>, <span class='st'>"white"</span>, <span class='st'>"#E46726"</span>)
 )</div><div class='img'><img src='ggcorrplot-6.png' alt='' width='700' height='433' /></div><div class='input'>
@@ -357,7 +357,15 @@ text label (variable names).</p></td>
 <span class='fu'>ggcorrplot</span>(<span class='no'>corr</span>,
   <span class='kw'>p.mat</span> <span class='kw'>=</span> <span class='no'>p.mat</span>, <span class='kw'>hc.order</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"lower"</span>, <span class='kw'>insig</span> <span class='kw'>=</span> <span class='st'>"blank"</span>
-)</div><div class='img'><img src='ggcorrplot-9.png' alt='' width='700' height='433' /></div></pre>
+)</div><div class='img'><img src='ggcorrplot-9.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Changing number of digits for correlation coeffcient</span>
+<span class='co'># --------------------------------</span>
+<span class='fu'>ggcorrplot</span>(<span class='fu'>cor</span>(<span class='no'>mtcars</span>),
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"lower"</span>,
+  <span class='kw'>insig</span> <span class='kw'>=</span> <span class='st'>"blank"</span>,
+  <span class='kw'>lab</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>3</span>
+)</div><div class='img'><img src='ggcorrplot-10.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
