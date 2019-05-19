@@ -8,8 +8,8 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  out.width = "100%",
-  dpi = 300,
+  # out.width = "100%",
+  # dpi = 300,
   fig.path = "tools/README-",
   fig.cap = "ggcorrplot: visualize correlation matrix using ggplot2"
 )
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
     
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
 [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.9000-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.999-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
 
 
 # ggcorrplot: Visualization of a correlation matrix using ggplot2

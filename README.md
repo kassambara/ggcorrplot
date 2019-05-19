@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html) [![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.9000-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html) [![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.999-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
 
 ggcorrplot: Visualization of a correlation matrix using ggplot2
 ===============================================================
@@ -73,20 +73,14 @@ Correlation matrix visualization
 ggcorrplot(corr)
 ```
 
-<img src="tools/README-demo-ggcorrplot-1.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-1.png)
 
 ``` r
 # method = "circle"
 ggcorrplot(corr, method = "circle")
 ```
 
-<img src="tools/README-demo-ggcorrplot-2.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-2.png)
 
 ``` r
 
@@ -96,10 +90,7 @@ ggcorrplot: visualize correlation matrix using ggplot2
 ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 ```
 
-<img src="tools/README-demo-ggcorrplot-3.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-3.png)
 
 ``` r
 
@@ -112,10 +103,7 @@ ggcorrplot(corr,
            outline.color = "white")
 ```
 
-<img src="tools/README-demo-ggcorrplot-4.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-4.png)
 
 ``` r
 
@@ -126,10 +114,7 @@ ggcorrplot(corr,
            outline.color = "white")
 ```
 
-<img src="tools/README-demo-ggcorrplot-5.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-5.png)
 
 ``` r
 
@@ -146,10 +131,7 @@ ggcorrplot(
 )
 ```
 
-<img src="tools/README-demo-ggcorrplot-6.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-6.png)
 
 ``` r
 
@@ -162,10 +144,7 @@ ggcorrplot(corr,
            lab = TRUE)
 ```
 
-<img src="tools/README-demo-ggcorrplot-7.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-7.png)
 
 ``` r
 
@@ -179,10 +158,7 @@ ggcorrplot(corr,
            p.mat = p.mat)
 ```
 
-<img src="tools/README-demo-ggcorrplot-8.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-8.png)
 
 ``` r
 
@@ -196,7 +172,4 @@ ggcorrplot(
 )
 ```
 
-<img src="tools/README-demo-ggcorrplot-9.png" alt="ggcorrplot: visualize correlation matrix using ggplot2" width="100%" />
-<p class="caption">
-ggcorrplot: visualize correlation matrix using ggplot2
-</p>
+![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-9.png)
