@@ -6,3 +6,5 @@
 ^revdep$
 ^docs$
 ^_pkgdown\.yml$
+tests\^spelling
+^\.travis\.yml$
