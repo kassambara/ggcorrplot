@@ -1,7 +1,7 @@
 Package: ggcorrplot
 Type: Package
 Title: Visualization of a Correlation Matrix using 'ggplot2'
-Version: 0.1.2
+Version: 0.1.2.999
 Date: 2018-09-11
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
@@ -11,6 +11,7 @@ Description: The 'ggcorrplot' package can be used to visualize easily a
     includes a function for computing a matrix of correlation p-values.
 License: GPL-2
 LazyData: TRUE
+Encoding: UTF-8
 Depends:
     ggplot2
 Imports:
@@ -20,4 +21,4 @@ Suggests:
     knitr
 URL: http://www.sthda.com/english/wiki/ggcorrplot
 BugReports: https://github.com/kassambara/ggcorrplot/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
