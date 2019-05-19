@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Build Status](https://api.travis-ci.org/kassambara/ggcorrplot.png)](https://travis-ci.org/kassambara/ggcorrplot) [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html) [![packageversion](https://img.shields.io/badge/Package%20version-0.1.2.999-orange.svg?style=flat-square)](https://github.com/kassambara/ggcorrplot)
+[![Build Status](https://api.travis-ci.org/kassambara/ggcorrplot.png)](https://travis-ci.org/kassambara/ggcorrplot) [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html) [![Downloads](https://cranlogs.r-pkg.org/badges/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
 
 ggcorrplot: Visualization of a correlation matrix using ggplot2
 ===============================================================
