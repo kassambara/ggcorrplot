@@ -52,45 +52,45 @@
 #' data(mtcars)
 #' corr <- round(cor(mtcars), 1)
 #' corr
-#' 
+#'
 #' # Compute a matrix of correlation p-values
 #' p.mat <- cor_pmat(mtcars)
 #' p.mat
-#' 
+#'
 #' # Visualize the correlation matrix
 #' # --------------------------------
 #' # method = "square" or "circle"
 #' ggcorrplot(corr)
 #' ggcorrplot(corr, method = "circle")
-#' 
+#'
 #' # Reordering the correlation matrix
 #' # --------------------------------
 #' # using hierarchical clustering
-#' ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
-#' 
+#' ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+#'
 #' # Types of correlogram layout
 #' # --------------------------------
 #' # Get the lower triangle
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "lower",
-#'   outline.col = "white"
+#'   outline.color = "white"
 #' )
 #' # Get the upeper triangle
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "upper",
-#'   outline.col = "white"
+#'   outline.color = "white"
 #' )
-#' 
+#'
 #' # Change colors and theme
 #' # --------------------------------
 #' # Argument colors
 #' ggcorrplot(corr,
 #'   hc.order = TRUE, type = "lower",
-#'   outline.col = "white",
+#'   outline.color = "white",
 #'   ggtheme = ggplot2::theme_gray,
 #'   colors = c("#6D9EC1", "white", "#E46726")
 #' )
-#' 
+#'
 #' # Add correlation coefficients
 #' # --------------------------------
 #' # argument lab = TRUE
@@ -99,7 +99,7 @@
 #'   lab = TRUE,
 #'   ggtheme = ggplot2::theme_dark(),
 #' )
-#' 
+#'
 #' # Add correlation significance level
 #' # --------------------------------
 #' # Argument p.mat
@@ -113,19 +113,45 @@
 #'   p.mat = p.mat, hc.order = TRUE,
 #'   type = "lower", insig = "blank"
 #' )
+#'
+#' # Changing number of digits for correlation coeffcient
+#' # --------------------------------
+#' ggcorrplot(cor(mtcars),
+#'   type = "lower",
+#'   insig = "blank",
+#'   lab = TRUE,
+#'   digits = 3
+#' )
 #' @name ggcorrplot
 #' @rdname ggcorrplot
 #' @export
-ggcorrplot <- function(corr, method = c("square", "circle"),
+
+# function body
+ggcorrplot <- function(corr,
+                       method = c("square", "circle"),
                        type = c("full", "lower", "upper"),
                        ggtheme = ggplot2::theme_minimal,
-                       title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE,
-                       colors = c("blue", "white", "red"), outline.color = "gray",
-                       hc.order = FALSE, hc.method = "complete",
-                       lab = FALSE, lab_col = "black", lab_size = 4,
-                       p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"),
-                       pch = 4, pch.col = "black", pch.cex = 5,
-                       tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2) {
+                       title = "",
+                       show.legend = TRUE,
+                       legend.title = "Corr",
+                       show.diag = FALSE,
+                       colors = c("blue", "white", "red"),
+                       outline.color = "gray",
+                       hc.order = FALSE,
+                       hc.method = "complete",
+                       lab = FALSE,
+                       lab_col = "black",
+                       lab_size = 4,
+                       p.mat = NULL,
+                       sig.level = 0.05,
+                       insig = c("pch", "blank"),
+                       pch = 4,
+                       pch.col = "black",
+                       pch.cex = 5,
+                       tl.cex = 12,
+                       tl.col = "black",
+                       tl.srt = 45,
+                       digits = 2) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -155,11 +181,13 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
     corr <- .get_upper_tri(corr, show.diag)
     p.mat <- .get_upper_tri(p.mat, show.diag)
   }
+
   # Melt corr and pmat
   corr <- reshape2::melt(corr, na.rm = TRUE)
   colnames(corr) <- c("Var1", "Var2", "value")
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
+
   if (!is.null(p.mat)) {
     p.mat <- reshape2::melt(p.mat, na.rm = TRUE)
     corr$coef <- corr$value
@@ -173,23 +201,37 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
 
   corr$abs_corr <- abs(corr$value) * 10
 
-  # Heatmap
+  # heatmap
   p <-
-    ggplot2::ggplot(corr, ggplot2::aes_string("Var1", "Var2", fill = "value"))
+    ggplot2::ggplot(
+      data = corr,
+      mapping = ggplot2::aes_string(x = "Var1", y = "Var2", fill = "value")
+    )
+
+  # modification based on method
   if (method == "square") {
-    p <- p + ggplot2::geom_tile(color = outline.color)
+    p <- p +
+      ggplot2::geom_tile(color = outline.color)
   } else if (method == "circle") {
-    p <- p + ggplot2::geom_point(
-      color = outline.color,
-      shape = 21, ggplot2::aes_string(size = "abs_corr")
-    ) +
-      ggplot2::scale_size(range = c(4, 10)) + ggplot2::guides(size = FALSE)
+    p <- p +
+      ggplot2::geom_point(
+        color = outline.color,
+        shape = 21,
+        ggplot2::aes_string(size = "abs_corr")
+      ) +
+      ggplot2::scale_size(range = c(4, 10)) +
+      ggplot2::guides(size = FALSE)
   }
 
+  # adding colors
   p <-
     p + ggplot2::scale_fill_gradient2(
-      low = colors[1], high = colors[3], mid = colors[2],
-      midpoint = 0, limit = c(-1, 1), space = "Lab",
+      low = colors[1],
+      high = colors[3],
+      mid = colors[2],
+      midpoint = 0,
+      limit = c(-1, 1),
+      space = "Lab",
       name = legend.title
     )
 
@@ -204,40 +246,54 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
   p <- p +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
-        angle = tl.srt, vjust = 1, size = tl.cex, hjust = 1
+        angle = tl.srt,
+        vjust = 1,
+        size = tl.cex,
+        hjust = 1
       ),
       axis.text.y = ggplot2::element_text(size = tl.cex)
     ) +
     ggplot2::coord_fixed()
 
-  label <- round(corr[, "value"], 2)
+  label <- round(x = corr[, "value"], digits = digits)
+
+  # matrix cell labels
   if (lab) {
     p <- p +
       ggplot2::geom_text(
-        ggplot2::aes_string("Var1", "Var2"),
+        mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
         label = label,
-        color = lab_col, size = lab_size
+        color = lab_col,
+        size = lab_size
       )
   }
 
+  # matrix cell glyphs
   if (!is.null(p.mat) & insig == "pch") {
     p <- p + ggplot2::geom_point(
       data = p.mat,
-      ggplot2::aes_string("Var1", "Var2"),
-      shape = pch, size = pch.cex, color = pch.col
+      mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
+      shape = pch,
+      size = pch.cex,
+      color = pch.col
     )
   }
 
-  # Add titles
+  # add titles
   if (title != "") {
-    p <- p + ggplot2::ggtitle(title)
+    p <- p +
+      ggplot2::ggtitle(title)
   }
+
+  # removing legend
   if (!show.legend) {
-    p <- p + ggplot2::theme(legend.position = "none")
+    p <- p +
+      ggplot2::theme(legend.position = "none")
   }
 
-
-  p <- p + .no_panel()
+  # removing panel
+  p <- p +
+    .no_panel()
   p
 }
 
@@ -249,21 +305,29 @@ ggcorrplot <- function(corr, method = c("square", "circle"),
 #' @param ... other arguments to be passed to the function cor.test.
 #' @rdname ggcorrplot
 #' @export
+
 cor_pmat <- function(x, ...) {
+
+  # initializing values
   mat <- as.matrix(x)
   n <- ncol(mat)
   p.mat <- matrix(NA, n, n)
   diag(p.mat) <- 0
+
+  # creating the p-value matrix
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
       tmp <- stats::cor.test(mat[, i], mat[, j], ...)
       p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
     }
   }
+
+  # name rows and columns of the p-value matrix
   colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+
+  # return the final matrix
   p.mat
 }
-
 
 
 

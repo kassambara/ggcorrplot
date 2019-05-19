@@ -18,7 +18,9 @@ Imports:
     reshape2,
     stats
 Suggests:
-    knitr
+    knitr,
+    spelling
 URL: http://www.sthda.com/english/wiki/ggcorrplot
 BugReports: https://github.com/kassambara/ggcorrplot/issues
 RoxygenNote: 6.1.1
+Language: en-US
