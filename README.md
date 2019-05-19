@@ -4,7 +4,7 @@
 ggcorrplot: Visualization of a correlation matrix using ggplot2
 ===============================================================
 
-The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides a solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**. It's inspired from the package [corrplot](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram).
+The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides a solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**.
 
 Find out more at <http://www.sthda.com/english/wiki/ggcorrplot>.
 
@@ -28,6 +28,7 @@ devtools::install_github("kassambara/ggcorrplot")
 ``` r
 # Loading
 library(ggcorrplot)
+#> Loading required package: ggplot2
 ```
 
 Getting started

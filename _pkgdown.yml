@@ -1,0 +1,8 @@
+templates:
+  params:
+    bootswatch: lumen
+    ganalytics: UA-54921687-5
+reference:
+  - title: Correlation analysis
+    contents:
+      - ggcorrplot
