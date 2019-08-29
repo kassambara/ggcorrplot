@@ -13,7 +13,7 @@ ggcorrplot(corr, method = c("square", "circle"), type = c("full",
   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05,
   insig = c("pch", "blank"), pch = 4, pch.col = "black",
   pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45,
-  digits = 2)
+  digits = 2, as.is = FALSE)
 
 cor_pmat(x, ...)
 }
@@ -77,6 +77,10 @@ text label (variable names).}
 
 \item{digits}{Decides the number of decimal digits to be displayed (Default:
 `2`).}
+
+\item{as.is}{A logical passed to \code{\link[reshape2]{melt.array}}. If
+\code{TRUE}, dimnames will be left as strings instead of being converted
+using \code{\link[utils]{type.convert}}.}
 
 \item{x}{numeric matrix or data frame}
 

@@ -42,6 +42,9 @@
 #'   text label (variable names).
 #' @param digits Decides the number of decimal digits to be displayed (Default:
 #'   `2`).
+#' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
+#' \code{TRUE}, dimnames will be left as strings instead of being converted
+#' using \code{\link[utils]{type.convert}}.
 #' @return
 #' \itemize{
 #'  \item ggcorrplot(): Returns a ggplot2
@@ -151,7 +154,8 @@ ggcorrplot <- function(corr,
                        tl.cex = 12,
                        tl.col = "black",
                        tl.srt = 45,
-                       digits = 2) {
+                       digits = 2,
+                       as.is = FALSE) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -190,7 +194,7 @@ ggcorrplot <- function(corr,
   }
 
   # Melt corr and pmat
-  corr <- reshape2::melt(corr, na.rm = TRUE)
+  corr <- reshape2::melt(corr, na.rm = TRUE, as.is = as.is)
   colnames(corr) <- c("Var1", "Var2", "value")
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
