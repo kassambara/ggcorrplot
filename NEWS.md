@@ -4,6 +4,9 @@
 
 ## Minor changes
   
+- New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames will be left as strings instead of being converted using type.convert (@fdetsch, [#24](https://github.com/kassambara/ggcorrplot/pull/24)).  
+    
+    
 # ggcorrplot 0.1.3
   
 ## New features
