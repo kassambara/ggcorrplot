@@ -175,7 +175,9 @@ ggcorrplot <- function(corr,
   corr <- base::round(x = corr, digits = digits)
 
   if (hc.order) {
-    ord <- .hc_cormat_order(corr)
+    dd <- stats::as.dist((1 - corr) / 2)
+    hc <- stats::hclust(dd, method = hc.method)
+    ord <- hc$order
     corr <- corr[ord, ord]
     if (!is.null(p.mat)) {
       p.mat <- p.mat[ord, ord]
@@ -373,13 +375,6 @@ cor_pmat <- function(x, ...) {
     diag(cormat) <- NA
   }
   return(cormat)
-}
-
-# hc.order correlation matrix
-.hc_cormat_order <- function(cormat, hc.method = "complete") {
-  dd <- stats::as.dist((1 - cormat) / 2)
-  hc <- stats::hclust(dd, method = hc.method)
-  hc$order
 }
 
 .no_panel <- function() {
