@@ -183,6 +183,11 @@ ggcorrplot <- function(corr,
     }
   }
 
+  if(!show.diag){
+    corr <- .remove_diag(corr)
+    p.mat <- .remove_diag(corr)
+  }
+
   # Get lower or upper triangle
   if (type == "lower") {
     corr <- .get_lower_tri(corr, show.diag)
@@ -375,6 +380,13 @@ cor_pmat <- function(x, ...) {
   return(cormat)
 }
 
+.remove_diag <- function(cormat){
+  if (is.null(cormat)) {
+    return(cormat)
+  }
+  diag(cormat) <- NA
+  cormat
+}
 # hc.order correlation matrix
 .hc_cormat_order <- function(cormat, hc.method = "complete") {
   dd <- stats::as.dist((1 - cormat) / 2)

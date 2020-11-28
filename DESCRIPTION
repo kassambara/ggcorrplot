@@ -22,5 +22,5 @@ Suggests:
     spelling
 URL: http://www.sthda.com/english/wiki/ggcorrplot
 BugReports: https://github.com/kassambara/ggcorrplot/issues
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Language: en-US

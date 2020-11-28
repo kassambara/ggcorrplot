@@ -5,7 +5,12 @@
 ## Minor changes
   
 - New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames will be left as strings instead of being converted using type.convert (@fdetsch, [#24](https://github.com/kassambara/ggcorrplot/pull/24)).  
-    
+ 
+ 
+## Bug fixes
+
+
+- The option `show.diag` now works for full matrix (@arbet003 , #31)
     
 # ggcorrplot 0.1.3
   
