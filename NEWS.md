@@ -10,6 +10,7 @@
 ## Bug fixes
 
 
+- The option `hc.method` is now taken into account (#mitchelfruin, #29)
 - The option `show.diag` now works for full matrix (@arbet003 , #31)
     
 # ggcorrplot 0.1.3

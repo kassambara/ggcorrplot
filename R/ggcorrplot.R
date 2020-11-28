@@ -178,7 +178,7 @@ ggcorrplot <- function(corr,
   corr <- base::round(x = corr, digits = digits)
 
   if (hc.order) {
-    ord <- .hc_cormat_order(corr)
+    ord <- .hc_cormat_order(corr, hc.method = hc.method)
     corr <- corr[ord, ord]
     if (!is.null(p.mat)) {
       p.mat <- p.mat[ord, ord]
