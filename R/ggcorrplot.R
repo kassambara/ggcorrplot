@@ -15,8 +15,10 @@
 #' @param show.legend logical, if TRUE the legend is displayed.
 #' @param legend.title a character string for the legend title. lower
 #'   triangular, upper triangular or full matrix.
-#' @param show.diag logical, whether display the correlation coefficients on the
-#'   principal diagonal.
+#' @param show.diag NULL or logical, whether display the correlation
+#'   coefficients on the principal diagonal. If \code{NULL}, the default is to
+#'   show diagonal correlation for \code{type = "full"} and to remove it when
+#'   \code{type} is one of "upper" or "lower".
 #' @param colors a vector of 3 colors for low, mid and high correlation values.
 #' @param outline.color the outline color of square or circle. Default value is
 #'   "gray".
@@ -43,13 +45,10 @@
 #' @param digits Decides the number of decimal digits to be displayed (Default:
 #'   `2`).
 #' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
-#' \code{TRUE}, dimnames will be left as strings instead of being converted
-#' using \code{\link[utils]{type.convert}}.
-#' @return
-#' \itemize{
-#'  \item ggcorrplot(): Returns a ggplot2
-#'  \item cor_pmat(): Returns a matrix containing the p-values of correlations
-#'  }
+#'   \code{TRUE}, dimnames will be left as strings instead of being converted
+#'   using \code{\link[utils]{type.convert}}.
+#' @return \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
+#' Returns a matrix containing the p-values of correlations }
 #' @examples
 #' # Compute a correlation matrix
 #' data(mtcars)
@@ -137,7 +136,7 @@ ggcorrplot <- function(corr,
                        title = "",
                        show.legend = TRUE,
                        legend.title = "Corr",
-                       show.diag = FALSE,
+                       show.diag = NULL,
                        colors = c("blue", "white", "red"),
                        outline.color = "gray",
                        hc.order = FALSE,
@@ -159,6 +158,10 @@ ggcorrplot <- function(corr,
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
+  if(is.null(show.diag)){
+    if(type == "full") show.diag <- TRUE
+    else show.diag <- FALSE
+  }
 
   if(inherits(corr, "cor_mat")){
     # cor_mat object from rstatix

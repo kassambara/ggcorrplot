@@ -13,7 +13,7 @@ ggcorrplot(
   title = "",
   show.legend = TRUE,
   legend.title = "Corr",
-  show.diag = FALSE,
+  show.diag = NULL,
   colors = c("blue", "white", "red"),
   outline.color = "gray",
   hc.order = FALSE,
@@ -56,8 +56,10 @@ objects are also allowed (e.g., `theme_classic()`).}
 \item{legend.title}{a character string for the legend title. lower
 triangular, upper triangular or full matrix.}
 
-\item{show.diag}{logical, whether display the correlation coefficients on the
-principal diagonal.}
+\item{show.diag}{NULL or logical, whether display the correlation
+coefficients on the principal diagonal. If \code{NULL}, the default is to
+show diagonal correlation for \code{type = "full"} and to remove it when
+\code{type} is one of "upper" or "lower".}
 
 \item{colors}{a vector of 3 colors for low, mid and high correlation values.}
 
@@ -106,10 +108,8 @@ using \code{\link[utils]{type.convert}}.}
 \item{...}{other arguments to be passed to the function cor.test.}
 }
 \value{
-\itemize{
- \item ggcorrplot(): Returns a ggplot2
- \item cor_pmat(): Returns a matrix containing the p-values of correlations
- }
+\itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
+Returns a matrix containing the p-values of correlations }
 }
 \description{
 \itemize{ \item ggcorrplot(): A graphical display of a
