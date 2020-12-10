@@ -188,7 +188,7 @@ ggcorrplot <- function(corr,
 
   if(!show.diag){
     corr <- .remove_diag(corr)
-    p.mat <- .remove_diag(corr)
+    p.mat <- .remove_diag(p.mat)
   }
 
   # Get lower or upper triangle
