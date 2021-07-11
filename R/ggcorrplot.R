@@ -158,12 +158,15 @@ ggcorrplot <- function(corr,
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
-  if(is.null(show.diag)){
-    if(type == "full") show.diag <- TRUE
-    else show.diag <- FALSE
+  if (is.null(show.diag)) {
+    if (type == "full") {
+      show.diag <- TRUE
+    } else {
+      show.diag <- FALSE
+    }
   }
 
-  if(inherits(corr, "cor_mat")){
+  if (inherits(corr, "cor_mat")) {
     # cor_mat object from rstatix
     cor.mat <- corr
     corr <- .tibble_to_matrix(cor.mat)
@@ -186,7 +189,7 @@ ggcorrplot <- function(corr,
     }
   }
 
-  if(!show.diag){
+  if (!show.diag) {
     corr <- .remove_diag(corr)
     p.mat <- .remove_diag(p.mat)
   }
@@ -195,8 +198,7 @@ ggcorrplot <- function(corr,
   if (type == "lower") {
     corr <- .get_lower_tri(corr, show.diag)
     p.mat <- .get_lower_tri(p.mat, show.diag)
-  }
-  else if (type == "upper") {
+  } else if (type == "upper") {
     corr <- .get_upper_tri(corr, show.diag)
     p.mat <- .get_upper_tri(p.mat, show.diag)
   }
@@ -240,20 +242,19 @@ ggcorrplot <- function(corr,
         ggplot2::aes_string(size = "abs_corr")
       ) +
       ggplot2::scale_size(range = c(4, 10)) +
-      ggplot2::guides(size = FALSE)
+      ggplot2::guides(size = "none")
   }
 
   # adding colors
-  p <-
-    p + ggplot2::scale_fill_gradient2(
-      low = colors[1],
-      high = colors[3],
-      mid = colors[2],
-      midpoint = 0,
-      limit = c(-1, 1),
-      space = "Lab",
-      name = legend.title
-    )
+  p <- p + ggplot2::scale_fill_gradient2(
+    low = colors[1],
+    high = colors[3],
+    mid = colors[2],
+    midpoint = 0,
+    limit = c(-1, 1),
+    space = "Lab",
+    name = legend.title
+  )
 
   # depending on the class of the object, add the specified theme
   if (class(ggtheme)[[1]] == "function") {
@@ -276,9 +277,9 @@ ggcorrplot <- function(corr,
     ggplot2::coord_fixed()
 
   label <- round(x = corr[, "value"], digits = digits)
-  if(!is.null(p.mat) & insig == "blank"){
+  if (!is.null(p.mat) & insig == "blank") {
     ns <- corr$pvalue > sig.level
-    if(sum(ns) > 0) label[ns] <- " "
+    if (sum(ns) > 0) label[ns] <- " "
   }
 
   # matrix cell labels
@@ -383,7 +384,7 @@ cor_pmat <- function(x, ...) {
   return(cormat)
 }
 
-.remove_diag <- function(cormat){
+.remove_diag <- function(cormat) {
   if (is.null(cormat)) {
     return(cormat)
   }
@@ -406,8 +407,8 @@ cor_pmat <- function(x, ...) {
 
 
 # Convert a tbl to matrix
-.tibble_to_matrix <- function(x){
-  x <-  as.data.frame(x)
+.tibble_to_matrix <- function(x) {
+  x <- as.data.frame(x)
   rownames(x) <- x[, 1]
   x <- x[, -1]
   as.matrix(x)
