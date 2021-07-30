@@ -364,7 +364,7 @@ cor_pmat <- function(x, ...) {
   if (is.null(cormat)) {
     return(cormat)
   }
-  cormat[upper.tri(cormat)] <- NA
+  cormat[lower.tri(cormat)] <- NA
   if (!show.diag) {
     diag(cormat) <- NA
   }
@@ -376,7 +376,7 @@ cor_pmat <- function(x, ...) {
   if (is.null(cormat)) {
     return(cormat)
   }
-  cormat[lower.tri(cormat)] <- NA
+  cormat[upper.tri(cormat)] <- NA
   if (!show.diag) {
     diag(cormat) <- NA
   }
