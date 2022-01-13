@@ -16,11 +16,12 @@ Depends:
     ggplot2
 Imports:
     reshape2,
-    stats
+    stats,
+    ggtext
 Suggests:
     knitr,
     spelling
 URL: http://www.sthda.com/english/wiki/ggcorrplot
 BugReports: https://github.com/kassambara/ggcorrplot/issues
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
 Language: en-US

@@ -1,5 +1,5 @@
 #' Visualization of a correlation matrix using ggplot2
-#' @import ggplot2
+#' @import ggplot2 ggtext
 #' @description \itemize{ \item ggcorrplot(): A graphical display of a
 #'   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
 #'   matrix p-values. }
@@ -273,6 +273,8 @@ ggcorrplot <- function(corr,
       ),
       axis.text.y = ggplot2::element_text(size = tl.cex)
     ) +
+    ggplot2::theme(axis.text.x = ggtext::element_markdown(colour = tl.col),
+                   axis.text.y = ggtext::element_markdown(colour = tl.col))+
     ggplot2::coord_fixed()
 
   label <- round(x = corr[, "value"], digits = digits)

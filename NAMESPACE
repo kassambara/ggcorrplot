@@ -3,3 +3,4 @@
 export(cor_pmat)
 export(ggcorrplot)
 import(ggplot2)
+import(ggtext)
