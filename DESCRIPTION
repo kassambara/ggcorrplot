@@ -1,26 +1,38 @@
-Package: ggcorrplot
 Type: Package
+Package: ggcorrplot
 Title: Visualization of a Correlation Matrix using 'ggplot2'
-Version: 0.1.3.999
-Date: 2019-05-19
-Authors@R: c(
-    person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
+Version: 0.1.4
+Date: 2021-07-11
+Authors@R: 
+    c(person(given = "Alboukadel",
+             family = "Kassambara",
+             role = c("aut", "cre"),
+             email = "alboukadel.kassambara@gmail.com"),
+      person(given = "Indrajeet",
+             family = "Patil",
+             role = "ctb",
+             email = "patilindrajeet.science@gmail.com",
+             comment = c(ORCID = "0000-0003-1995-6531", Twitter = "@patilindrajeets")))
 Description: The 'ggcorrplot' package can be used to visualize easily a
-    correlation matrix using 'ggplot2'. It provides a solution for reordering the
-    correlation matrix and displays the significance level on the plot. It also
-    includes a function for computing a matrix of correlation p-values.
+    correlation matrix using 'ggplot2'. It provides a solution for
+    reordering the correlation matrix and displays the significance level
+    on the plot. It also includes a function for computing a matrix of
+    correlation p-values.
 License: GPL-2
-LazyData: TRUE
-Encoding: UTF-8
+URL: http://www.sthda.com/english/wiki/ggcorrplot
+BugReports: https://github.com/kassambara/ggcorrplot/issues
 Depends:
-    ggplot2
+    R (>= 3.3),
+    ggplot2 (>= 3.3.5)
 Imports:
     reshape2,
     stats
 Suggests:
+    testthat (>= 3.0.0),
     knitr,
-    spelling
-URL: http://www.sthda.com/english/wiki/ggcorrplot
-BugReports: https://github.com/kassambara/ggcorrplot/issues
-RoxygenNote: 7.1.0
+    spelling,
+    vdiffr (>= 1.0.0)
+Encoding: UTF-8
 Language: en-US
+RoxygenNote: 7.1.0
+Config/testthat/edition: 3
