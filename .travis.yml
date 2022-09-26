@@ -1,7 +1,0 @@
-language: r
-r_packages:
- - ggplot2
- - reshape2
- - stats
- - devtools
-sudo: required
