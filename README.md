@@ -1,16 +1,27 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Build Status](https://api.travis-ci.org/kassambara/ggcorrplot.png)](https://travis-ci.org/kassambara/ggcorrplot) [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![CRAN Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html) [![Downloads](https://cranlogs.r-pkg.org/badges/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot) [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
 
-ggcorrplot: Visualization of a correlation matrix using ggplot2
-===============================================================
+[![Build
+Status](https://api.travis-ci.org/kassambara/ggcorrplot.png)](https://travis-ci.org/kassambara/ggcorrplot)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
+[![CRAN
+Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
+[![Downloads](https://cranlogs.r-pkg.org/badges/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
+[![Total
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
 
-The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides a solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**.
+# ggcorrplot: Visualization of a correlation matrix using ggplot2
 
-Find out more at <http://www.sthda.com/english/wiki/ggcorrplot>.
+The **ggcorrplot** package can be used to **visualize easily** a
+**correlation matrix** using **ggplot2**. It provides a solution for
+**reordering** the correlation matrix and displays the **significance
+level** on the correlogram. It includes also a function for computing a
+matrix of **correlation p-values**.
 
-Installation and loading
-------------------------
+Find out more at
+<http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2>.
+
+## Installation and loading
 
 ggcorrplot can be installed from `CRAN` as follow:
 
@@ -31,12 +42,13 @@ devtools::install_github("kassambara/ggcorrplot")
 library(ggcorrplot)
 ```
 
-Getting started
----------------
+## Getting started
 
 ### Compute a correlation matrix
 
-The *mtcars* data set will be used in the following R code. The function **cor\_pmat()** \[in **ggcorrplot**\] computes a matrix of correlation p-values.
+The *mtcars* data set will be used in the following R code. The function
+**cor\_pmat()** \[in **ggcorrplot**\] computes a matrix of correlation
+p-values.
 
 ``` r
 # Compute a correlation matrix
@@ -63,8 +75,7 @@ head(p.mat[, 1:4])
 #> wt   1.293959e-10 1.217567e-07 1.222320e-11 4.145827e-05
 ```
 
-Correlation matrix visualization
---------------------------------
+## Correlation matrix visualization
 
 ``` r
 # Visualize the correlation matrix
@@ -73,14 +84,18 @@ Correlation matrix visualization
 ggcorrplot(corr)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-1.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-1.png)
 
 ``` r
 # method = "circle"
 ggcorrplot(corr, method = "circle")
+#> Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> =
+#> "none")` instead.
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-2.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-2.png)
 
 ``` r
 
@@ -90,7 +105,8 @@ ggcorrplot(corr, method = "circle")
 ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-3.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-3.png)
 
 ``` r
 
@@ -103,7 +119,8 @@ ggcorrplot(corr,
            outline.color = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-4.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-4.png)
 
 ``` r
 
@@ -114,7 +131,8 @@ ggcorrplot(corr,
            outline.color = "white")
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-5.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-5.png)
 
 ``` r
 
@@ -131,7 +149,8 @@ ggcorrplot(
 )
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-6.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-6.png)
 
 ``` r
 
@@ -144,7 +163,8 @@ ggcorrplot(corr,
            lab = TRUE)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-7.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-7.png)
 
 ``` r
 
@@ -158,7 +178,8 @@ ggcorrplot(corr,
            p.mat = p.mat)
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-8.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-8.png)
 
 ``` r
 
@@ -172,4 +193,5 @@ ggcorrplot(
 )
 ```
 
-![ggcorrplot: visualize correlation matrix using ggplot2](tools/README-demo-ggcorrplot-9.png)
+![ggcorrplot: visualize correlation matrix using
+ggplot2](tools/README-demo-ggcorrplot-9.png)
