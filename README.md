@@ -1,8 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Build
-Status](https://api.travis-ci.org/kassambara/ggcorrplot.png)](https://travis-ci.org/kassambara/ggcorrplot)
+[![R build
+status](https://github.com/kassambara/ggcorrplot/workflows/R-CMD-check/badge.svg)](https://github.com/kassambara/ggcorrplot/actions)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
 [![CRAN
 Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
