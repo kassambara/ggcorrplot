@@ -1,7 +1,7 @@
 Type: Package
 Package: ggcorrplot
 Title: Visualization of a Correlation Matrix using 'ggplot2'
-Version: 0.1.4
+Version: 0.1.4.999
 Date: 2029-09-27
 Authors@R: 
     c(person(given = "Alboukadel",
