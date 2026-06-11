@@ -165,21 +165,21 @@ ggcorrplot <- function(corr,
       show.diag <- FALSE
     }
   }
-
+  
   if (inherits(corr, "cor_mat")) {
     # cor_mat object from rstatix
     cor.mat <- corr
     corr <- .tibble_to_matrix(cor.mat)
     p.mat <- .tibble_to_matrix(attr(cor.mat, "pvalue"))
   }
-
+  
   if (!is.matrix(corr) & !is.data.frame(corr)) {
     stop("Need a matrix or data frame!")
   }
   corr <- as.matrix(corr)
-
+  
   corr <- base::round(x = corr, digits = digits)
-
+  
   if (hc.order) {
     ord <- .hc_cormat_order(corr, hc.method = hc.method)
     corr <- corr[ord, ord]
@@ -188,12 +188,12 @@ ggcorrplot <- function(corr,
       p.mat <- base::round(x = p.mat, digits = digits)
     }
   }
-
+  
   if (!show.diag) {
     corr <- .remove_diag(corr)
     p.mat <- .remove_diag(p.mat)
   }
-
+  
   # Get lower or upper triangle
   if (type == "lower") {
     corr <- .get_lower_tri(corr, show.diag)
@@ -202,13 +202,13 @@ ggcorrplot <- function(corr,
     corr <- .get_upper_tri(corr, show.diag)
     p.mat <- .get_upper_tri(p.mat, show.diag)
   }
-
+  
   # Melt corr and pmat
   corr <- reshape2::melt(corr, na.rm = TRUE, as.is = as.is)
   colnames(corr) <- c("Var1", "Var2", "value")
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
-
+  
   if (!is.null(p.mat)) {
     p.mat <- reshape2::melt(p.mat, na.rm = TRUE)
     corr$coef <- corr$value
@@ -219,17 +219,17 @@ ggcorrplot <- function(corr,
       corr$value <- corr$value * corr$signif
     }
   }
-
-
+  
+  
   corr$abs_corr <- abs(corr$value) * 10
-
+  
   # heatmap
   p <-
     ggplot2::ggplot(
       data = corr,
-      mapping = ggplot2::aes(x = "Var1", y = "Var2", fill = "value")
+      mapping = ggplot2::aes(x = Var1, y = Var2, fill = value)
     )
-
+  
   # modification based on method
   if (method == "square") {
     p <- p +
@@ -239,12 +239,12 @@ ggcorrplot <- function(corr,
       ggplot2::geom_point(
         color = outline.color,
         shape = 21,
-        ggplot2::aes(size = "abs_corr")
+        ggplot2::aes(size = abs_corr)
       ) +
       ggplot2::scale_size(range = c(4, 10)) +
       ggplot2::guides(size = "none")
   }
-
+  
   # adding colors
   p <- p + ggplot2::scale_fill_gradient2(
     low = colors[1],
@@ -255,15 +255,15 @@ ggcorrplot <- function(corr,
     space = "Lab",
     name = legend.title
   )
-
+  
   # depending on the class of the object, add the specified theme
   if (class(ggtheme)[[1]] == "function") {
     p <- p + ggtheme()
   } else if (class(ggtheme)[[1]] == "theme") {
     p <- p + ggtheme
   }
-
-
+  
+  
   p <- p +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
@@ -275,47 +275,47 @@ ggcorrplot <- function(corr,
       axis.text.y = ggplot2::element_text(size = tl.cex)
     ) +
     ggplot2::coord_fixed()
-
+  
   label <- round(x = corr[, "value"], digits = digits)
   if (!is.null(p.mat) & insig == "blank") {
     ns <- corr$pvalue > sig.level
     if (sum(ns) > 0) label[ns] <- " "
   }
-
+  
   # matrix cell labels
   if (lab) {
     p <- p +
       ggplot2::geom_text(
-        mapping = ggplot2::aes(x = "Var1", y = "Var2"),
+        mapping = ggplot2::aes(x = Var1, y = Var2),
         label = label,
         color = lab_col,
         size = lab_size
       )
   }
-
+  
   # matrix cell glyphs
   if (!is.null(p.mat) & insig == "pch") {
     p <- p + ggplot2::geom_point(
       data = p.mat,
-      mapping = ggplot2::aes(x = "Var1", y = "Var2"),
+      mapping = ggplot2::aes(x = Var1, y = Var2),
       shape = pch,
       size = pch.cex,
       color = pch.col
     )
   }
-
+  
   # add titles
   if (title != "") {
     p <- p +
       ggplot2::ggtitle(title)
   }
-
+  
   # removing legend
   if (!show.legend) {
     p <- p +
       ggplot2::theme(legend.position = "none")
   }
-
+  
   # removing panel
   p <- p +
     .no_panel()
@@ -332,13 +332,13 @@ ggcorrplot <- function(corr,
 #' @export
 
 cor_pmat <- function(x, ...) {
-
+  
   # initializing values
   mat <- as.matrix(x)
   n <- ncol(mat)
   p.mat <- matrix(NA, n, n)
   diag(p.mat) <- 0
-
+  
   # creating the p-value matrix
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
@@ -346,10 +346,10 @@ cor_pmat <- function(x, ...) {
       p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
     }
   }
-
+  
   # name rows and columns of the p-value matrix
   colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
-
+  
   # return the final matrix
   p.mat
 }
