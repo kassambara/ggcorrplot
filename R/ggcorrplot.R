@@ -50,11 +50,11 @@
 #'   using \code{\link[utils]{type.convert}}.
 #' @param nsmall the minimum number of digits to the right of the decimal point
 #'   in the coefficient labels, passed to \code{\link[base]{format}}. Default is
-#'   `0` (no minimum, current behavior). Set e.g. `nsmall = 2` to keep trailing
-#'   zeros (such as 0.70). Only used when \code{lab = TRUE}.
+#'   \code{0} (no minimum, current behavior). Set e.g. \code{nsmall = 2} to keep
+#'   trailing zeros (such as 0.70). Only used when \code{lab = TRUE}.
 #' @param legend.limit a length-2 numeric vector giving the limits of the fill
-#'   color scale. Default `c(-1, 1)` (suitable for a correlation matrix); set to
-#'   \code{NULL} to use the data range instead, e.g. for a covariance matrix.
+#'   color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set
+#'   to \code{NULL} to use the data range instead, e.g. for a covariance matrix.
 #' @return \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 #' Returns a matrix containing the p-values of correlations }
 #' @examples
