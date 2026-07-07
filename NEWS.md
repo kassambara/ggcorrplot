@@ -2,6 +2,10 @@
 
 ## New features
 
+- New argument `circle.scale` to scale the circle sizes when `method = "circle"`,
+  useful when the output device size makes the default circles too small or too
+  large. Defaults to `1` (contributed by @jdeut, #8).
+
 - New argument `nsmall` to set a minimum number of decimals in the coefficient
   labels (e.g. `nsmall = 2` keeps trailing zeros such as 0.70). Defaults to `0`,
   the current behavior (#43; label-formatting idiom suggested by @PawelKulawiak in #15).

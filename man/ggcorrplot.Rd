@@ -33,7 +33,8 @@ ggcorrplot(
   digits = 2,
   as.is = FALSE,
   nsmall = 0L,
-  legend.limit = c(-1, 1)
+  legend.limit = c(-1, 1),
+  circle.scale = 1
 )
 
 cor_pmat(x, ...)
@@ -114,6 +115,12 @@ trailing zeros (such as 0.70). Only used when \code{lab = TRUE}.}
 \item{legend.limit}{a length-2 numeric vector giving the limits of the fill
 color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set
 to \code{NULL} to use the data range instead, e.g. for a covariance matrix.}
+
+\item{circle.scale}{a scaling factor for the circle sizes when
+\code{method = "circle"}. Default is \code{1}; increase it (e.g.
+\code{circle.scale = 2}) for larger circles or decrease it for smaller ones,
+which is useful when the output device size makes the default circles too
+small or too large. Has no effect when \code{method = "square"}.}
 
 \item{x}{numeric matrix or data frame}
 
