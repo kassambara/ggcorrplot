@@ -28,7 +28,7 @@ ggcorrplot(
   pch.col = "black",
   pch.cex = 5,
   tl.cex = 12,
-  tl.col = "black",
+  tl.col = NULL,
   tl.srt = 45,
   digits = 2,
   as.is = FALSE
@@ -94,7 +94,8 @@ coefficients (only valid when insig is "pch"). Default value is 4.}
 insig is "pch").}
 
 \item{tl.cex, tl.col, tl.srt}{the size, the color and the string rotation of
-text label (variable names).}
+text label (variable names). \code{tl.col} defaults to \code{NULL}, which
+inherits the color from the theme.}
 
 \item{digits}{Decides the number of decimal digits to be displayed (Default:
 `2`).}
