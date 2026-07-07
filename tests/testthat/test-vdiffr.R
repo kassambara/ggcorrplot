@@ -1,6 +1,9 @@
 if (getRversion() >= "4.1") {
   test_that("plots are rendered correctly", {
     skip_on_cran()
+    # vdiffr snapshots are SVG-engine/ggplot2-version specific and are not
+    # portable across CI runners; validate them locally, not on CI.
+    skip_on_ci()
     skip_if_not_installed("vdiffr")
 
     # compute needed details
