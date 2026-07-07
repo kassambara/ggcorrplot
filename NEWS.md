@@ -14,6 +14,11 @@
 
 - Removes warnings stemming from the latest version of `ggplot2`.
 
+- Replaced the deprecated `ggplot2::aes_string()` with tidy-evaluation `aes()`
+  internally, silencing the ggplot2 deprecation warnings on recent `ggplot2`
+  versions. Default output is unchanged (#57, #58, #59, #60, #61). Based on the
+  contribution by @jeherschberger (#62).
+
 ## Bug fixes
 
 - The option `hc.method` is now taken into account (#mitchelfruin, #29)

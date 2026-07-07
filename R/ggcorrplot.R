@@ -227,7 +227,7 @@ ggcorrplot <- function(corr,
   p <-
     ggplot2::ggplot(
       data = corr,
-      mapping = ggplot2::aes_string(x = "Var1", y = "Var2", fill = "value")
+      mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]], fill = .data[["value"]])
     )
 
   # modification based on method
@@ -239,7 +239,7 @@ ggcorrplot <- function(corr,
       ggplot2::geom_point(
         color = outline.color,
         shape = 21,
-        ggplot2::aes_string(size = "abs_corr")
+        ggplot2::aes(size = .data[["abs_corr"]])
       ) +
       ggplot2::scale_size(range = c(4, 10)) +
       ggplot2::guides(size = "none")
@@ -286,7 +286,7 @@ ggcorrplot <- function(corr,
   if (lab) {
     p <- p +
       ggplot2::geom_text(
-        mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
+        mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
         label = label,
         color = lab_col,
         size = lab_size
@@ -297,7 +297,7 @@ ggcorrplot <- function(corr,
   if (!is.null(p.mat) & insig == "pch") {
     p <- p + ggplot2::geom_point(
       data = p.mat,
-      mapping = ggplot2::aes_string(x = "Var1", y = "Var2"),
+      mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
       shape = pch,
       size = pch.cex,
       color = pch.col
