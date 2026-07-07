@@ -185,7 +185,6 @@ ggcorrplot <- function(corr,
     corr <- corr[ord, ord]
     if (!is.null(p.mat)) {
       p.mat <- p.mat[ord, ord]
-      p.mat <- base::round(x = p.mat, digits = digits)
     }
   }
 
@@ -210,7 +209,7 @@ ggcorrplot <- function(corr,
   corr$signif <- rep(NA, nrow(corr))
 
   if (!is.null(p.mat)) {
-    p.mat <- reshape2::melt(p.mat, na.rm = TRUE)
+    p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
     corr$coef <- corr$value
     corr$pvalue <- p.mat$value
     corr$signif <- as.numeric(p.mat$value <= sig.level)
