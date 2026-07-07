@@ -19,6 +19,18 @@
   Defaults to `c(-1, 1)`; set `legend.limit = NULL` to use the data range, e.g.
   to display a covariance matrix (#54).
 
+- New argument `coord.fixed` (default `TRUE`) to optionally drop the fixed 1:1
+  aspect ratio. Set `coord.fixed = FALSE` to let the cells fill the plotting
+  area, which can look better with many long variable names (#40).
+
+- New argument `lab_fontface` to set the font face (`"plain"`, `"bold"`,
+  `"italic"`, `"bold.italic"`) of the correlation coefficient labels. Defaults
+  to `"plain"`, the current behavior (#15).
+
+- New arguments `tl.vjust` and `tl.hjust` to control the vertical and horizontal
+  justification of the x-axis text labels. Both default to `1`, the current
+  behavior (#56).
+
 ## Minor changes
   
 - New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames
