@@ -5,7 +5,7 @@
 status](https://github.com/kassambara/ggcorrplot/workflows/R-CMD-check/badge.svg)](https://github.com/kassambara/ggcorrplot/actions)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
 [![CRAN
-Checks](https://cranchecks.info/badges/summary/ggcorrplot)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
+Checks](https://badges.cranchecks.info/summary/ggcorrplot.svg)](https://cran.r-project.org/web/checks/check_results_ggcorrplot.html)
 [![Downloads](https://cranlogs.r-pkg.org/badges/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
 [![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
