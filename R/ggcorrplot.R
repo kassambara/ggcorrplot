@@ -55,6 +55,11 @@
 #' @param legend.limit a length-2 numeric vector giving the limits of the fill
 #'   color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set
 #'   to \code{NULL} to use the data range instead, e.g. for a covariance matrix.
+#' @param circle.scale a scaling factor for the circle sizes when
+#'   \code{method = "circle"}. Default is \code{1}; increase it (e.g.
+#'   \code{circle.scale = 2}) for larger circles or decrease it for smaller ones,
+#'   which is useful when the output device size makes the default circles too
+#'   small or too large. Has no effect when \code{method = "square"}.
 #' @return \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 #' Returns a matrix containing the p-values of correlations }
 #' @examples
@@ -164,7 +169,8 @@ ggcorrplot <- function(corr,
                        digits = 2,
                        as.is = FALSE,
                        nsmall = 0L,
-                       legend.limit = c(-1, 1)) {
+                       legend.limit = c(-1, 1),
+                       circle.scale = 1) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -278,7 +284,7 @@ ggcorrplot <- function(corr,
         shape = 21,
         ggplot2::aes(size = .data[["abs_corr"]])
       ) +
-      ggplot2::scale_size(range = c(4, 10)) +
+      ggplot2::scale_size(range = c(4, 10) * circle.scale) +
       ggplot2::guides(size = "none")
   }
 
