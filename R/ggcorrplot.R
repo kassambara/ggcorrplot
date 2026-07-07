@@ -48,6 +48,13 @@
 #' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
 #'   \code{TRUE}, dimnames will be left as strings instead of being converted
 #'   using \code{\link[utils]{type.convert}}.
+#' @param nsmall the minimum number of digits to the right of the decimal point
+#'   in the coefficient labels, passed to \code{\link[base]{format}}. Default is
+#'   `0` (no minimum, current behavior). Set e.g. `nsmall = 2` to keep trailing
+#'   zeros (such as 0.70). Only used when \code{lab = TRUE}.
+#' @param legend.limit a length-2 numeric vector giving the limits of the fill
+#'   color scale. Default `c(-1, 1)` (suitable for a correlation matrix); set to
+#'   \code{NULL} to use the data range instead, e.g. for a covariance matrix.
 #' @return \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 #' Returns a matrix containing the p-values of correlations }
 #' @examples
@@ -155,7 +162,9 @@ ggcorrplot <- function(corr,
                        tl.col = NULL,
                        tl.srt = 45,
                        digits = 2,
-                       as.is = FALSE) {
+                       as.is = FALSE,
+                       nsmall = 0L,
+                       legend.limit = c(-1, 1)) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -251,7 +260,7 @@ ggcorrplot <- function(corr,
     high = colors[3],
     mid = colors[2],
     midpoint = 0,
-    limit = c(-1, 1),
+    limit = legend.limit,
     space = "Lab",
     name = legend.title
   )
@@ -278,6 +287,7 @@ ggcorrplot <- function(corr,
     ggplot2::coord_fixed()
 
   label <- round(x = corr[, "value"], digits = digits)
+  if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
   if (!is.null(p.mat) & insig == "blank") {
     ns <- corr$pvalue > sig.level
     if (sum(ns) > 0) label[ns] <- " "

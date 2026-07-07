@@ -31,7 +31,9 @@ ggcorrplot(
   tl.col = NULL,
   tl.srt = 45,
   digits = 2,
-  as.is = FALSE
+  as.is = FALSE,
+  nsmall = 0L,
+  legend.limit = c(-1, 1)
 )
 
 cor_pmat(x, ...)
@@ -103,6 +105,15 @@ inherits the color from the theme.}
 \item{as.is}{A logical passed to \code{\link[reshape2]{melt.array}}. If
 \code{TRUE}, dimnames will be left as strings instead of being converted
 using \code{\link[utils]{type.convert}}.}
+
+\item{nsmall}{the minimum number of digits to the right of the decimal point
+in the coefficient labels, passed to \code{\link[base]{format}}. Default is
+\code{0} (no minimum, current behavior). Set e.g. \code{nsmall = 2} to keep
+trailing zeros (such as 0.70). Only used when \code{lab = TRUE}.}
+
+\item{legend.limit}{a length-2 numeric vector giving the limits of the fill
+color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set
+to \code{NULL} to use the data range instead, e.g. for a covariance matrix.}
 
 \item{x}{numeric matrix or data frame}
 
