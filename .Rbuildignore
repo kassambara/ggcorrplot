@@ -9,3 +9,5 @@
 ^_pkgdown\.yml$
 tests\^spelling
 ^\.github$
+^\.claude$
+^CLAUDE\.md$

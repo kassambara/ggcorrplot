@@ -4,3 +4,5 @@
 .Ruserdata
 .DS_Store
 docs/.DS_Store
+.claude/skills/
+CLAUDE.md
