@@ -2,6 +2,11 @@
 
 ## New features
 
+- New argument `sig.stars` to append significance stars (`***`, `**`, `*`) to
+  the coefficient labels when `lab = TRUE` and a `p.mat` is supplied, e.g.
+  `"-0.85**"`. Defaults to `FALSE` (#26, #41, #50; inspired by the ggcorrplot2
+  package by @caijun).
+
 - New argument `circle.scale` to scale the circle sizes when `method = "circle"`,
   useful when the output device size makes the default circles too small or too
   large. Defaults to `1` (contributed by @jdeut, #8).
