@@ -41,7 +41,8 @@
 #' @param pch.col,pch.cex the color and the cex (size) of pch (only valid when
 #'   insig is "pch").
 #' @param tl.cex,tl.col,tl.srt the size, the color and the string rotation of
-#'   text label (variable names).
+#'   text label (variable names). \code{tl.col} defaults to \code{NULL}, which
+#'   inherits the color from the theme.
 #' @param digits Decides the number of decimal digits to be displayed (Default:
 #'   `2`).
 #' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
@@ -151,7 +152,7 @@ ggcorrplot <- function(corr,
                        pch.col = "black",
                        pch.cex = 5,
                        tl.cex = 12,
-                       tl.col = "black",
+                       tl.col = NULL,
                        tl.srt = 45,
                        digits = 2,
                        as.is = FALSE) {
@@ -269,9 +270,10 @@ ggcorrplot <- function(corr,
         angle = tl.srt,
         vjust = 1,
         size = tl.cex,
-        hjust = 1
+        hjust = 1,
+        colour = tl.col
       ),
-      axis.text.y = ggplot2::element_text(size = tl.cex)
+      axis.text.y = ggplot2::element_text(size = tl.cex, colour = tl.col)
     ) +
     ggplot2::coord_fixed()
 

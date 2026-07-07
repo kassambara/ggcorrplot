@@ -24,6 +24,10 @@
 
 ## Bug fixes
 
+- The `tl.col` argument (color of the axis text labels) is now applied; it was
+  previously ignored. It defaults to `NULL`, inheriting the color from the theme,
+  so the default appearance is unchanged (@LafontRapnouilTristan, #44, #45).
+
 - The significance test is no longer affected by `hc.order`. Previously, when
   `hc.order = TRUE`, the p-value matrix was rounded to `digits` before being
   compared with `sig.level`, so a p-value just above the threshold (e.g. 0.054)
