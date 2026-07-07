@@ -32,6 +32,11 @@
 
 ## Bug fixes
 
+- A non-square (m x n) correlation matrix now gives a clear error when combined
+  with `hc.order = TRUE` or `type = "lower"`/`"upper"` (which require a square
+  matrix), instead of silently producing an incorrect plot. `type = "full"`
+  still works for non-square matrices (#5, #10).
+
 - The significance markers no longer error or misalign when the correlation
   matrix and the p-value matrix have different missing-value patterns. P-values
   are now matched to each cell by name instead of by row position.

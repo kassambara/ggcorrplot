@@ -188,6 +188,18 @@ ggcorrplot <- function(corr,
   }
   corr <- as.matrix(corr)
 
+  # Reordering and the triangular layouts require a square matrix; a non-square
+  # (m x n) correlation matrix can only be shown in full (#5, #10).
+  if (nrow(corr) != ncol(corr)) {
+    if (hc.order) {
+      stop("hc.order = TRUE requires a square correlation matrix.")
+    }
+    if (type != "full") {
+      stop("type = '", type, "' requires a square correlation matrix; ",
+           "use type = 'full' for a non-square matrix.")
+    }
+  }
+
   # Order on the unrounded matrix so the internal rounding below does not
   # introduce ties that perturb the hierarchical clustering (#14).
   if (hc.order) {
