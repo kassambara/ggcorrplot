@@ -19,6 +19,14 @@
   Defaults to `c(-1, 1)`; set `legend.limit = NULL` to use the data range, e.g.
   to display a covariance matrix (#54).
 
+- The `colors` argument now accepts a vector of any length `>= 2`, not only 3.
+  A length-3 vector still maps to low/mid/high via `scale_fill_gradient2` (default
+  output unchanged); any other length is spread across the scale with
+  `scale_fill_gradientn`, so an n-color palette such as
+  `RColorBrewer::brewer.pal(11, "RdBu")` can be passed straight to `colors =`
+  without adding a second fill scale (and without the "Scale for fill is already
+  present" message) (#52). Requested by @glocke-senda.
+
 - New argument `coord.fixed` (default `TRUE`) to optionally drop the fixed 1:1
   aspect ratio. Set `coord.fixed = FALSE` to let the cells fill the plotting
   area, which can look better with many long variable names (#40).
