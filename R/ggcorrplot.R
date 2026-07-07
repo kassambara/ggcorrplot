@@ -222,9 +222,18 @@ ggcorrplot <- function(corr,
 
   if (!is.null(p.mat)) {
     p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
+    colnames(p.mat) <- c("Var1", "Var2", "value")
+    # Match each p-value to its correlation cell by (Var1, Var2) rather than by
+    # row position, so a differing NA pattern between corr and p.mat cannot
+    # misalign them (or raise a length error). When the patterns match, the
+    # match is the identity and the result is byte-identical.
+    idx <- match(
+      paste(corr$Var1, corr$Var2, sep = "\r"),
+      paste(p.mat$Var1, p.mat$Var2, sep = "\r")
+    )
     corr$coef <- corr$value
-    corr$pvalue <- p.mat$value
-    corr$signif <- as.numeric(p.mat$value <= sig.level)
+    corr$pvalue <- p.mat$value[idx]
+    corr$signif <- as.numeric(corr$pvalue <= sig.level)
     p.mat <- subset(p.mat, p.mat$value > sig.level)
     if (insig == "blank") {
       corr$value <- corr$value * corr$signif

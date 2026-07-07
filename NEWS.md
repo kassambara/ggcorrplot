@@ -32,6 +32,10 @@
 
 ## Bug fixes
 
+- The significance markers no longer error or misalign when the correlation
+  matrix and the p-value matrix have different missing-value patterns. P-values
+  are now matched to each cell by name instead of by row position.
+
 - When `hc.order = TRUE`, the hierarchical clustering is now computed on the
   unrounded correlation matrix. Previously the matrix was rounded to `digits`
   before clustering, so the internal rounding could introduce ties that changed
