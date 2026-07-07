@@ -19,7 +19,12 @@
 #'   coefficients on the principal diagonal. If \code{NULL}, the default is to
 #'   show diagonal correlation for \code{type = "full"} and to remove it when
 #'   \code{type} is one of "upper" or "lower".
-#' @param colors a vector of 3 colors for low, mid and high correlation values.
+#' @param colors a vector of colors for the fill gradient. The default is a
+#'   length-3 vector for the low, mid and high correlation values (mapped with
+#'   \code{\link[ggplot2]{scale_fill_gradient2}}). A vector of any other length
+#'   (\code{>= 2}) is spread evenly across the scale with
+#'   \code{\link[ggplot2]{scale_fill_gradientn}}, so an n-color palette (e.g.
+#'   \code{RColorBrewer::brewer.pal(11, "RdBu")}) can be passed directly.
 #' @param outline.color the outline color of square or circle. Default value is
 #'   "gray".
 #' @param hc.order logical value. If TRUE, correlation matrix will be hc.ordered
@@ -310,15 +315,29 @@ ggcorrplot <- function(corr,
   }
 
   # adding colors
-  p <- p + ggplot2::scale_fill_gradient2(
-    low = colors[1],
-    high = colors[3],
-    mid = colors[2],
-    midpoint = 0,
-    limit = legend.limit,
-    space = "Lab",
-    name = legend.title
-  )
+  if (length(colors) < 2) {
+    stop("'colors' must contain at least 2 colors.", call. = FALSE)
+  }
+  if (length(colors) == 3) {
+    p <- p + ggplot2::scale_fill_gradient2(
+      low = colors[1],
+      high = colors[3],
+      mid = colors[2],
+      midpoint = 0,
+      limit = legend.limit,
+      space = "Lab",
+      name = legend.title
+    )
+  } else {
+    # any palette that is not exactly low/mid/high: spread the colors evenly
+    # across the scale with gradientn. Lets users pass e.g. an 11-color
+    # RColorBrewer palette directly, without adding a second fill scale (#52).
+    p <- p + ggplot2::scale_fill_gradientn(
+      colours = colors,
+      limits = legend.limit,
+      name = legend.title
+    )
+  }
 
   # depending on the class of the object, add the specified theme
   if (class(ggtheme)[[1]] == "function") {
