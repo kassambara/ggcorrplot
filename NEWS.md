@@ -19,6 +19,9 @@
   versions. Default output is unchanged (#57, #58, #59, #60, #61). Based on the
   contribution by @jeherschberger (#62).
 
+- Added a `CITATION` file so `citation("ggcorrplot")` returns a proper
+  reference (#42, #47).
+
 ## Bug fixes
 
 - The option `hc.method` is now taken into account (#mitchelfruin, #29)

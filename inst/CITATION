@@ -1,0 +1,17 @@
+citHeader("To cite ggcorrplot in publications, please use:")
+
+year <- sub("-.*", "", meta$Date)
+if (length(year) == 0L || is.na(year) || !nzchar(year) ||
+    year > format(Sys.Date(), "%Y")) {
+  year <- format(Sys.Date(), "%Y")
+}
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "{ggcorrplot}: Visualization of a Correlation Matrix using 'ggplot2'",
+  author   = person("Alboukadel", "Kassambara"),
+  year     = year,
+  note     = note,
+  url      = "https://CRAN.R-project.org/package=ggcorrplot"
+)
