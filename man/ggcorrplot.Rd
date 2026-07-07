@@ -160,6 +160,14 @@ ratio), which can look better with many long variable names.}
 \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 Returns a matrix containing the p-values of correlations }
 }
+\details{
+\code{cor_pmat()} tests each pair of columns with
+\code{\link[stats]{cor.test}}. A pair with fewer than three overlapping
+non-missing observations (which \code{\link[stats]{cor.test}} cannot test,
+e.g. two variables that never co-occur) yields \code{NA} for that cell
+rather than aborting the whole computation. Pairs that can be tested are
+computed as before, and errors they raise are passed through.
+}
 \description{
 \itemize{ \item ggcorrplot(): A graphical display of a
   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
