@@ -222,12 +222,26 @@ ggcorrplot <- function(corr,
 
   if (!is.null(p.mat)) {
     p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
+    colnames(p.mat) <- c("Var1", "Var2", "value")
+    # Match each p-value to its correlation cell by (Var1, Var2) rather than by
+    # row position, so a differing NA pattern between corr and p.mat cannot
+    # misalign them (or raise a length error). When the patterns match, the
+    # match is the identity and the result is byte-identical.
+    idx <- match(
+      paste(corr$Var1, corr$Var2, sep = "\r"),
+      paste(p.mat$Var1, p.mat$Var2, sep = "\r")
+    )
     corr$coef <- corr$value
-    corr$pvalue <- p.mat$value
-    corr$signif <- as.numeric(p.mat$value <= sig.level)
+    corr$pvalue <- p.mat$value[idx]
+    corr$signif <- as.numeric(corr$pvalue <= sig.level)
     p.mat <- subset(p.mat, p.mat$value > sig.level)
+    # keep significance markers only for cells present in the correlation plot
+    p.mat <- p.mat[paste(p.mat$Var1, p.mat$Var2, sep = "\r") %in%
+      paste(corr$Var1, corr$Var2, sep = "\r"), ]
     if (insig == "blank") {
-      corr$value <- corr$value * corr$signif
+      # a cell with no matching p-value (unknown significance) is kept as-is
+      keep <- ifelse(is.na(corr$signif), 1, corr$signif)
+      corr$value <- corr$value * keep
     }
   }
 
@@ -292,6 +306,7 @@ ggcorrplot <- function(corr,
   if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
   if (!is.null(p.mat) & insig == "blank") {
     ns <- corr$pvalue > sig.level
+    ns[is.na(ns)] <- FALSE
     if (sum(ns) > 0) label[ns] <- " "
   }
 

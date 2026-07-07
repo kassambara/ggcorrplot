@@ -30,6 +30,28 @@ test_that("hc.order leaves significance unchanged for non-boundary p (#25 no-reg
   )
 })
 
+test_that("p-values stay aligned when corr and p.mat NA patterns differ", {
+  c4 <- round(cor(mtcars[, 1:4]), 2)
+  p4 <- cor_pmat(mtcars[, 1:4])
+  # remove one pair from the p-value matrix only -> different NA pattern
+  p4["mpg", "disp"] <- p4["disp", "mpg"] <- NA
+  # previously this raised "replacement has 14 rows, data has 16"
+  expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "pch"))
+  # blank mode must not error either (unknown-significance cells are kept)
+  expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "blank"))
+  expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "blank", lab = TRUE))
+})
+
+test_that("significance markers are matched to cells by name, not position", {
+  m <- matrix(c(1, 0.9, 0.2, 0.9, 1, 0.1, 0.2, 0.1, 1), 3,
+              dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
+  # only the a~c pair is non-significant
+  p <- matrix(c(0, 0.001, 0.6, 0.001, 0, 0.002, 0.6, 0.002, 0), 3,
+              dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
+  cross <- .n_crosses(ggcorrplot(m, p.mat = p, insig = "pch"))
+  expect_equal(cross, 2L)   # exactly a~c and c~a
+})
+
 test_that("p.mat aligns with numeric-looking names when as.is = TRUE (#37)", {
   nm <- c("10", "2", "33")
   m  <- matrix(c(1, 0.8, 0.2, 0.8, 1, 0.1, 0.2, 0.1, 1), 3, dimnames = list(nm, nm))
