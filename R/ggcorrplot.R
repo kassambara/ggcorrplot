@@ -28,6 +28,9 @@
 #' @param lab logical value. If TRUE, add correlation coefficient on the plot.
 #' @param lab_col,lab_size size and color to be used for the correlation
 #'   coefficient labels. used when lab = TRUE.
+#' @param lab_fontface the font face (\code{"plain"}, \code{"bold"},
+#'   \code{"italic"}, \code{"bold.italic"}) for the correlation coefficient
+#'   labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.
 #' @param sig.stars logical value. If \code{TRUE} and a \code{p.mat} is
 #'   supplied, significance stars are appended to the coefficient labels
 #'   (\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
@@ -49,6 +52,9 @@
 #' @param tl.cex,tl.col,tl.srt the size, the color and the string rotation of
 #'   text label (variable names). \code{tl.col} defaults to \code{NULL}, which
 #'   inherits the color from the theme.
+#' @param tl.vjust,tl.hjust the vertical and horizontal justification of the
+#'   x-axis text labels, passed to \code{\link[ggplot2]{element_text}}. Both
+#'   default to \code{1}; adjust them to reposition the variable-name labels.
 #' @param digits Decides the number of decimal digits to be displayed (Default:
 #'   `2`).
 #' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
@@ -66,6 +72,10 @@
 #'   \code{circle.scale = 2}) for larger circles or decrease it for smaller ones,
 #'   which is useful when the output device size makes the default circles too
 #'   small or too large. Has no effect when \code{method = "square"}.
+#' @param coord.fixed logical value. If \code{TRUE} (default), the plot uses
+#'   \code{\link[ggplot2]{coord_fixed}} so the cells are square. Set to
+#'   \code{FALSE} to let the cells fill the plotting area (a non 1:1 aspect
+#'   ratio), which can look better with many long variable names.
 #' @return \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 #' Returns a matrix containing the p-values of correlations }
 #' @examples
@@ -163,6 +173,7 @@ ggcorrplot <- function(corr,
                        lab = FALSE,
                        lab_col = "black",
                        lab_size = 4,
+                       lab_fontface = "plain",
                        sig.stars = FALSE,
                        p.mat = NULL,
                        sig.level = 0.05,
@@ -173,11 +184,14 @@ ggcorrplot <- function(corr,
                        tl.cex = 12,
                        tl.col = NULL,
                        tl.srt = 45,
+                       tl.vjust = 1,
+                       tl.hjust = 1,
                        digits = 2,
                        as.is = FALSE,
                        nsmall = 0L,
                        legend.limit = c(-1, 1),
-                       circle.scale = 1) {
+                       circle.scale = 1,
+                       coord.fixed = TRUE) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -318,14 +332,18 @@ ggcorrplot <- function(corr,
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
         angle = tl.srt,
-        vjust = 1,
+        vjust = tl.vjust,
         size = tl.cex,
-        hjust = 1,
+        hjust = tl.hjust,
         colour = tl.col
       ),
       axis.text.y = ggplot2::element_text(size = tl.cex, colour = tl.col)
-    ) +
-    ggplot2::coord_fixed()
+    )
+  if (coord.fixed) {
+    p <- p + ggplot2::coord_fixed()
+  } else {
+    p <- p + ggplot2::coord_cartesian()
+  }
 
   label <- round(x = corr[, "value"], digits = digits)
   if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
@@ -350,7 +368,8 @@ ggcorrplot <- function(corr,
         mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
         label = label,
         color = lab_col,
-        size = lab_size
+        size = lab_size,
+        fontface = lab_fontface
       )
   }
 

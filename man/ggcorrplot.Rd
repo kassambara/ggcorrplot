@@ -21,6 +21,7 @@ ggcorrplot(
   lab = FALSE,
   lab_col = "black",
   lab_size = 4,
+  lab_fontface = "plain",
   sig.stars = FALSE,
   p.mat = NULL,
   sig.level = 0.05,
@@ -31,11 +32,14 @@ ggcorrplot(
   tl.cex = 12,
   tl.col = NULL,
   tl.srt = 45,
+  tl.vjust = 1,
+  tl.hjust = 1,
   digits = 2,
   as.is = FALSE,
   nsmall = 0L,
   legend.limit = c(-1, 1),
-  circle.scale = 1
+  circle.scale = 1,
+  coord.fixed = TRUE
 )
 
 cor_pmat(x, ...)
@@ -80,6 +84,10 @@ using hclust function.}
 \item{lab_col, lab_size}{size and color to be used for the correlation
 coefficient labels. used when lab = TRUE.}
 
+\item{lab_fontface}{the font face (\code{"plain"}, \code{"bold"},
+\code{"italic"}, \code{"bold.italic"}) for the correlation coefficient
+labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.}
+
 \item{sig.stars}{logical value. If \code{TRUE} and a \code{p.mat} is
 supplied, significance stars are appended to the coefficient labels
 (\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
@@ -108,6 +116,10 @@ insig is "pch").}
 text label (variable names). \code{tl.col} defaults to \code{NULL}, which
 inherits the color from the theme.}
 
+\item{tl.vjust, tl.hjust}{the vertical and horizontal justification of the
+x-axis text labels, passed to \code{\link[ggplot2]{element_text}}. Both
+default to \code{1}; adjust them to reposition the variable-name labels.}
+
 \item{digits}{Decides the number of decimal digits to be displayed (Default:
 `2`).}
 
@@ -129,6 +141,11 @@ to \code{NULL} to use the data range instead, e.g. for a covariance matrix.}
 \code{circle.scale = 2}) for larger circles or decrease it for smaller ones,
 which is useful when the output device size makes the default circles too
 small or too large. Has no effect when \code{method = "square"}.}
+
+\item{coord.fixed}{logical value. If \code{TRUE} (default), the plot uses
+\code{\link[ggplot2]{coord_fixed}} so the cells are square. Set to
+\code{FALSE} to let the cells fill the plotting area (a non 1:1 aspect
+ratio), which can look better with many long variable names.}
 
 \item{x}{numeric matrix or data frame}
 
