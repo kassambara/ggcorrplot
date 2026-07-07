@@ -37,6 +37,9 @@ test_that("p-values stay aligned when corr and p.mat NA patterns differ", {
   p4["mpg", "disp"] <- p4["disp", "mpg"] <- NA
   # previously this raised "replacement has 14 rows, data has 16"
   expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "pch"))
+  # blank mode must not error either (unknown-significance cells are kept)
+  expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "blank"))
+  expect_no_error(ggcorrplot(c4, p.mat = p4, insig = "blank", lab = TRUE))
 })
 
 test_that("significance markers are matched to cells by name, not position", {
