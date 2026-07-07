@@ -21,6 +21,7 @@ ggcorrplot(
   lab = FALSE,
   lab_col = "black",
   lab_size = 4,
+  sig.stars = FALSE,
   p.mat = NULL,
   sig.level = 0.05,
   insig = c("pch", "blank"),
@@ -78,6 +79,13 @@ using hclust function.}
 
 \item{lab_col, lab_size}{size and color to be used for the correlation
 coefficient labels. used when lab = TRUE.}
+
+\item{sig.stars}{logical value. If \code{TRUE} and a \code{p.mat} is
+supplied, significance stars are appended to the coefficient labels
+(\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
+e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
+\code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
+\code{insig = "pch"} markers are not drawn.}
 
 \item{p.mat}{matrix of p-value. If NULL, arguments sig.level, insig, pch,
 pch.col, pch.cex is invalid.}

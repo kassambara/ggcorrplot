@@ -28,6 +28,12 @@
 #' @param lab logical value. If TRUE, add correlation coefficient on the plot.
 #' @param lab_col,lab_size size and color to be used for the correlation
 #'   coefficient labels. used when lab = TRUE.
+#' @param sig.stars logical value. If \code{TRUE} and a \code{p.mat} is
+#'   supplied, significance stars are appended to the coefficient labels
+#'   (\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
+#'   e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
+#'   \code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
+#'   \code{insig = "pch"} markers are not drawn.
 #' @param p.mat matrix of p-value. If NULL, arguments sig.level, insig, pch,
 #'   pch.col, pch.cex is invalid.
 #' @param sig.level significant level, if the p-value in p-mat is bigger than
@@ -157,6 +163,7 @@ ggcorrplot <- function(corr,
                        lab = FALSE,
                        lab_col = "black",
                        lab_size = 4,
+                       sig.stars = FALSE,
                        p.mat = NULL,
                        sig.level = 0.05,
                        insig = c("pch", "blank"),
@@ -322,6 +329,14 @@ ggcorrplot <- function(corr,
 
   label <- round(x = corr[, "value"], digits = digits)
   if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
+  if (sig.stars && !is.null(p.mat)) {
+    stars <- as.character(cut(corr$pvalue,
+      breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
+      labels = c("***", "**", "*", "")
+    ))
+    stars[is.na(stars)] <- ""
+    label <- paste0(label, stars)
+  }
   if (!is.null(p.mat) & insig == "blank") {
     ns <- corr$pvalue > sig.level
     ns[is.na(ns)] <- FALSE
@@ -340,7 +355,7 @@ ggcorrplot <- function(corr,
   }
 
   # matrix cell glyphs
-  if (!is.null(p.mat) & insig == "pch") {
+  if (!is.null(p.mat) & insig == "pch" & !sig.stars) {
     p <- p + ggplot2::geom_point(
       data = p.mat,
       mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
