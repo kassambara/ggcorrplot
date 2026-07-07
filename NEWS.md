@@ -61,6 +61,12 @@
 
 ## Bug fixes
 
+- `cor_pmat()` no longer aborts when a pair of variables has fewer than three
+  overlapping non-missing observations to correlate (e.g. two variables that
+  never co-occur). Such a pair now returns `NA` for that cell instead of erroring
+  out for the whole matrix; pairs that can be tested are computed as before
+  (@elizabethwe, #51).
+
 - A non-square (m x n) correlation matrix now gives a clear error when combined
   with `hc.order = TRUE` or `type = "lower"`/`"upper"` (which require a square
   matrix), instead of silently producing an incorrect plot. `type = "full"`

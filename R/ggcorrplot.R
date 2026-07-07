@@ -425,6 +425,13 @@ ggcorrplot <- function(corr,
 
 #' Compute the matrix of correlation p-values
 #'
+#' @details \code{cor_pmat()} tests each pair of columns with
+#'   \code{\link[stats]{cor.test}}. A pair with fewer than three overlapping
+#'   non-missing observations (which \code{\link[stats]{cor.test}} cannot test,
+#'   e.g. two variables that never co-occur) yields \code{NA} for that cell
+#'   rather than aborting the whole computation. Pairs that can be tested are
+#'   computed as before, and errors they raise are passed through.
+#'
 #' @param x numeric matrix or data frame
 #' @param ... other arguments to be passed to the function cor.test.
 #' @rdname ggcorrplot
@@ -441,8 +448,22 @@ cor_pmat <- function(x, ...) {
   # creating the p-value matrix
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
-      tmp <- stats::cor.test(mat[, i], mat[, j], ...)
-      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+      # a pair with too few overlapping observations (e.g. two variables that
+      # never co-occur) makes cor.test() error; return NA for that cell instead
+      # of aborting the whole matrix (#51). The NA substitution is gated on the
+      # overlap count, so for any pair that CAN be tested (>= 3 overlapping obs)
+      # a genuine error (bad method =, non-numeric input, ...) is re-raised and
+      # still surfaces loudly instead of silently becoming NA.
+      p.mat[i, j] <- p.mat[j, i] <- tryCatch(
+        stats::cor.test(mat[, i], mat[, j], ...)$p.value,
+        error = function(e) {
+          if (sum(stats::complete.cases(mat[, i], mat[, j])) < 3) {
+            NA_real_
+          } else {
+            stop(e)
+          }
+        }
+      )
     }
   }
 
