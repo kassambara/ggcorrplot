@@ -2,6 +2,14 @@
 
 ## New features
 
+- New argument `nsmall` to set a minimum number of decimals in the coefficient
+  labels (e.g. `nsmall = 2` keeps trailing zeros such as 0.70). Defaults to `0`,
+  the current behavior (#43; label-formatting idiom suggested by @PawelKulawiak in #15).
+
+- New argument `legend.limit` to control the limits of the fill color scale.
+  Defaults to `c(-1, 1)`; set `legend.limit = NULL` to use the data range, e.g.
+  to display a covariance matrix (#54).
+
 ## Minor changes
   
 - New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames
