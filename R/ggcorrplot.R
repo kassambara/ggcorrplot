@@ -188,8 +188,8 @@ ggcorrplot <- function(corr,
   }
   corr <- as.matrix(corr)
 
-  corr <- base::round(x = corr, digits = digits)
-
+  # Order on the unrounded matrix so the internal rounding below does not
+  # introduce ties that perturb the hierarchical clustering (#14).
   if (hc.order) {
     ord <- .hc_cormat_order(corr, hc.method = hc.method)
     corr <- corr[ord, ord]
@@ -197,6 +197,8 @@ ggcorrplot <- function(corr,
       p.mat <- p.mat[ord, ord]
     }
   }
+
+  corr <- base::round(x = corr, digits = digits)
 
   if (!show.diag) {
     corr <- .remove_diag(corr)
