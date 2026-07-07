@@ -32,6 +32,11 @@
 
 ## Bug fixes
 
+- When `hc.order = TRUE`, the hierarchical clustering is now computed on the
+  unrounded correlation matrix. Previously the matrix was rounded to `digits`
+  before clustering, so the internal rounding could introduce ties that changed
+  the ordering (@buddha2490, #14).
+
 - The `tl.col` argument (color of the axis text labels) is now applied; it was
   previously ignored. It defaults to `NULL`, inheriting the color from the theme,
   so the default appearance is unchanged (@LafontRapnouilTristan, #44, #45).
