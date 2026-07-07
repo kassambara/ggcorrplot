@@ -24,6 +24,17 @@
 
 ## Bug fixes
 
+- The significance test is no longer affected by `hc.order`. Previously, when
+  `hc.order = TRUE`, the p-value matrix was rounded to `digits` before being
+  compared with `sig.level`, so a p-value just above the threshold (e.g. 0.054)
+  could be shown as significant while the same data with `hc.order = FALSE`
+  showed it as non-significant (@worden-lee, #25).
+
+- The significance markers now stay aligned with the tiles when the matrix has
+  numeric-looking names. The p-value matrix is now reshaped with the same
+  `as.is` setting as the correlation matrix, so `as.is = TRUE` no longer places
+  the markers off-plot (@cabaez, #37).
+
 - The option `hc.method` is now taken into account (#mitchelfruin, #29)
 
 - The option `show.diag` now works for full matrix (@arbet003 , #31)
