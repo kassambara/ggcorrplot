@@ -1,5 +1,12 @@
 # ggcorrplot 0.2.0.9000
 
+## Minor changes
+
+- Internal refactor: the data-preparation pipeline and the glyph-layer
+  construction are now factored into internal helpers, with no change to the
+  output of any existing call. This is groundwork for forthcoming per-triangle
+  layout options.
+
 # ggcorrplot 0.2.0
 
 ## New features
