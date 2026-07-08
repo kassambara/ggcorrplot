@@ -11,3 +11,5 @@ tests\^spelling
 ^\.github$
 ^\.claude$
 ^CLAUDE\.md$
+^TODO\.md$
+^Rplots\.pdf$
