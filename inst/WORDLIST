@@ -2,6 +2,7 @@ bw
 cex
 correlogram
 english
+erroring
 ggplot
 ggtheme
 glyphs
@@ -9,6 +10,7 @@ hc
 hclust
 http
 insig
+misalign
 mitchelfruin
 mtcars
 pch
@@ -16,4 +18,5 @@ pmat
 rstatix
 sig
 sthda
+unrounded
 www

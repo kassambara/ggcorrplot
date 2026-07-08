@@ -19,7 +19,7 @@ level** on the correlogram. It includes also a function for computing a
 matrix of **correlation p-values**.
 
 Find out more at
-<http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2>.
+<https://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2>.
 
 ## Installation and loading
 

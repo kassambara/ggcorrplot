@@ -1,4 +1,4 @@
-# ggcorrplot 0.1.4
+# ggcorrplot 0.2.0
 
 ## New features
 
@@ -51,16 +51,6 @@
   line up (@elizabethwe, #51).
 
 ## Minor changes
-  
-- New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames
-  will be left as strings instead of being converted using type.convert
-  (@fdetsch, [#24](https://github.com/kassambara/ggcorrplot/pull/24)).
-
-- Gets rid of `NOTE` in CRAN daily checks about lazy data.
-
-- Adds visual regression testing infrastructure using `vdiffr`.
-
-- Removes warnings stemming from the latest version of `ggplot2`.
 
 - Replaced the deprecated `ggplot2::aes_string()` with tidy-evaluation `aes()`
   internally, silencing the ggplot2 deprecation warnings on recent `ggplot2`
@@ -69,6 +59,11 @@
 
 - Added a `CITATION` file so `citation("ggcorrplot")` returns a proper
   reference (#42, #47).
+
+- Added an internal structural regression test suite that asserts on the built
+  plot (layer composition, built data, fill-scale semantics, coordinate system,
+  ordering and significance handling), so the plot's structure is checked on CI
+  and CRAN and not only by the local visual snapshots (#81).
 
 ## Bug fixes
 
@@ -106,6 +101,22 @@
   numeric-looking names. The p-value matrix is now reshaped with the same
   `as.is` setting as the correlation matrix, so `as.is = TRUE` no longer places
   the markers off-plot (@cabaez, #37).
+
+# ggcorrplot 0.1.4
+
+## Minor changes
+
+- New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames
+  will be left as strings instead of being converted using type.convert
+  (@fdetsch, [#24](https://github.com/kassambara/ggcorrplot/pull/24)).
+
+- Gets rid of `NOTE` in CRAN daily checks about lazy data.
+
+- Adds visual regression testing infrastructure using `vdiffr`.
+
+- Removes warnings stemming from the latest version of `ggplot2`.
+
+## Bug fixes
 
 - The option `hc.method` is now taken into account (#mitchelfruin, #29)
 
