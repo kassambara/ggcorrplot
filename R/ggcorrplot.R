@@ -225,77 +225,18 @@ ggcorrplot <- function(corr,
   }
   corr <- as.matrix(corr)
 
-  # Reordering and the triangular layouts require a square matrix; a non-square
-  # (m x n) correlation matrix can only be shown in full (#5, #10).
-  if (nrow(corr) != ncol(corr)) {
-    if (hc.order) {
-      stop("hc.order = TRUE requires a square correlation matrix.")
-    }
-    if (type != "full") {
-      stop("type = '", type, "' requires a square correlation matrix; ",
-           "use type = 'full' for a non-square matrix.")
-    }
-  }
-
-  # Order on the unrounded matrix so the internal rounding below does not
-  # introduce ties that perturb the hierarchical clustering (#14).
-  if (hc.order) {
-    ord <- .hc_cormat_order(corr, hc.method = hc.method)
-    corr <- corr[ord, ord]
-    if (!is.null(p.mat)) {
-      p.mat <- p.mat[ord, ord]
-    }
-  }
-
-  corr <- base::round(x = corr, digits = digits)
-
-  if (!show.diag) {
-    corr <- .remove_diag(corr)
-    p.mat <- .remove_diag(p.mat)
-  }
-
-  # Get lower or upper triangle
-  if (type == "lower") {
-    corr <- .get_lower_tri(corr, show.diag)
-    p.mat <- .get_lower_tri(p.mat, show.diag)
-  } else if (type == "upper") {
-    corr <- .get_upper_tri(corr, show.diag)
-    p.mat <- .get_upper_tri(p.mat, show.diag)
-  }
-
-  # Melt corr and pmat
-  corr <- reshape2::melt(corr, na.rm = TRUE, as.is = as.is)
-  colnames(corr) <- c("Var1", "Var2", "value")
-  corr$pvalue <- rep(NA, nrow(corr))
-  corr$signif <- rep(NA, nrow(corr))
-
-  if (!is.null(p.mat)) {
-    p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
-    colnames(p.mat) <- c("Var1", "Var2", "value")
-    # Match each p-value to its correlation cell by (Var1, Var2) rather than by
-    # row position, so a differing NA pattern between corr and p.mat cannot
-    # misalign them (or raise a length error). When the patterns match, the
-    # match is the identity and the result is byte-identical.
-    idx <- match(
-      paste(corr$Var1, corr$Var2, sep = "\r"),
-      paste(p.mat$Var1, p.mat$Var2, sep = "\r")
-    )
-    corr$coef <- corr$value
-    corr$pvalue <- p.mat$value[idx]
-    corr$signif <- as.numeric(corr$pvalue <= sig.level)
-    p.mat <- subset(p.mat, p.mat$value > sig.level)
-    # keep significance markers only for cells present in the correlation plot
-    p.mat <- p.mat[paste(p.mat$Var1, p.mat$Var2, sep = "\r") %in%
-      paste(corr$Var1, corr$Var2, sep = "\r"), ]
-    if (insig == "blank") {
-      # a cell with no matching p-value (unknown significance) is kept as-is
-      keep <- ifelse(is.na(corr$signif), 1, corr$signif)
-      corr$value <- corr$value * keep
-    }
-  }
-
-
-  corr$abs_corr <- abs(corr$value) * 10
+  # Transform the correlation (and matching p-value) matrix into the long
+  # data frames the plot is built from: reorder, round, mask a triangle, melt,
+  # and join per-cell significance. Extracted so the mixed-method path can reuse
+  # exactly the same pipeline (P0.0). Returns the melted `corr` data frame and
+  # the insignificant-cells `p.mat` data frame (or NULL).
+  built <- .build_corr_df(
+    corr = corr, p.mat = p.mat, type = type, show.diag = show.diag,
+    hc.order = hc.order, hc.method = hc.method, digits = digits,
+    sig.level = sig.level, insig = insig, as.is = as.is
+  )
+  corr <- built$corr
+  p.mat <- built$p.mat
 
   # heatmap
   p <-
@@ -304,20 +245,9 @@ ggcorrplot <- function(corr,
       mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]], fill = .data[["value"]])
     )
 
-  # modification based on method
-  if (method == "square") {
-    p <- p +
-      ggplot2::geom_tile(color = outline.color)
-  } else if (method == "circle") {
-    p <- p +
-      ggplot2::geom_point(
-        color = outline.color,
-        shape = 21,
-        ggplot2::aes(size = .data[["abs_corr"]])
-      ) +
-      ggplot2::scale_size(range = c(4, 10) * circle.scale) +
-      ggplot2::guides(size = "none")
-  }
+  # modification based on method (extracted so the mixed-method path can request
+  # a different glyph per triangle from the same builder, P0.0)
+  p <- p + .method_layer(method, outline.color = outline.color, circle.scale = circle.scale)
 
   # adding colors
   if (length(colors) < 2) {
@@ -516,6 +446,114 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 #+++++++++++++++++++++++
 # Helper Functions
 #+++++++++++++++++++++++
+
+# Reorder -> round -> mask a triangle -> melt -> join per-cell significance.
+# Takes the already-coerced correlation matrix and (optional) p-value matrix and
+# the resolved show.diag, and returns the two long data frames the plot layers
+# are built from:
+#   $corr  : melted correlation data frame (Var1, Var2, value, pvalue, signif,
+#            [coef], abs_corr)
+#   $p.mat : the insignificant-cells data frame used by the insig = "pch" layer,
+#            or NULL when no p.mat was supplied.
+# Behaviour is identical to the inline pipeline it was extracted from (P0.0); the
+# order of operations matters (round happens AFTER clustering and the
+# significance test, #14/#25) and is preserved exactly.
+.build_corr_df <- function(corr, p.mat, type, show.diag, hc.order, hc.method,
+                           digits, sig.level, insig, as.is) {
+  # Reordering and the triangular layouts require a square matrix; a non-square
+  # (m x n) correlation matrix can only be shown in full (#5, #10).
+  if (nrow(corr) != ncol(corr)) {
+    if (hc.order) {
+      stop("hc.order = TRUE requires a square correlation matrix.")
+    }
+    if (type != "full") {
+      stop("type = '", type, "' requires a square correlation matrix; ",
+           "use type = 'full' for a non-square matrix.")
+    }
+  }
+
+  # Order on the unrounded matrix so the internal rounding below does not
+  # introduce ties that perturb the hierarchical clustering (#14).
+  if (hc.order) {
+    ord <- .hc_cormat_order(corr, hc.method = hc.method)
+    corr <- corr[ord, ord]
+    if (!is.null(p.mat)) {
+      p.mat <- p.mat[ord, ord]
+    }
+  }
+
+  corr <- base::round(x = corr, digits = digits)
+
+  if (!show.diag) {
+    corr <- .remove_diag(corr)
+    p.mat <- .remove_diag(p.mat)
+  }
+
+  # Get lower or upper triangle
+  if (type == "lower") {
+    corr <- .get_lower_tri(corr, show.diag)
+    p.mat <- .get_lower_tri(p.mat, show.diag)
+  } else if (type == "upper") {
+    corr <- .get_upper_tri(corr, show.diag)
+    p.mat <- .get_upper_tri(p.mat, show.diag)
+  }
+
+  # Melt corr and pmat
+  corr <- reshape2::melt(corr, na.rm = TRUE, as.is = as.is)
+  colnames(corr) <- c("Var1", "Var2", "value")
+  corr$pvalue <- rep(NA, nrow(corr))
+  corr$signif <- rep(NA, nrow(corr))
+
+  if (!is.null(p.mat)) {
+    p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
+    colnames(p.mat) <- c("Var1", "Var2", "value")
+    # Match each p-value to its correlation cell by (Var1, Var2) rather than by
+    # row position, so a differing NA pattern between corr and p.mat cannot
+    # misalign them (or raise a length error). When the patterns match, the
+    # match is the identity and the result is byte-identical.
+    idx <- match(
+      paste(corr$Var1, corr$Var2, sep = "\r"),
+      paste(p.mat$Var1, p.mat$Var2, sep = "\r")
+    )
+    corr$coef <- corr$value
+    corr$pvalue <- p.mat$value[idx]
+    corr$signif <- as.numeric(corr$pvalue <= sig.level)
+    p.mat <- subset(p.mat, p.mat$value > sig.level)
+    # keep significance markers only for cells present in the correlation plot
+    p.mat <- p.mat[paste(p.mat$Var1, p.mat$Var2, sep = "\r") %in%
+      paste(corr$Var1, corr$Var2, sep = "\r"), ]
+    if (insig == "blank") {
+      # a cell with no matching p-value (unknown significance) is kept as-is
+      keep <- ifelse(is.na(corr$signif), 1, corr$signif)
+      corr$value <- corr$value * keep
+    }
+  } else {
+    p.mat <- NULL
+  }
+
+  corr$abs_corr <- abs(corr$value) * 10
+
+  list(corr = corr, p.mat = p.mat)
+}
+
+# Build the glyph layer(s) for a given method. Returns a list of ggplot
+# components so the caller can add them with a single `+` (and so the
+# mixed-method path can request a different glyph per triangle, P0.0).
+.method_layer <- function(method, outline.color, circle.scale) {
+  if (method == "square") {
+    list(ggplot2::geom_tile(color = outline.color))
+  } else if (method == "circle") {
+    list(
+      ggplot2::geom_point(
+        color = outline.color,
+        shape = 21,
+        ggplot2::aes(size = .data[["abs_corr"]])
+      ),
+      ggplot2::scale_size(range = c(4, 10) * circle.scale),
+      ggplot2::guides(size = "none")
+    )
+  }
+}
 
 # Get lower triangle of the correlation matrix
 .get_lower_tri <- function(cormat, show.diag = FALSE) {
