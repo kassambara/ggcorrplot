@@ -42,6 +42,13 @@
 #' @param hc.order logical value. If TRUE, correlation matrix will be hc.ordered
 #'   using hclust function.
 #' @param hc.method the agglomeration method to be used in hclust (see ?hclust).
+#' @param hc.rect integer or \code{NULL} (default). If an integer \code{k}, draws
+#'   \code{k} rectangles (fixed style: grey outline, no fill) around the clusters
+#'   obtained by cutting the hierarchical tree, marking the cluster blocks on the
+#'   diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
+#'   span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
+#'   custom box style, add your own \code{annotate("rect", ...)} to the returned
+#'   plot.
 #' @param lab logical value. If TRUE, add correlation coefficient on the plot.
 #' @param lab_col,lab_size size and color to be used for the correlation
 #'   coefficient labels. used when lab = TRUE.
@@ -127,6 +134,8 @@
 #' # --------------------------------
 #' # using hierarchical clustering
 #' ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+#' # draw rectangles around the clusters
+#' ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 #'
 #' # Types of correlogram layout
 #' # --------------------------------
@@ -223,7 +232,8 @@ ggcorrplot <- function(corr,
                        circle.scale = 1,
                        coord.fixed = TRUE,
                        lower.method = NULL,
-                       upper.method = NULL) {
+                       upper.method = NULL,
+                       hc.rect = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -310,6 +320,7 @@ ggcorrplot <- function(corr,
   )
   corr <- built$corr
   p.mat <- built$p.mat
+  hc <- built$hc
 
   # heatmap
   if (mixed) {
@@ -464,6 +475,50 @@ ggcorrplot <- function(corr,
     }
   }
 
+  # cluster rectangles: draw hc.rect boxes around the k clusters obtained by
+  # cutting the dendrogram. Requires hc.order (so the variables are in dendrogram
+  # order and each cluster is a contiguous block). The blocks are full squares on
+  # the diagonal, so they are only meaningful on the full matrix -- on a lower/
+  # upper triangle a box would extend over the blanked half. Added on top of the
+  # glyphs.
+  if (!is.null(hc.rect)) {
+    if (!hc.order) {
+      stop("hc.rect requires hc.order = TRUE.", call. = FALSE)
+    }
+    if (type != "full") {
+      stop("hc.rect requires type = \"full\"; the cluster boxes span the whole ",
+           "diagonal block and would extend over the hidden triangle otherwise.",
+           call. = FALSE)
+    }
+    # The box positions are grid indices 1..n in dendrogram order, so they only
+    # line up with the cells when the axis is the discrete factor melt() produced
+    # in that order. Numeric-looking dimnames (type-converted to a continuous axis
+    # sorted by value) or as.is = TRUE (a character axis sorted alphabetically)
+    # reorder the axis away from the clustering, which would draw the boxes over
+    # the wrong cells -- refuse rather than mislead.
+    if (!is.factor(corr$Var1)) {
+      stop("hc.rect is not supported with numeric-looking dimnames or ",
+           "as.is = TRUE, which order the axis by name rather than by the ",
+           "clustering; use non-numeric variable names.", call. = FALSE)
+    }
+    k <- hc.rect
+    n <- length(hc$order)
+    if (!is.numeric(k) || length(k) != 1L || is.na(k) || k < 1 || k > n ||
+        k != as.integer(k)) {
+      stop("hc.rect must be a single integer between 1 and ", n,
+           " (the number of variables).", call. = FALSE)
+    }
+    b <- .hc_rect_bounds(hc, k)
+    # No linewidth/size: the default border keeps this compatible with the
+    # declared ggplot2 floor (linewidth is a ggplot2 >= 3.4.0 aesthetic).
+    p <- p + ggplot2::annotate(
+      "rect",
+      xmin = b$lo - 0.5, xmax = b$hi + 0.5,
+      ymin = b$lo - 0.5, ymax = b$hi + 0.5,
+      fill = NA, colour = "gray30"
+    )
+  }
+
   # add titles
   if (title != "") {
     p <- p +
@@ -595,8 +650,10 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 
   # Order on the unrounded matrix so the internal rounding below does not
   # introduce ties that perturb the hierarchical clustering (#14).
+  hc <- NULL
   if (hc.order) {
-    ord <- .hc_cormat_order(corr, hc.method = hc.method)
+    hc <- .hc_cormat_order(corr, hc.method = hc.method)
+    ord <- hc$order
     corr <- corr[ord, ord]
     if (!is.null(p.mat)) {
       p.mat <- p.mat[ord, ord]
@@ -654,7 +711,8 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 
   corr$abs_corr <- abs(corr$value) * 10
 
-  list(corr = corr, p.mat = p.mat)
+  # `hc` is the hclust object when hc.order = TRUE (needed for hc.rect), else NULL.
+  list(corr = corr, p.mat = p.mat, hc = hc)
 }
 
 # Build the glyph layer(s) for a given method. Returns a list of ggplot
@@ -798,11 +856,24 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   diag(cormat) <- NA
   cormat
 }
-# hc.order correlation matrix
+# hc.order correlation matrix. Returns the whole hclust object (its $order gives
+# the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).
 .hc_cormat_order <- function(cormat, hc.method = "complete") {
   dd <- stats::as.dist((1 - cormat) / 2)
-  hc <- stats::hclust(dd, method = hc.method)
-  hc$order
+  stats::hclust(dd, method = hc.method)
+}
+
+# Contiguous block bounds (in dendrogram-order axis positions 1..n) for the k
+# clusters of an hclust tree. cutree() labels each variable with its cluster;
+# reindexing by hc$order puts them in the same order as the plotted axes, where
+# each cluster is guaranteed to be a contiguous run (a property of the dendrogram
+# leaf order), so rle() gives exactly k blocks. Returns lo/hi position of each.
+.hc_rect_bounds <- function(hc, k) {
+  cl <- stats::cutree(hc, k = k)[hc$order]
+  runs <- rle(cl)
+  hi <- cumsum(runs$lengths)
+  lo <- hi - runs$lengths + 1L
+  list(lo = lo, hi = hi)
 }
 
 .no_panel <- function() {

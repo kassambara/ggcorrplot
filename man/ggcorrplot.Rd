@@ -42,7 +42,8 @@ ggcorrplot(
   circle.scale = 1,
   coord.fixed = TRUE,
   lower.method = NULL,
-  upper.method = NULL
+  upper.method = NULL,
+  hc.rect = NULL
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -99,6 +100,14 @@ length-3 vector for the low, mid and high correlation values (mapped with
 using hclust function.}
 
 \item{hc.method}{the agglomeration method to be used in hclust (see ?hclust).}
+
+\item{hc.rect}{integer or \code{NULL} (default). If an integer \code{k}, draws
+\code{k} rectangles (fixed style: grey outline, no fill) around the clusters
+obtained by cutting the hierarchical tree, marking the cluster blocks on the
+diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
+span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
+custom box style, add your own \code{annotate("rect", ...)} to the returned
+plot.}
 
 \item{lab}{logical value. If TRUE, add correlation coefficient on the plot.}
 
@@ -237,6 +246,8 @@ ggcorrplot(corr,
 # --------------------------------
 # using hierarchical clustering
 ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+# draw rectangles around the clusters
+ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 
 # Types of correlogram layout
 # --------------------------------

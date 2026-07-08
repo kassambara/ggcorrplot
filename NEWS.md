@@ -9,6 +9,11 @@
   accepts "square", "circle" or "number"; both default to `NULL`, leaving the
   single-method output unchanged (#85). Requested by @Breeze-Hu.
 
+- New argument `hc.rect` to draw rectangles around the clusters of a
+  hierarchically-ordered correlogram: `ggcorrplot(corr, hc.order = TRUE,
+  hc.rect = 3)` frames the 3 clusters obtained by cutting the tree. Defaults to
+  `NULL` (no rectangles).
+
 ## Minor changes
 
 - Internal refactor: the data-preparation pipeline and the glyph-layer
