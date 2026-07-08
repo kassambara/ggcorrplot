@@ -81,9 +81,9 @@
 #'   default to \code{1}; adjust them to reposition the variable-name labels.
 #' @param digits Decides the number of decimal digits to be displayed (Default:
 #'   `2`).
-#' @param as.is A logical passed to \code{\link[reshape2]{melt.array}}. If
-#'   \code{TRUE}, dimnames will be left as strings instead of being converted
-#'   using \code{\link[utils]{type.convert}}.
+#' @param as.is retained for backward compatibility; no longer affects the plot.
+#'   The axis is now always drawn in the matrix (row/column) order, so the
+#'   variable-name handling this argument used to control is done internally.
 #' @param nsmall the minimum number of digits to the right of the decimal point
 #'   in the coefficient labels, passed to \code{\link[base]{format}}. Default is
 #'   \code{0} (no minimum, current behavior). Set e.g. \code{nsmall = 2} to keep
@@ -324,12 +324,12 @@ ggcorrplot <- function(corr,
 
   # heatmap
   if (mixed) {
-    # Make the axis variables position-based factors before splitting into
-    # regions and drawing. reshape2::melt type-converts numeric-looking dimnames
-    # to their numeric VALUES (#37) and as.is = TRUE leaves them as strings; in
-    # both cases the region split (which keys off the grid POSITION) and the
-    # discrete axes would otherwise disagree and scramble the plot. Levels follow
-    # the melt (row) order, so for ordinary names this is the identity.
+    # Re-level the axes to exactly the variables PRESENT after melting, in matrix
+    # order. .build_corr_df() has already coerced named matrices to matrix-order
+    # factors; here we (a) coerce an unnamed matrix (integer axis) to a
+    # position-based factor, and (b) drop any level that is absent from the data
+    # (e.g. an all-NA variable) so the mixed layout -- which pins the discrete
+    # axes with drop = FALSE -- does not resurrect it as an empty band.
     corr$Var1 <- factor(as.character(corr$Var1), levels = as.character(unique(corr$Var1)))
     corr$Var2 <- factor(as.character(corr$Var2), levels = as.character(unique(corr$Var2)))
 
@@ -490,17 +490,9 @@ ggcorrplot <- function(corr,
            "diagonal block and would extend over the hidden triangle otherwise.",
            call. = FALSE)
     }
-    # The box positions are grid indices 1..n in dendrogram order, so they only
-    # line up with the cells when the axis is the discrete factor melt() produced
-    # in that order. Numeric-looking dimnames (type-converted to a continuous axis
-    # sorted by value) or as.is = TRUE (a character axis sorted alphabetically)
-    # reorder the axis away from the clustering, which would draw the boxes over
-    # the wrong cells -- refuse rather than mislead.
-    if (!is.factor(corr$Var1)) {
-      stop("hc.rect is not supported with numeric-looking dimnames or ",
-           "as.is = TRUE, which order the axis by name rather than by the ",
-           "clustering; use non-numeric variable names.", call. = FALSE)
-    }
+    # The box positions are grid indices 1..n in dendrogram order; they line up
+    # because .build_corr_df() coerces the axis to a factor in that order, so
+    # numeric-looking or as.is names no longer sort the axis by value/alphabet.
     k <- hc.rect
     n <- length(hc$order)
     if (!is.numeric(k) || length(k) != 1L || is.na(k) || k < 1 || k > n ||
@@ -676,15 +668,37 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     p.mat <- .get_upper_tri(p.mat, show.diag)
   }
 
+  # The plot must display the variables in the matrix row/column order (which
+  # carries the hc.order reordering). Capture that order before melting, then
+  # coerce the axis back to a factor with these levels so the display order never
+  # depends on how the names happen to sort (#37). Melting with as.is = TRUE keeps
+  # the dimnames VERBATIM -- reshape2::melt's default type-conversion would turn
+  # numeric-looking names into their numeric values, so as.character() of a
+  # non-canonical name (e.g. "01", "1.10", "1e2") would no longer match the
+  # captured level and every cell would collapse to NA. `unique()` guards the
+  # pathological case of duplicated names (which would otherwise error on the
+  # factor's duplicate levels).
+  # Only named axes carry a meaningful order to preserve; an unnamed axis melts to
+  # integer indices 1..n, which are already in row order, so it is left exactly as
+  # before (a continuous axis) -- coercing it would be an unnecessary behavior
+  # change for that input. Rows and columns are gated independently so a
+  # partially-named matrix keeps whichever axis has names.
+  row_levels <- if (!is.null(rownames(corr))) unique(rownames(corr)) else NULL
+  col_levels <- if (!is.null(colnames(corr))) unique(colnames(corr)) else NULL
+
   # Melt corr and pmat
-  corr <- reshape2::melt(corr, na.rm = TRUE, as.is = as.is)
+  corr <- reshape2::melt(corr, na.rm = TRUE, as.is = TRUE)
   colnames(corr) <- c("Var1", "Var2", "value")
+  if (!is.null(row_levels)) corr$Var1 <- factor(as.character(corr$Var1), levels = row_levels)
+  if (!is.null(col_levels)) corr$Var2 <- factor(as.character(corr$Var2), levels = col_levels)
   corr$pvalue <- rep(NA, nrow(corr))
   corr$signif <- rep(NA, nrow(corr))
 
   if (!is.null(p.mat)) {
-    p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = as.is)
+    p.mat <- reshape2::melt(p.mat, na.rm = TRUE, as.is = TRUE)
     colnames(p.mat) <- c("Var1", "Var2", "value")
+    if (!is.null(row_levels)) p.mat$Var1 <- factor(as.character(p.mat$Var1), levels = row_levels)
+    if (!is.null(col_levels)) p.mat$Var2 <- factor(as.character(p.mat$Var2), levels = col_levels)
     # Match each p-value to its correlation cell by (Var1, Var2) rather than by
     # row position, so a differing NA pattern between corr and p.mat cannot
     # misalign them (or raise a length error). When the patterns match, the

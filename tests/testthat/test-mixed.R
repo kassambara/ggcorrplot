@@ -189,6 +189,28 @@ test_that("the mixed arguments do not break partial matching of existing argumen
   expect_silent(ggcorrplot(corr, di = 2))
 })
 
+test_that("a fully-NA variable is not resurrected as an empty band in a mixed layout", {
+  # the mixed layout pins the discrete axes with drop = FALSE, so a variable that
+  # is entirely NA (absent after na.rm melt) must be dropped from the axis levels
+  # rather than shown as an empty labelled row/column
+  m <- round(cor(mtcars[, 1:4]), 1)
+  m[2, ] <- NA
+  m[, 2] <- NA
+  p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
+  labs <- ggplot2::ggplot_build(p)$layout$panel_params[[1]]$x$get_labels()
+  present <- colnames(m)[colSums(!is.na(m)) > 0]
+  expect_setequal(labs, present)
+  expect_false(colnames(m)[2] %in% labs) # the all-NA variable is gone
+})
+
+test_that("an unnamed matrix still draws a discrete positional axis in a mixed layout", {
+  m <- round(cor(mtcars[, 1:4]), 1)
+  dimnames(m) <- NULL
+  p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
+  expect_s3_class(p$data$Var1, "factor")
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+})
+
 test_that("mixed composes with hc.order without error and stays full", {
   p <- ggcorrplot(corr, lower.method = "number", upper.method = "circle", hc.order = TRUE)
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")

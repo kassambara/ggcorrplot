@@ -14,6 +14,17 @@
   hc.rect = 3)` frames the 3 clusters obtained by cutting the tree. Defaults to
   `NULL` (no rectangles).
 
+## Main changes
+
+- The plot axis is now always drawn in the matrix (row/column) order. This fixes
+  a bug where `hc.order = TRUE` was silently ignored for correlation matrices with
+  numeric-looking variable names (e.g. `"1"`, `"2"`, ...): `reshape2::melt`
+  type-converted such names to a continuous axis sorted by value, discarding the
+  clustering order (#37). As a consequence, the `as.is` argument no longer affects
+  the plot (it is kept only for backward compatibility) -- a call using
+  `as.is = TRUE`, which previously produced an alphabetically-ordered axis, now
+  follows the matrix order like every other call. Reported by @cabaez (#37).
+
 ## Minor changes
 
 - Internal refactor: the data-preparation pipeline and the glyph-layer
