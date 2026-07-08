@@ -35,6 +35,11 @@
   `"italic"`, `"bold.italic"`) of the correlation coefficient labels. Defaults
   to `"plain"`, the current behavior (#15).
 
+- New argument `leading.zero` to drop the leading zero of the coefficient labels
+  (e.g. `.23`, `-.67` instead of `0.23`, `-0.67`), common in correlation tables.
+  Defaults to `TRUE` (leading zero kept, current behavior); set
+  `leading.zero = FALSE` to remove it (#15; idiom from @PawelKulawiak's comment).
+
 - New arguments `tl.vjust` and `tl.hjust` to control the vertical and horizontal
   justification of the x-axis text labels. Both default to `1`, the current
   behavior (#56).
