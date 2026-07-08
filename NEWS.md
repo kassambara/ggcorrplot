@@ -39,6 +39,12 @@
   justification of the x-axis text labels. Both default to `1`, the current
   behavior (#56).
 
+- New argument `use` in `cor_pmat()` to align the p-value matrix's `NA` pattern
+  with a correlation matrix. The default `"pairwise.complete.obs"` keeps the
+  current behavior; `use = "everything"` sets a pair to `NA` as soon as either
+  variable has a missing value, matching `cor()`'s default so the two matrices
+  line up (@elizabethwe, #51).
+
 ## Minor changes
   
 - New argument `as.is` added. A logical passed to melt.array. If TRUE, dimnames

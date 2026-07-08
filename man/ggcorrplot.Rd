@@ -42,7 +42,7 @@ ggcorrplot(
   coord.fixed = TRUE
 )
 
-cor_pmat(x, ...)
+cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
 }
 \arguments{
 \item{corr}{the correlation matrix to visualize}
@@ -155,6 +155,13 @@ ratio), which can look better with many long variable names.}
 \item{x}{numeric matrix or data frame}
 
 \item{...}{other arguments to be passed to the function cor.test.}
+
+\item{use}{character, how to treat pairs involving missing values when
+deciding which cells are \code{NA}. Either \code{"pairwise.complete.obs"}
+(default; test every pair that has enough overlapping observations) or
+\code{"everything"} (set a pair to \code{NA} as soon as either variable has
+a missing value, matching \code{\link[stats]{cor}}'s default). Mirrors the
+corresponding values of \code{\link[stats]{cor}}'s \code{use} argument.}
 }
 \value{
 \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
@@ -167,6 +174,14 @@ non-missing observations (which \code{\link[stats]{cor.test}} cannot test,
 e.g. two variables that never co-occur) yields \code{NA} for that cell
 rather than aborting the whole computation. Pairs that can be tested are
 computed as before, and errors they raise are passed through.
+
+The \code{use} argument controls which pairs are returned as \code{NA} so
+the p-value matrix can be aligned with a correlation matrix built the same
+way. With the default \code{"pairwise.complete.obs"} every pair that has
+enough overlapping observations is tested (the previous behavior). With
+\code{"everything"} a pair is set to \code{NA} whenever either variable has
+any missing value, so the \code{NA} pattern matches
+\code{\link[stats]{cor}(x)} with its default \code{use = "everything"}.
 }
 \description{
 \itemize{ \item ggcorrplot(): A graphical display of a
