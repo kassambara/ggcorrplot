@@ -14,13 +14,25 @@ test_that(".build_corr_df returns the melted corr frame and a NULL p.mat when no
     hc.order = FALSE, hc.method = "complete", digits = 2,
     sig.level = 0.05, insig = "pch", as.is = FALSE
   )
-  expect_named(b, c("corr", "p.mat"))
+  expect_named(b, c("corr", "p.mat", "hc"))
   expect_s3_class(b$corr, "data.frame")
   expect_null(b$p.mat)
+  expect_null(b$hc) # no clustering requested
   expect_true(all(c("Var1", "Var2", "value", "pvalue", "signif", "abs_corr") %in% names(b$corr)))
   expect_equal(nrow(b$corr), n * n)
   # with no p.mat, significance columns are all NA
   expect_true(all(is.na(b$corr$pvalue)))
+})
+
+test_that(".build_corr_df returns the hclust object when hc.order = TRUE", {
+  b <- .build_corr_df(
+    corr = corr, p.mat = NULL, type = "full", show.diag = TRUE,
+    hc.order = TRUE, hc.method = "complete", digits = 2,
+    sig.level = 0.05, insig = "pch", as.is = FALSE
+  )
+  expect_s3_class(b$hc, "hclust")
+  # its $order reproduces the reordering applied to the melted data
+  expect_identical(levels(b$corr$Var1), colnames(corr)[b$hc$order])
 })
 
 test_that(".build_corr_df joins p-values and returns the insignificant-cells frame", {

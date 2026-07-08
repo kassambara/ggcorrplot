@@ -37,5 +37,11 @@ if (getRversion() >= "4.1") {
         show.legend = FALSE
       )
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - hc.rect",
+      fig = ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
+    )
   })
 }
