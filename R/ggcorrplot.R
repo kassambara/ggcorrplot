@@ -6,7 +6,19 @@
 #' @param corr the correlation matrix to visualize
 #' @param method character, the visualization method of correlation matrix to be
 #'   used. Allowed values are "square" (default), "circle".
-#' @param type character, "full" (default), "lower" or "upper" display.
+#' @param lower.method,upper.method character, an optional per-triangle glyph for
+#'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
+#'   as text, colored by its value on the same scale as the fill, so coefficients
+#'   near zero are faint). When either is set, the plot switches to a mixed layout
+#'   where the lower and upper triangles are drawn separately and the variable
+#'   names are drawn on the diagonal; a triangle left \code{NULL} uses
+#'   \code{method}. Both default to \code{NULL} (single-method plot, unchanged).
+#'   In a mixed layout the single-method significance and label overlays
+#'   (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig}, \code{pch*}) do
+#'   not apply; show coefficients with a "number" triangle instead.
+#' @param type character, "full" (default), "lower" or "upper" display. A mixed
+#'   layout (see \code{lower.method}/\code{upper.method}) always uses the full
+#'   matrix.
 #' @param ggtheme ggplot2 function or theme object. Default value is
 #'   `theme_minimal`. Allowed values are the official ggplot2 themes including
 #'   theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
@@ -102,6 +114,14 @@
 #' # method = "square" or "circle"
 #' ggcorrplot(corr)
 #' ggcorrplot(corr, method = "circle")
+#'
+#' # Mixed layout: a different glyph per triangle
+#' # --------------------------------
+#' # numbers in the lower triangle, circles in the upper, names on the diagonal
+#' ggcorrplot(corr,
+#'   lower.method = "number", upper.method = "circle",
+#'   show.legend = FALSE
+#' )
 #'
 #' # Reordering the correlation matrix
 #' # --------------------------------
@@ -201,7 +221,9 @@ ggcorrplot <- function(corr,
                        leading.zero = TRUE,
                        legend.limit = c(-1, 1),
                        circle.scale = 1,
-                       coord.fixed = TRUE) {
+                       coord.fixed = TRUE,
+                       lower.method = NULL,
+                       upper.method = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
   insig <- match.arg(insig)
@@ -210,6 +232,36 @@ ggcorrplot <- function(corr,
       show.diag <- TRUE
     } else {
       show.diag <- FALSE
+    }
+  }
+
+  # Mixed layout: a different glyph per triangle (and the diagonal), requested via
+  # the per-triangle arguments. Mixed mode fires only when at least one of them is
+  # set, so every call that leaves them NULL (all existing calls) takes the
+  # unchanged single-method path below and is byte-identical. "number" (a text
+  # coefficient) is a value of these per-triangle arguments only; it is
+  # deliberately NOT added to the scalar `method` choice set, whose match.arg must
+  # keep resolving c("square","circle") to "square" (#85). The diagonal always
+  # shows the variable names in a mixed layout (there is intentionally no
+  # `diag.*` argument: any such name would start with "d" and make an abbreviated
+  # `digits` call, e.g. `ggcorrplot(x, d = 2)`, ambiguous -- a CRAN regression).
+  mixed <- !is.null(lower.method) || !is.null(upper.method)
+  if (mixed) {
+    glyphs <- c("square", "circle", "number")
+    lower.method <- if (is.null(lower.method)) method else match.arg(lower.method, glyphs)
+    upper.method <- if (is.null(upper.method)) method else match.arg(upper.method, glyphs)
+    # A mixed layout draws both triangles and the diagonal, i.e. the full matrix.
+    type <- "full"
+    show.diag <- TRUE
+    # The single-method coefficient/significance overlays do not apply to a mixed
+    # layout (the coefficients are a region glyph via lower/upper.method =
+    # "number"). Tell the user rather than dropping their arguments silently.
+    if (lab || sig.stars || !is.null(p.mat)) {
+      message(
+        "In a mixed layout, `lab`, `sig.stars`, `p.mat`, `insig` and `pch*` are ",
+        "not applied; use lower.method/upper.method = \"number\" to show the ",
+        "coefficients."
+      )
     }
   }
 
@@ -225,6 +277,21 @@ ggcorrplot <- function(corr,
   }
   corr <- as.matrix(corr)
 
+  if (mixed) {
+    if (nrow(corr) != ncol(corr)) {
+      stop("A mixed layout (lower.method/upper.method) requires a square ",
+           "correlation matrix.", call. = FALSE)
+    }
+    # The mixed layout splits cells by grid position and names the diagonal from
+    # the row variable, so the diagonal is only meaningful when the row and column
+    # names match (as they do for any correlation matrix). Refuse a square matrix
+    # with differing row/column names rather than silently mislabelling it.
+    if (!identical(rownames(corr), colnames(corr))) {
+      stop("A mixed layout requires the correlation matrix to have matching row ",
+           "and column names.", call. = FALSE)
+    }
+  }
+
   # Transform the correlation (and matching p-value) matrix into the long
   # data frames the plot is built from: reorder, round, mask a triangle, melt,
   # and join per-cell significance. Extracted so the mixed-method path can reuse
@@ -233,21 +300,52 @@ ggcorrplot <- function(corr,
   built <- .build_corr_df(
     corr = corr, p.mat = p.mat, type = type, show.diag = show.diag,
     hc.order = hc.order, hc.method = hc.method, digits = digits,
-    sig.level = sig.level, insig = insig, as.is = as.is
+    sig.level = sig.level,
+    # A mixed layout does not overlay significance, so the insig = "blank"
+    # value-zeroing must not run here: otherwise a "number" region would print a
+    # literal 0 for a non-significant cell instead of its coefficient. Force the
+    # non-blanking path when mixed so the numbers stay the true coefficients.
+    insig = if (mixed) "pch" else insig,
+    as.is = as.is
   )
   corr <- built$corr
   p.mat <- built$p.mat
 
   # heatmap
-  p <-
-    ggplot2::ggplot(
-      data = corr,
-      mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]], fill = .data[["value"]])
-    )
+  if (mixed) {
+    # Make the axis variables position-based factors before splitting into
+    # regions and drawing. reshape2::melt type-converts numeric-looking dimnames
+    # to their numeric VALUES (#37) and as.is = TRUE leaves them as strings; in
+    # both cases the region split (which keys off the grid POSITION) and the
+    # discrete axes would otherwise disagree and scramble the plot. Levels follow
+    # the melt (row) order, so for ordinary names this is the identity.
+    corr$Var1 <- factor(as.character(corr$Var1), levels = as.character(unique(corr$Var1)))
+    corr$Var2 <- factor(as.character(corr$Var2), levels = as.character(unique(corr$Var2)))
 
-  # modification based on method (extracted so the mixed-method path can request
-  # a different glyph per triangle from the same builder, P0.0)
-  p <- p + .method_layer(method, outline.color = outline.color, circle.scale = circle.scale)
+    # One glyph per region, each drawn from its own subset of the cells. The base
+    # plot carries no global fill so the text glyphs ("number"/"name") are not
+    # forced to inherit it; each glyph layer sets the aesthetics it needs.
+    p <- ggplot2::ggplot(
+      data = corr,
+      mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]])
+    )
+    p <- p + .mixed_layers(
+      corr, lower.method, upper.method,
+      outline.color = outline.color, circle.scale = circle.scale,
+      lab_size = lab_size, tl.cex = tl.cex, tl.col = tl.col,
+      digits = digits, nsmall = nsmall, leading.zero = leading.zero
+    )
+  } else {
+    p <-
+      ggplot2::ggplot(
+        data = corr,
+        mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]], fill = .data[["value"]])
+      )
+
+    # modification based on method (extracted so the mixed-method path can request
+    # a different glyph per triangle from the same builder, P0.0)
+    p <- p + .method_layer(method, outline.color = outline.color, circle.scale = circle.scale)
+  }
 
   # adding colors
   if (length(colors) < 2) {
@@ -272,6 +370,28 @@ ggcorrplot <- function(corr,
       limits = legend.limit,
       name = legend.title
     )
+  }
+
+  # A "number" region colours its text by the correlation value, so it needs a
+  # colour scale that matches the fill scale. When a square/circle region also
+  # draws fill, that fill scale carries the legend and the (redundant) colour
+  # guide is suppressed; when numbers are the ONLY value encoding (e.g. both
+  # triangles are "number"), the colour scale carries the legend instead, so the
+  # plot is never left legend-less.
+  if (mixed && "number" %in% c(lower.method, upper.method)) {
+    has_fill_glyph <- any(c(lower.method, upper.method) %in% c("square", "circle"))
+    colour_name <- if (has_fill_glyph) ggplot2::waiver() else legend.title
+    if (length(colors) == 3) {
+      p <- p + ggplot2::scale_colour_gradient2(
+        low = colors[1], high = colors[3], mid = colors[2],
+        midpoint = 0, limit = legend.limit, space = "Lab", name = colour_name
+      )
+    } else {
+      p <- p + ggplot2::scale_colour_gradientn(
+        colours = colors, limits = legend.limit, name = colour_name
+      )
+    }
+    if (has_fill_glyph) p <- p + ggplot2::guides(colour = "none")
   }
 
   # depending on the class of the object, add the specified theme
@@ -299,48 +419,49 @@ ggcorrplot <- function(corr,
     p <- p + ggplot2::coord_cartesian()
   }
 
-  label <- round(x = corr[, "value"], digits = digits)
-  if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
-  if (!leading.zero) {
-    # drop the leading zero of values in (-1, 1), e.g. 0.23 -> .23, -0.67 -> -.67
-    # (idiom from @PawelKulawiak, #15). The \\b keeps values like 1.00 untouched.
-    label <- gsub("\\b0(\\.\\d+)", "\\1", label)
-  }
-  if (sig.stars && !is.null(p.mat)) {
-    stars <- as.character(cut(corr$pvalue,
-      breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
-      labels = c("***", "**", "*", "")
-    ))
-    stars[is.na(stars)] <- ""
-    label <- paste0(label, stars)
-  }
-  if (!is.null(p.mat) & insig == "blank") {
-    ns <- corr$pvalue > sig.level
-    ns[is.na(ns)] <- FALSE
-    if (sum(ns) > 0) label[ns] <- " "
-  }
+  # The coefficient-label overlay and the significance glyphs are single-method
+  # features. In a mixed layout the coefficients are a region glyph
+  # (method.* = "number") and significance is not overlaid, so this whole block
+  # is skipped; a non-mixed call runs it exactly as before.
+  if (!mixed) {
+    label <- .format_coef(corr[, "value"], digits = digits, nsmall = nsmall,
+                          leading.zero = leading.zero)
+    if (sig.stars && !is.null(p.mat)) {
+      stars <- as.character(cut(corr$pvalue,
+        breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
+        labels = c("***", "**", "*", "")
+      ))
+      stars[is.na(stars)] <- ""
+      label <- paste0(label, stars)
+    }
+    if (!is.null(p.mat) & insig == "blank") {
+      ns <- corr$pvalue > sig.level
+      ns[is.na(ns)] <- FALSE
+      if (sum(ns) > 0) label[ns] <- " "
+    }
 
-  # matrix cell labels
-  if (lab) {
-    p <- p +
-      ggplot2::geom_text(
+    # matrix cell labels
+    if (lab) {
+      p <- p +
+        ggplot2::geom_text(
+          mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
+          label = label,
+          color = lab_col,
+          size = lab_size,
+          fontface = lab_fontface
+        )
+    }
+
+    # matrix cell glyphs
+    if (!is.null(p.mat) & insig == "pch" & !sig.stars) {
+      p <- p + ggplot2::geom_point(
+        data = p.mat,
         mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
-        label = label,
-        color = lab_col,
-        size = lab_size,
-        fontface = lab_fontface
+        shape = pch,
+        size = pch.cex,
+        color = pch.col
       )
-  }
-
-  # matrix cell glyphs
-  if (!is.null(p.mat) & insig == "pch" & !sig.stars) {
-    p <- p + ggplot2::geom_point(
-      data = p.mat,
-      mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
-      shape = pch,
-      size = pch.cex,
-      color = pch.col
-    )
+    }
   }
 
   # add titles
@@ -553,6 +674,97 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
       ggplot2::guides(size = "none")
     )
   }
+}
+
+# Format the correlation coefficients for display: round to `digits`, optionally
+# pad to `nsmall` decimals, optionally drop the leading zero. Shared by the
+# single-method label overlay and the mixed "number" glyph so they format the
+# same way.
+.format_coef <- function(x, digits, nsmall, leading.zero) {
+  label <- round(x = x, digits = digits)
+  if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
+  if (!leading.zero) {
+    # drop the leading zero of values in (-1, 1), e.g. 0.23 -> .23, -0.67 -> -.67
+    # (idiom from @PawelKulawiak, #15). The \\b keeps values like 1.00 untouched.
+    label <- gsub("\\b0(\\.\\d+)", "\\1", label)
+  }
+  label
+}
+
+# Build the layers for a mixed layout: a per-triangle glyph over the lower
+# triangle (Var1 index > Var2 index) and the upper triangle, plus the variable
+# names on the diagonal. Each region is a subset of the melted correlation data
+# frame drawn with its own layer so the glyphs can differ. "square"/"circle" draw
+# the usual glyphs; "number" draws the coefficient as text colored by value
+# (matched by a colour scale added in the caller); the diagonal always draws the
+# variable name. Returns a list of ggplot components.
+.mixed_layers <- function(df, lower.method, upper.method,
+                          outline.color, circle.scale, lab_size, tl.cex, tl.col,
+                          digits, nsmall, leading.zero) {
+  xi <- as.integer(df$Var1)
+  yi <- as.integer(df$Var2)
+  regions <- list(
+    list(data = df[xi > yi, , drop = FALSE], method = lower.method),
+    list(data = df[xi < yi, , drop = FALSE], method = upper.method),
+    list(data = df[xi == yi, , drop = FALSE], method = "name")
+  )
+
+  layers <- list()
+  has_circle <- FALSE
+  for (r in regions) {
+    d <- r$data
+    if (nrow(d) == 0) next
+    m <- r$method
+    if (m == "square") {
+      layers <- c(layers, list(ggplot2::geom_tile(
+        data = d,
+        mapping = ggplot2::aes(fill = .data[["value"]]),
+        color = outline.color
+      )))
+    } else if (m == "circle") {
+      has_circle <- TRUE
+      layers <- c(layers, list(ggplot2::geom_point(
+        data = d,
+        mapping = ggplot2::aes(fill = .data[["value"]], size = .data[["abs_corr"]]),
+        color = outline.color, shape = 21
+      )))
+    } else if (m == "number") {
+      layers <- c(layers, list(ggplot2::geom_text(
+        data = d,
+        mapping = ggplot2::aes(colour = .data[["value"]]),
+        label = .format_coef(d$value, digits, nsmall, leading.zero),
+        size = lab_size
+      )))
+    } else if (m == "name") {
+      layers <- c(layers, list(ggplot2::geom_text(
+        data = d,
+        mapping = ggplot2::aes(label = .data[["Var1"]]),
+        colour = if (is.null(tl.col)) "black" else tl.col,
+        size = tl.cex / 3
+      )))
+    }
+  }
+
+  if (has_circle) {
+    layers <- c(layers, list(
+      ggplot2::scale_size(range = c(4, 10) * circle.scale),
+      ggplot2::guides(size = "none")
+    ))
+  }
+
+  # Each region is a separate layer over a subset of the cells, so a variable
+  # absent from one region's subset (e.g. the first variable never appears in the
+  # lower triangle) would otherwise make ggplot infer that axis's order from the
+  # cells it does see, misaligning the two axes and bending the diagonal. Pin both
+  # axes to the full variable order so every cell lands on the shared grid.
+  lvls_x <- if (is.factor(df$Var1)) levels(df$Var1) else unique(as.character(df$Var1))
+  lvls_y <- if (is.factor(df$Var2)) levels(df$Var2) else unique(as.character(df$Var2))
+  layers <- c(layers, list(
+    ggplot2::scale_x_discrete(limits = lvls_x, drop = FALSE),
+    ggplot2::scale_y_discrete(limits = lvls_y, drop = FALSE)
+  ))
+
+  layers
 }
 
 # Get lower triangle of the correlation matrix

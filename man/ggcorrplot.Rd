@@ -40,7 +40,9 @@ ggcorrplot(
   leading.zero = TRUE,
   legend.limit = c(-1, 1),
   circle.scale = 1,
-  coord.fixed = TRUE
+  coord.fixed = TRUE,
+  lower.method = NULL,
+  upper.method = NULL
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -51,7 +53,20 @@ cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
 \item{method}{character, the visualization method of correlation matrix to be
 used. Allowed values are "square" (default), "circle".}
 
-\item{type}{character, "full" (default), "lower" or "upper" display.}
+\item{lower.method, upper.method}{character, an optional per-triangle glyph for
+a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
+as text, colored by its value on the same scale as the fill, so coefficients
+near zero are faint). When either is set, the plot switches to a mixed layout
+where the lower and upper triangles are drawn separately and the variable names
+are drawn on the diagonal; a triangle left \code{NULL} uses \code{method}. Both
+default to \code{NULL} (single-method plot, unchanged). In a mixed layout the
+single-method significance and label overlays (\code{lab}, \code{sig.stars},
+\code{p.mat}, \code{insig}, \code{pch*}) do not apply; show coefficients with a
+"number" triangle instead.}
+
+\item{type}{character, "full" (default), "lower" or "upper" display. A mixed
+layout (see \code{lower.method}/\code{upper.method}) always uses the full
+matrix.}
 
 \item{ggtheme}{ggplot2 function or theme object. Default value is
 `theme_minimal`. Allowed values are the official ggplot2 themes including
@@ -173,26 +188,26 @@ corresponding values of \code{\link[stats]{cor}}'s \code{use} argument.}
 \itemize{ \item ggcorrplot(): Returns a ggplot2 \item cor_pmat():
 Returns a matrix containing the p-values of correlations }
 }
-\details{
-\code{cor_pmat()} tests each pair of columns with
-\code{\link[stats]{cor.test}}. A pair with fewer than three overlapping
-non-missing observations (which \code{\link[stats]{cor.test}} cannot test,
-e.g. two variables that never co-occur) yields \code{NA} for that cell
-rather than aborting the whole computation. Pairs that can be tested are
-computed as before, and errors they raise are passed through.
-
-The \code{use} argument controls which pairs are returned as \code{NA} so
-the p-value matrix can be aligned with a correlation matrix built the same
-way. With the default \code{"pairwise.complete.obs"} every pair that has
-enough overlapping observations is tested (the previous behavior). With
-\code{"everything"} a pair is set to \code{NA} whenever either variable has
-any missing value, so the \code{NA} pattern matches
-\code{\link[stats]{cor}(x)} with its default \code{use = "everything"}.
-}
 \description{
 \itemize{ \item ggcorrplot(): A graphical display of a
   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
   matrix p-values. }
+}
+\details{
+\code{cor_pmat()} tests each pair of columns with
+  \code{\link[stats]{cor.test}}. A pair with fewer than three overlapping
+  non-missing observations (which \code{\link[stats]{cor.test}} cannot test,
+  e.g. two variables that never co-occur) yields \code{NA} for that cell
+  rather than aborting the whole computation. Pairs that can be tested are
+  computed as before, and errors they raise are passed through.
+
+  The \code{use} argument controls which pairs are returned as \code{NA} so
+  the p-value matrix can be aligned with a correlation matrix built the same
+  way. With the default \code{"pairwise.complete.obs"} every pair that has
+  enough overlapping observations is tested (the previous behavior). With
+  \code{"everything"} a pair is set to \code{NA} whenever either variable has
+  any missing value, so the \code{NA} pattern matches
+  \code{\link[stats]{cor}(x)} with its default \code{use = "everything"}.
 }
 \examples{
 # Compute a correlation matrix
@@ -209,6 +224,14 @@ p.mat
 # method = "square" or "circle"
 ggcorrplot(corr)
 ggcorrplot(corr, method = "circle")
+
+# Mixed layout: a different glyph per triangle
+# --------------------------------
+# numbers in the lower triangle, circles in the upper, names on the diagonal
+ggcorrplot(corr,
+  lower.method = "number", upper.method = "circle",
+  show.legend = FALSE
+)
 
 # Reordering the correlation matrix
 # --------------------------------

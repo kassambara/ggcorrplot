@@ -28,5 +28,14 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - hc",
       fig = ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - mixed",
+      fig = ggcorrplot(corr,
+        lower.method = "number", upper.method = "circle",
+        show.legend = FALSE
+      )
+    )
   })
 }
