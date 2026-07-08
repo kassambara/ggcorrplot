@@ -19,7 +19,12 @@ The only local note is "unable to verify current time" (the check host cannot
 reach a time server); it is environmental and does not appear on CI.
 
 ## Reverse dependencies
-This release is additive: all new behavior is behind new arguments that default
-to the current behavior, and default output for existing inputs is byte-identical
-(covered by the test suite). A scoped reverse-dependency check is to be run before
-submission and its result recorded here.
+Checked all 22 reverse dependencies with a source-level scan scoped to the
+behavior-changing surface of this release (the `hc.order` clustering/significance
+fixes, `tl.col` now being applied, and `cor_pmat()` returning `NA` instead of
+erroring for uncomputable pairs). No reverse dependency pins `ggcorrplot()` or
+`cor_pmat()` output in a test, snapshot, or `expect_error()`, and every caller
+supplies a square correlation matrix and default-compatible arguments, so no new
+problems are introduced. All other changes are additive: new behavior is behind
+new arguments whose defaults reproduce the current behavior, and default output
+for existing inputs is unchanged.
