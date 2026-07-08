@@ -13,3 +13,4 @@ tests\^spelling
 ^CLAUDE\.md$
 ^TODO\.md$
 ^Rplots\.pdf$
+^CRAN-SUBMISSION$
