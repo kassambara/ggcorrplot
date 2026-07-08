@@ -10,7 +10,8 @@ of defects (see NEWS.md). Default output for existing inputs is unchanged.
 ## Test environments
 * local macOS, R 4.5.x
 * GitHub Actions: macOS-release, Windows-release, Ubuntu-{devel, release, oldrel-1}
-* win-builder (devel and release) — to run before submission
+* win-builder release (R 4.x): OK
+* win-builder devel: submitted
 
 ## R CMD check results
 Local `R CMD check --as-cran`: 0 errors | 0 warnings | 0 notes.
