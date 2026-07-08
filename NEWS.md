@@ -1,5 +1,14 @@
 # ggcorrplot 0.2.0.9000
 
+## New features
+
+- New arguments `lower.method` and `upper.method` for a mixed layout: a different
+  glyph per triangle, e.g. the coefficients as numbers in the lower triangle,
+  circles in the upper, and the variable names on the diagonal
+  (`ggcorrplot(corr, lower.method = "number", upper.method = "circle")`). Each
+  accepts "square", "circle" or "number"; both default to `NULL`, leaving the
+  single-method output unchanged (#85). Requested by @Breeze-Hu.
+
 ## Minor changes
 
 - Internal refactor: the data-preparation pipeline and the glyph-layer

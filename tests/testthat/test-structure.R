@@ -33,6 +33,16 @@ test_that("the default plot is a single tile layer over every cell", {
   expect_equal(layer_rows(p), n * n)
 })
 
+test_that("positional arguments still bind as before (new args are appended, not inserted)", {
+  # the mixed-layout args were added at the END of the signature, so a positional
+  # `type` call must keep working: ggcorrplot(corr, <method>, <type>)
+  p <- ggcorrplot(corr, "circle", "lower")
+  expect_equal(geoms(p), "GeomPoint")
+  expect_equal(layer_rows(p), n * (n - 1) / 2) # lower triangle, off-diagonal
+  full <- ggcorrplot(corr, "circle", "full")
+  expect_equal(layer_rows(full), n * n)
+})
+
 test_that("method = 'circle' swaps the tile layer for a sized point layer", {
   p <- ggcorrplot(corr, method = "circle")
   expect_equal(geoms(p), "GeomPoint")
