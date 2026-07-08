@@ -432,12 +432,28 @@ ggcorrplot <- function(corr,
 #'   rather than aborting the whole computation. Pairs that can be tested are
 #'   computed as before, and errors they raise are passed through.
 #'
+#'   The \code{use} argument controls which pairs are returned as \code{NA} so
+#'   the p-value matrix can be aligned with a correlation matrix built the same
+#'   way. With the default \code{"pairwise.complete.obs"} every pair that has
+#'   enough overlapping observations is tested (the previous behavior). With
+#'   \code{"everything"} a pair is set to \code{NA} whenever either variable has
+#'   any missing value, so the \code{NA} pattern matches
+#'   \code{\link[stats]{cor}(x)} with its default \code{use = "everything"}.
+#'
 #' @param x numeric matrix or data frame
 #' @param ... other arguments to be passed to the function cor.test.
+#' @param use character, how to treat pairs involving missing values when
+#'   deciding which cells are \code{NA}. Either \code{"pairwise.complete.obs"}
+#'   (default; test every pair that has enough overlapping observations) or
+#'   \code{"everything"} (set a pair to \code{NA} as soon as either variable has
+#'   a missing value, matching \code{\link[stats]{cor}}'s default). Mirrors the
+#'   corresponding values of \code{\link[stats]{cor}}'s \code{use} argument.
 #' @rdname ggcorrplot
 #' @export
 
-cor_pmat <- function(x, ...) {
+cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
+
+  use <- match.arg(use)
 
   # initializing values
   mat <- as.matrix(x)
@@ -445,25 +461,36 @@ cor_pmat <- function(x, ...) {
   p.mat <- matrix(NA, n, n)
   diag(p.mat) <- 0
 
+  # Pattern of pairs to leave as NA, taken from cor() under the same `use`, so
+  # the result can be aligned with a cor(x, use = ...) matrix (#51). This is
+  # missingness-driven, so it does not depend on the correlation method passed
+  # through `...`; computing the mask with cor()'s default (pearson) is fine.
+  cor_mask <- stats::cor(mat, use = use)
+
   # creating the p-value matrix
   for (i in 1:(n - 1)) {
     for (j in (i + 1):n) {
-      # a pair with too few overlapping observations (e.g. two variables that
-      # never co-occur) makes cor.test() error; return NA for that cell instead
-      # of aborting the whole matrix (#51). The NA substitution is gated on the
-      # overlap count, so for any pair that CAN be tested (>= 3 overlapping obs)
-      # a genuine error (bad method =, non-numeric input, ...) is re-raised and
-      # still surfaces loudly instead of silently becoming NA.
-      p.mat[i, j] <- p.mat[j, i] <- tryCatch(
-        stats::cor.test(mat[, i], mat[, j], ...)$p.value,
-        error = function(e) {
-          if (sum(stats::complete.cases(mat[, i], mat[, j])) < 3) {
-            NA_real_
-          } else {
-            stop(e)
+      if (is.na(cor_mask[i, j])) {
+        # cor() could not compute this pair under `use`: leave it NA.
+        p.mat[i, j] <- p.mat[j, i] <- NA_real_
+      } else {
+        # a pair with too few overlapping observations (e.g. two variables that
+        # never co-occur) makes cor.test() error; return NA for that cell instead
+        # of aborting the whole matrix (#51). The NA substitution is gated on the
+        # overlap count, so for any pair that CAN be tested (>= 3 overlapping obs)
+        # a genuine error (bad method =, non-numeric input, ...) is re-raised and
+        # still surfaces loudly instead of silently becoming NA.
+        p.mat[i, j] <- p.mat[j, i] <- tryCatch(
+          stats::cor.test(mat[, i], mat[, j], ...)$p.value,
+          error = function(e) {
+            if (sum(stats::complete.cases(mat[, i], mat[, j])) < 3) {
+              NA_real_
+            } else {
+              stop(e)
+            }
           }
-        }
-      )
+        )
+      }
     }
   }
 
