@@ -37,6 +37,7 @@ ggcorrplot(
   digits = 2,
   as.is = FALSE,
   nsmall = 0L,
+  leading.zero = TRUE,
   legend.limit = c(-1, 1),
   circle.scale = 1,
   coord.fixed = TRUE
@@ -136,6 +137,11 @@ using \code{\link[utils]{type.convert}}.}
 in the coefficient labels, passed to \code{\link[base]{format}}. Default is
 \code{0} (no minimum, current behavior). Set e.g. \code{nsmall = 2} to keep
 trailing zeros (such as 0.70). Only used when \code{lab = TRUE}.}
+
+\item{leading.zero}{logical. If \code{TRUE} (default), coefficient labels keep
+the leading zero (e.g. \code{0.23}, \code{-0.67}). Set to \code{FALSE} to
+drop it (\code{.23}, \code{-.67}), which is common for correlation tables.
+Only used when \code{lab = TRUE}.}
 
 \item{legend.limit}{a length-2 numeric vector giving the limits of the fill
 color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set

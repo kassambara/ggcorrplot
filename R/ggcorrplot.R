@@ -69,6 +69,10 @@
 #'   in the coefficient labels, passed to \code{\link[base]{format}}. Default is
 #'   \code{0} (no minimum, current behavior). Set e.g. \code{nsmall = 2} to keep
 #'   trailing zeros (such as 0.70). Only used when \code{lab = TRUE}.
+#' @param leading.zero logical. If \code{TRUE} (default), coefficient labels keep
+#'   the leading zero (e.g. \code{0.23}, \code{-0.67}). Set to \code{FALSE} to
+#'   drop it (\code{.23}, \code{-.67}), which is common for correlation tables.
+#'   Only used when \code{lab = TRUE}.
 #' @param legend.limit a length-2 numeric vector giving the limits of the fill
 #'   color scale. Default \code{c(-1, 1)} (suitable for a correlation matrix); set
 #'   to \code{NULL} to use the data range instead, e.g. for a covariance matrix.
@@ -194,6 +198,7 @@ ggcorrplot <- function(corr,
                        digits = 2,
                        as.is = FALSE,
                        nsmall = 0L,
+                       leading.zero = TRUE,
                        legend.limit = c(-1, 1),
                        circle.scale = 1,
                        coord.fixed = TRUE) {
@@ -366,6 +371,11 @@ ggcorrplot <- function(corr,
 
   label <- round(x = corr[, "value"], digits = digits)
   if (nsmall > 0) label <- format(label, nsmall = nsmall, trim = TRUE)
+  if (!leading.zero) {
+    # drop the leading zero of values in (-1, 1), e.g. 0.23 -> .23, -0.67 -> -.67
+    # (idiom from @PawelKulawiak, #15). The \\b keeps values like 1.00 untouched.
+    label <- gsub("\\b0(\\.\\d+)", "\\1", label)
+  }
   if (sig.stars && !is.null(p.mat)) {
     stars <- as.character(cut(corr$pvalue,
       breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
