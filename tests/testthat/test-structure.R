@@ -129,9 +129,13 @@ test_that("Var1/Var2 are factors whose levels follow matrix row order, not alpha
   expect_false(identical(levels(d$Var1), sort(colnames(corr))))
 })
 
-test_that("as.is = TRUE leaves the axis variables as character", {
+test_that("as.is = TRUE keeps the axis variables in matrix order (as a factor)", {
+  # as.is passes through to reshape2::melt, but the axis is then coerced to a
+  # factor in matrix (row/column) order so the display order does not depend on
+  # how melt happened to render the names (#37)
   d <- ggcorrplot(corr, as.is = TRUE)$data
-  expect_type(d$Var1, "character")
+  expect_s3_class(d$Var1, "factor")
+  expect_identical(levels(d$Var1), colnames(corr))
 })
 
 test_that("abs_corr is 10x the absolute correlation (drives circle size)", {

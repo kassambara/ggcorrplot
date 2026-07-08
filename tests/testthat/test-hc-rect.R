@@ -58,22 +58,25 @@ test_that("hc.rect requires type = 'full' (no boxes over a blanked triangle)", {
   expect_error(ggcorrplot(corr, hc.order = TRUE, type = "upper", hc.rect = 3), "full")
 })
 
-test_that("hc.rect refuses to draw a wrong box when the axis is reordered by name", {
-  # numeric-looking dimnames make melt() type-convert the axis to a continuous
-  # scale sorted by value, silently discarding hc.order -- the box would frame
-  # the wrong cells, so it must error rather than mislead (#37 class)
+test_that("hc.rect draws correctly for numeric-looking dimnames and as.is (#37 fixed)", {
+  # the axis is coerced to a factor in cluster order regardless of how melt()
+  # renders the names, so the boxes land on the right cells even here
   mn <- corr
   dimnames(mn) <- list(as.character(seq_len(n)), as.character(seq_len(n)))
-  expect_error(ggcorrplot(mn, hc.order = TRUE, hc.rect = 3), "numeric-looking")
-  expect_error(ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, as.is = TRUE), "as.is")
-  # a mixed layout coerces the axis to a factor in cluster order, so there the
-  # boxes DO line up even with numeric names
-  expect_s3_class(
-    ggplot2::ggplotGrob(ggcorrplot(mn,
-      hc.order = TRUE, hc.rect = 3, lower.method = "number", upper.method = "circle"
-    )),
-    "gtable"
+  p <- ggcorrplot(mn, hc.order = TRUE, hc.rect = 3)
+  # the axis follows the clustering, not the numeric value order
+  expect_identical(
+    levels(p$data$Var1),
+    as.character(seq_len(n))[hclust(as.dist((1 - mn) / 2))$order]
   )
+  # exactly 3 square diagonal blocks, contiguously partitioning the variables
+  rd <- rect_data(p)
+  expect_equal(nrow(rd), 3)
+  expect_equal(rd$xmin, rd$ymin)
+  expect_equal(min(rd$xmin), 0.5)
+  expect_equal(max(rd$xmax), n + 0.5)
+  # as.is = TRUE also works
+  expect_s3_class(ggplot2::ggplotGrob(ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, as.is = TRUE)), "gtable")
 })
 
 test_that("hc.rect validates k", {

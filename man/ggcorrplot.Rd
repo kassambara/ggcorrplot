@@ -153,9 +153,9 @@ default to \code{1}; adjust them to reposition the variable-name labels.}
 \item{digits}{Decides the number of decimal digits to be displayed (Default:
 `2`).}
 
-\item{as.is}{A logical passed to \code{\link[reshape2]{melt.array}}. If
-\code{TRUE}, dimnames will be left as strings instead of being converted
-using \code{\link[utils]{type.convert}}.}
+\item{as.is}{retained for backward compatibility; no longer affects the plot.
+The axis is now always drawn in the matrix (row/column) order, so the
+variable-name handling this argument used to control is done internally.}
 
 \item{nsmall}{the minimum number of digits to the right of the decimal point
 in the coefficient labels, passed to \code{\link[base]{format}}. Default is
