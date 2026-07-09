@@ -84,6 +84,16 @@ familiar corrplot look, drawn in ggplot2.
 ggcorrplot(corr, method = "circle", hc.order = TRUE, type = "upper", outline.color = "white")
 ```
 
+# Size-scaled squares
+
+`scale.square = TRUE` sizes the squares by the absolute correlation, so magnitude is encoded by both area
+and color at once — the classic corrplot square look. Near-zero cells shrink to small squares while the
+strong correlations dominate, which reads well for large matrices and for colorblind viewers.
+
+```{r scale-square, fig.width = 6, fig.height = 5.4}
+ggcorrplot(corr, scale.square = TRUE, hc.order = TRUE, outline.color = "white")
+```
+
 # A colorblind-safe palette
 
 `preset = "publication"` is a one-token beautiful default (white separators + the colorblind-safe RdBu

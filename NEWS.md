@@ -2,6 +2,13 @@
 
 ## New features
 
+- New argument `scale.square` to size the squares by the absolute correlation
+  when `method = "square"`: `ggcorrplot(corr, scale.square = TRUE)` scales each
+  square (larger = stronger correlation) on top of the fill color, the classic
+  corrplot size-scaled square look. Defaults to `FALSE` (constant full-cell
+  squares, unchanged); has no effect for `method = "circle"` (circles are always
+  sized).
+
 - New argument `preset` for publication-grade output in one token:
   `ggcorrplot(corr, preset = "publication")` sets white cell outlines and the
   colorblind-safe `"RdBu"` palette. It only fills arguments you did not supply, so

@@ -72,5 +72,11 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - preset publication",
       fig = ggcorrplot(corr, preset = "publication", lab = TRUE)
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - scale square",
+      fig = ggcorrplot(corr, scale.square = TRUE, outline.color = "white")
+    )
   })
 }
