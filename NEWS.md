@@ -31,7 +31,8 @@
 - New argument `hc.rect` to draw rectangles around the clusters of a
   hierarchically-ordered correlogram: `ggcorrplot(corr, hc.order = TRUE,
   hc.rect = 3)` frames the 3 clusters obtained by cutting the tree. Defaults to
-  `NULL` (no rectangles).
+  `NULL` (no rectangles). The rectangle outline color is set with the companion
+  argument `hc.rect.col` (default `"gray30"`, e.g. `hc.rect.col = "white"`).
 
 ## Main changes
 

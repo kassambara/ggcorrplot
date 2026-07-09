@@ -45,7 +45,8 @@ ggcorrplot(
   upper.method = NULL,
   hc.rect = NULL,
   palette = NULL,
-  preset = NULL
+  preset = NULL,
+  hc.rect.col = "gray30"
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -183,10 +184,10 @@ In a mixed layout the single-method significance and label overlays
 not apply; show coefficients with a "number" triangle instead.}
 
 \item{hc.rect}{integer or \code{NULL} (default). If an integer \code{k}, draws
-\code{k} rectangles (fixed style: grey outline, no fill) around the clusters
-obtained by cutting the hierarchical tree, marking the cluster blocks on the
-diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
-span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
+\code{k} rectangles (no fill) around the clusters obtained by cutting the
+hierarchical tree, marking the cluster blocks on the diagonal. Requires
+\code{hc.order = TRUE} and \code{type = "full"} (the boxes span whole
+diagonal blocks). \code{NULL} (default) draws no rectangles. For a fully
 custom box style, add your own \code{annotate("rect", ...)} to the returned
 plot.}
 
@@ -203,6 +204,11 @@ value, \code{"publication"}, sets white cell outlines and the colorblind-safe
 supply, so any argument you pass explicitly (e.g. \code{outline.color},
 \code{colors}, \code{palette}) overrides the preset. Defaults to \code{NULL}
 (no preset), leaving existing calls unchanged.}
+
+\item{hc.rect.col}{the outline color of the \code{hc.rect} cluster rectangles.
+Defaults to \code{"gray30"}; set it to any color that suits your palette
+(e.g. \code{"black"} for a bolder box, or \code{"white"}). Only used when
+\code{hc.rect} is set.}
 
 \item{x}{numeric matrix or data frame}
 
