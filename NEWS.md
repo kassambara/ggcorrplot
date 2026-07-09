@@ -2,6 +2,13 @@
 
 ## New features
 
+- New argument `preset` for publication-grade output in one token:
+  `ggcorrplot(corr, preset = "publication")` sets white cell outlines and the
+  colorblind-safe `"RdBu"` palette. It only fills arguments you did not supply, so
+  anything you pass explicitly (e.g. `outline.color`, `colors`, `palette`)
+  overrides the preset. Defaults to `NULL` (no preset), leaving existing calls
+  unchanged.
+
 - New argument `palette` to pick a built-in colorblind-safe diverging palette for
   the fill gradient: `ggcorrplot(corr, palette = "RdBu")` (or `"PuOr"`). Each is
   an 11-stop ramp with white at zero and the usual cool = negative / warm =
