@@ -66,9 +66,15 @@
 #' @param sig.level significant level, if the p-value in p-mat is bigger than
 #'   sig.level, then the corresponding correlation coefficient is regarded as
 #'   insignificant.
-#' @param insig character, specialized insignificant correlation coefficients,
-#'   "pch" (default), "blank". If "blank", wipe away the corresponding glyphs;
-#'   if "pch", add characters (see pch for details) on corresponding glyphs.
+#' @param insig character, how to convey significance from \code{p.mat}: "pch"
+#'   (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
+#'   glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
+#'   instead marks the SIGNIFICANT cells with significance stars
+#'   (\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+#'   \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
+#'   by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
+#'   they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
+#'   \code{sig.stars}) so the two do not overprint.
 #' @param pch add character on the glyphs of insignificant correlation
 #'   coefficients (only valid when insig is "pch"). Default value is 4.
 #' @param pch.col,pch.cex the color and the cex (size) of pch (only valid when
@@ -215,7 +221,7 @@ ggcorrplot <- function(corr,
                        sig.stars = FALSE,
                        p.mat = NULL,
                        sig.level = 0.05,
-                       insig = c("pch", "blank"),
+                       insig = c("pch", "blank", "stars"),
                        pch = 4,
                        pch.col = "black",
                        pch.cex = 5,
@@ -236,7 +242,13 @@ ggcorrplot <- function(corr,
                        hc.rect = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
-  insig <- match.arg(insig)
+  # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
+  # documented default vector explicitly -- insig = c("pch", "blank") -- still
+  # collapses to its first element instead of erroring: match.arg() only accepts
+  # a multi-value arg when it is identical to the full choices set, and adding
+  # "stars" made c("pch", "blank") non-identical. Scalar/partial matching and the
+  # default are unchanged.
+  insig <- match.arg(insig[1], c("pch", "blank", "stars"))
   if (is.null(show.diag)) {
     if (type == "full") {
       show.diag <- TRUE
@@ -437,13 +449,14 @@ ggcorrplot <- function(corr,
   if (!mixed) {
     label <- .format_coef(corr[, "value"], digits = digits, nsmall = nsmall,
                           leading.zero = leading.zero)
-    if (sig.stars && !is.null(p.mat)) {
-      stars <- as.character(cut(corr$pvalue,
-        breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
-        labels = c("***", "**", "*", "")
-      ))
-      stars[is.na(stars)] <- ""
-      label <- paste0(label, stars)
+    # Append significance stars to the coefficient labels for sig.stars, and also
+    # for insig = "stars" when labels are shown (lab = TRUE): the stars share the
+    # label's cell center, so routing them into the suffix here -- rather than
+    # adding the standalone geom_text below -- avoids two text layers overprinting
+    # into illegible output. For all other insig values this reduces to the
+    # sig.stars condition exactly as before (byte-identical).
+    if ((sig.stars || insig == "stars") && !is.null(p.mat)) {
+      label <- paste0(label, .sig_stars(corr$pvalue))
     }
     if (!is.null(p.mat) & insig == "blank") {
       ns <- corr$pvalue > sig.level
@@ -471,6 +484,19 @@ ggcorrplot <- function(corr,
         shape = pch,
         size = pch.cex,
         color = pch.col
+      )
+    }
+
+    # standalone significance stars: mark the SIGNIFICANT cells with */**/***
+    # (non-significant cells get nothing) as a significance-only map. Only drawn
+    # when lab = FALSE; with lab = TRUE the stars are appended to the coefficient
+    # labels above (numbers + stars, one text layer) so the two do not overprint.
+    if (!is.null(p.mat) & insig == "stars" & !lab) {
+      p <- p + ggplot2::geom_text(
+        mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
+        label = .sig_stars(corr$pvalue),
+        color = pch.col,
+        size = lab_size
       )
     }
   }
@@ -761,6 +787,18 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     label <- gsub("\\b0(\\.\\d+)", "\\1", label)
   }
   label
+}
+
+# Significance stars for a vector of p-values: "***" p < 0.001, "**" p < 0.01,
+# "*" p < 0.05, "" otherwise (and "" for NA). Shared by the sig.stars label
+# suffix and the standalone insig = "stars" glyph so both use one definition.
+.sig_stars <- function(pvalue) {
+  stars <- as.character(cut(pvalue,
+    breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
+    labels = c("***", "**", "*", "")
+  ))
+  stars[is.na(stars)] <- ""
+  stars
 }
 
 # Build the layers for a mixed layout: a per-triangle glyph over the lower

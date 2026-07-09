@@ -2,6 +2,12 @@
 
 ## New features
 
+- New value `insig = "stars"` to mark the significant cells with significance
+  stars (`***`/`**`/`*` for p < 0.001/0.01/0.05) instead of crossing out the
+  insignificant ones. Works without `lab`, so `ggcorrplot(corr, p.mat = p.mat,
+  insig = "stars")` is a standalone significance map. The default `insig = "pch"`
+  is unchanged.
+
 - New arguments `lower.method` and `upper.method` for a mixed layout: a different
   glyph per triangle, e.g. the coefficients as numbers in the lower triangle,
   circles in the upper, and the variable names on the diagonal
