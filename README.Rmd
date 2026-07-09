@@ -8,13 +8,13 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  # out.width = "100%",
-  # dpi = 300,
   fig.path = "tools/README-",
-  fig.cap = "ggcorrplot: visualize correlation matrix using ggplot2"
+  fig.retina = 2,
+  dpi = 200,
+  out.width = "70%",
+  fig.align = "center"
 )
 ```
-    
 
 [![R build status](https://github.com/kassambara/ggcorrplot/workflows/R-CMD-check/badge.svg)](https://github.com/kassambara/ggcorrplot/actions)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
@@ -22,121 +22,141 @@ knitr::opts_chunk$set(
 [![Downloads](https://cranlogs.r-pkg.org/badges/ggcorrplot)](https://cran.r-project.org/package=ggcorrplot)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
 
-
 # ggcorrplot: Visualization of a correlation matrix using ggplot2
-    
-    
-The **ggcorrplot** package can be used to **visualize easily** a **correlation matrix** using **ggplot2**. It provides a solution for **reordering** the correlation matrix and displays the **significance level** on the correlogram. It includes also a function for computing a matrix of **correlation p-values**. 
-   
-   
-Find out more at https://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2.
-    
-   
-  
-## Installation and loading
-    
-ggcorrplot can be installed from `CRAN` as follow:
+
+**ggcorrplot** draws a correlation matrix as a **ggplot2** plot. Because the
+result is a plain ggplot object, you can restyle it, annotate it, and combine it
+with other layers using the usual `+` syntax.
+
+It can:
+
+- reorder the matrix by **hierarchical clustering** and outline the clusters,
+- show only the **lower** or **upper** triangle, or a **mixed** layout with a
+  different glyph per triangle,
+- overlay the **correlation coefficients** and mark the **statistically
+  significant** cells (including a standalone **significance map**), and
+- compute the matrix of **correlation p-values** with `cor_pmat()`.
+
+Learn more at <https://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2>.
+
+## Installation
+
+Install the released version from CRAN:
 
 ```{r, eval = FALSE}
 install.packages("ggcorrplot")
 ```
-    
-Or, install the latest version from GitHub:
+
+Or the development version from GitHub:
 
 ```{r, eval = FALSE}
-# Install
-if(!require(devtools)) install.packages("devtools")
+if (!require(devtools)) install.packages("devtools")
 devtools::install_github("kassambara/ggcorrplot")
 ```
 
 ```{r, message = FALSE, warning = FALSE}
-# Loading
 library(ggcorrplot)
 ```
-    
-## Getting started
-     
-### Compute a correlation matrix
-     
-The *mtcars* data set will be used in the following R code. The function
-**cor_pmat()** [in **ggcorrplot**] computes a matrix of correlation p-values.
 
-```{r, fig.show = "asis"}
-# Compute a correlation matrix
+## Getting started
+
+The examples below use the `mtcars` data set. `cor()` builds the correlation
+matrix and `cor_pmat()` [in **ggcorrplot**] computes the matrix of correlation
+p-values.
+
+```{r}
 data(mtcars)
 corr <- round(cor(mtcars), 1)
-head(corr[, 1:6])
+corr[1:4, 1:4]
 
-# Compute a matrix of correlation p-values
+# Matrix of correlation p-values
 p.mat <- cor_pmat(mtcars)
-head(p.mat[, 1:4])
+p.mat[1:4, 1:4]
 ```
-    
+
 ## Correlation matrix visualization
-    
-```{r demo-ggcorrplot, fig.show = "asis", fig.width=5, fig.height=5}
-# Visualize the correlation matrix
-# --------------------------------
-# method = "square" (default)
+
+The default draws each correlation as a colored square; `method = "circle"`
+encodes the value with the circle area instead.
+
+```{r basic, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
 ggcorrplot(corr)
-# method = "circle"
 ggcorrplot(corr, method = "circle")
+```
 
-# Reordering the correlation matrix
-# --------------------------------
-# using hierarchical clustering
+### Reorder by clustering, and outline the clusters
+
+`hc.order = TRUE` reorders the variables by hierarchical clustering so that
+correlated variables sit together. `hc.rect` then draws rectangles around the
+clusters obtained by cutting the tree.
+
+```{r cluster, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
 ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
+```
 
-# Types of correlogram layout
-# --------------------------------
-# Get the lower triangle
+### Lower / upper triangle
+
+For a symmetric matrix the two triangles are redundant, so you can keep just one.
+
+```{r triangle, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
+ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
+```
+
+### Mixed layout
+
+`lower.method` and `upper.method` draw a **different glyph in each triangle** —
+here the coefficients as numbers below the diagonal and circles above it, with
+the variable names on the diagonal.
+
+```{r mixed, fig.width = 6, fig.height = 5.6}
 ggcorrplot(corr,
-           hc.order = TRUE,
-           type = "lower",
-           outline.color = "white")
+  lower.method = "number", upper.method = "circle",
+  show.legend = FALSE
+)
+```
 
-# Get the upper triangle
+### Add the coefficients
+
+```{r labels, fig.width = 5.6, fig.height = 5.4}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", lab = TRUE)
+```
+
+## Highlighting significance
+
+Passing `p.mat` marks the cells whose correlation is not significant at
+`sig.level` (default 0.05). By default a cross is drawn over them (`insig =
+"pch"`); `insig = "blank"` hides them instead.
+
+```{r insig, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+# Cross out the non-significant coefficients
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
+# Leave them blank
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank")
+```
+
+### Significance map
+
+`insig = "stars"` flips the emphasis: instead of crossing out the
+non-significant cells, it marks the **significant** ones with significance stars
+(`***`, `**`, `*` for p < 0.001, 0.01, 0.05). With the default `lab = FALSE`
+this is a standalone significance map; with `lab = TRUE` the stars are appended
+to the coefficients (e.g. `-0.85***`).
+
+```{r stars, fig.width = 5.6, fig.height = 5.4}
+ggcorrplot(corr, p.mat = p.mat, insig = "stars")
+```
+
+## Colors and theme
+
+`ggcorrplot()` returns a ggplot object, so any ggplot2 theme applies. `colors`
+sets the low / mid / high gradient.
+
+```{r colors, fig.width = 5.6, fig.height = 5.4}
 ggcorrplot(corr,
-           hc.order = TRUE,
-           type = "upper",
-           outline.color = "white")
-
-# Change colors and theme
-# --------------------------------
-# Argument colors
-ggcorrplot(
-  corr,
-  hc.order = TRUE,
-  type = "lower",
-  outline.color = "white",
+  hc.order = TRUE, type = "lower", outline.color = "white",
   ggtheme = ggplot2::theme_gray,
   colors = c("#6D9EC1", "white", "#E46726")
 )
-
-# Add correlation coefficients
-# --------------------------------
-# argument lab = TRUE
-ggcorrplot(corr,
-           hc.order = TRUE,
-           type = "lower",
-           lab = TRUE)
-
-# Add correlation significance level
-# --------------------------------
-# Argument p.mat
-# Barring the no significant coefficient
-ggcorrplot(corr,
-           hc.order = TRUE,
-           type = "lower",
-           p.mat = p.mat)
-
-# Leave blank on no significant coefficient
-ggcorrplot(
-  corr,
-  p.mat = p.mat,
-  hc.order = TRUE,
-  type = "lower",
-  insig = "blank"
-)
 ```
-
