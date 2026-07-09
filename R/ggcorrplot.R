@@ -55,12 +55,16 @@
 #'   using hclust function.
 #' @param hc.method the agglomeration method to be used in hclust (see ?hclust).
 #' @param hc.rect integer or \code{NULL} (default). If an integer \code{k}, draws
-#'   \code{k} rectangles (fixed style: grey outline, no fill) around the clusters
-#'   obtained by cutting the hierarchical tree, marking the cluster blocks on the
-#'   diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
-#'   span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
+#'   \code{k} rectangles (no fill) around the clusters obtained by cutting the
+#'   hierarchical tree, marking the cluster blocks on the diagonal. Requires
+#'   \code{hc.order = TRUE} and \code{type = "full"} (the boxes span whole
+#'   diagonal blocks). \code{NULL} (default) draws no rectangles. For a fully
 #'   custom box style, add your own \code{annotate("rect", ...)} to the returned
 #'   plot.
+#' @param hc.rect.col the outline color of the \code{hc.rect} cluster rectangles.
+#'   Defaults to \code{"gray30"}; set it to any color that suits your palette
+#'   (e.g. \code{"black"} for a bolder box, or \code{"white"}). Only used when
+#'   \code{hc.rect} is set.
 #' @param lab logical value. If TRUE, add correlation coefficient on the plot.
 #' @param lab_col,lab_size size and color to be used for the correlation
 #'   coefficient labels. used when lab = TRUE.
@@ -253,7 +257,8 @@ ggcorrplot <- function(corr,
                        upper.method = NULL,
                        hc.rect = NULL,
                        palette = NULL,
-                       preset = NULL) {
+                       preset = NULL,
+                       hc.rect.col = "gray30") {
   type <- match.arg(type)
   method <- match.arg(method)
   # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
@@ -568,7 +573,7 @@ ggcorrplot <- function(corr,
       "rect",
       xmin = b$lo - 0.5, xmax = b$hi + 0.5,
       ymin = b$lo - 0.5, ymax = b$hi + 0.5,
-      fill = NA, colour = "gray30"
+      fill = NA, colour = hc.rect.col
     )
   }
 
