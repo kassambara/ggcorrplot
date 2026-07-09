@@ -16,3 +16,45 @@ test_that("square matrices are unaffected by the non-square guard", {
   sq <- round(cor(mtcars), 1)
   expect_no_error(ggplot2::ggplot_build(ggcorrplot(sq, hc.order = TRUE, type = "lower")))
 })
+
+# show.diag = FALSE on a non-square matrix must remove genuine self-pairs by NAME,
+# not the positional diagonal (which is meaningless for m x n). Previously
+# .remove_diag() ran diag(cormat) <- NA, blanking min(m, n) arbitrary cells.
+cells <- function(p) ggplot2::ggplot_build(p)$data[[1]]
+pairs <- function(p) {
+  d <- ggplot2::ggplot_build(p)$plot$data
+  paste(d$Var1, d$Var2)
+}
+
+test_that("non-square + show.diag = FALSE with disjoint variables removes no cell", {
+  rect <- cor(mtcars[, 1:3], mtcars[, 4:7]) # 3 x 4, rows {mpg,cyl,disp} cols {hp,drat,wt,qsec}
+  # no row variable is also a column variable -> there are no self-pairs to drop
+  expect_equal(nrow(cells(ggcorrplot(rect, show.diag = FALSE))), length(rect)) # all 12 kept
+  # every cell present, in particular the positional (1,1) cell mpg~hp
+  expect_true("mpg hp" %in% pairs(ggcorrplot(rect, show.diag = FALSE)))
+})
+
+test_that("non-square + show.diag = FALSE blanks self-pairs by name, off the positional diagonal", {
+  m <- round(cor(mtcars), 1)
+  # rows are the LAST three of the five columns, so the self-pairs disp~disp,
+  # hp~hp, wt~wt sit at columns 3, 4, 5 -- NOT on the positional diagonal
+  sub <- m[c("disp", "hp", "wt"), c("mpg", "cyl", "disp", "hp", "wt")] # 3 x 5
+  p <- ggcorrplot(sub, show.diag = FALSE)
+  expect_equal(nrow(cells(p)), length(sub) - 3L) # exactly the 3 self-pairs removed
+  pr <- pairs(p)
+  expect_false(any(c("disp disp", "hp hp", "wt wt") %in% pr)) # self-pairs gone
+  expect_true("disp mpg" %in% pr) # the positional (1,1) cell (a cross-pair) survives
+})
+
+test_that("non-square + show.diag = TRUE (the default for full) keeps every cell", {
+  rect <- cor(mtcars[, 1:3], mtcars[, 4:7])
+  expect_equal(nrow(cells(ggcorrplot(rect))), length(rect)) # default show.diag path unchanged
+})
+
+test_that("unnamed non-square + show.diag = FALSE keeps the historical positional removal", {
+  rect <- cor(mtcars[, 1:3], mtcars[, 4:7]) # 3 x 4
+  dimnames(rect) <- NULL
+  # no names to match self-pairs by, so the positional diagonal (min(m,n) = 3
+  # cells) is removed as before -> 12 - 3 = 9 cells
+  expect_equal(nrow(cells(ggcorrplot(rect, show.diag = FALSE))), length(rect) - 3L)
+})

@@ -49,5 +49,16 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - insig stars",
       fig = ggcorrplot(corr, p.mat = p.mat, insig = "stars")
     )
+
+    set.seed(123)
+    # non-square matrix with show.diag = FALSE: only the genuine self-pairs
+    # (disp, hp, wt) are blanked, not the positional diagonal
+    nonsq <- round(cor(mtcars), 1)[
+      c("disp", "hp", "wt"), c("mpg", "cyl", "disp", "hp", "wt")
+    ]
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - non-square no-diag",
+      fig = ggcorrplot(nonsq, show.diag = FALSE, lab = TRUE)
+    )
   })
 }
