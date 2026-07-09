@@ -69,7 +69,7 @@ The default encodes each correlation as a colored square. `method = "circle"`
 encodes the value with the circle's area instead, which reads well when you want
 the magnitude to pop out.
 
-```{r basic, fig.show = "hold", out.width = "48%"}
+```{r basic, fig.show = "hold", out.width = "48%", fig.align = "default"}
 ggcorrplot(corr)
 ggcorrplot(corr, method = "circle")
 ```
@@ -103,7 +103,7 @@ ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 For a symmetric matrix the two triangles carry the same information, so you can
 show just one with `type = "lower"` or `type = "upper"`.
 
-```{r triangle, fig.show = "hold", out.width = "48%"}
+```{r triangle, fig.show = "hold", out.width = "48%", fig.align = "default"}
 ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 ```

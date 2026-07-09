@@ -85,7 +85,7 @@ ggcorrplot(corr)
 ggcorrplot(corr, method = "circle")
 ```
 
-<img src="tools/README-basic-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="tools/README-basic-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-basic-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-basic-2.png" alt="" width="49%" style="display: block; margin: auto;" />
 
 ### Reorder by clustering, and outline the clusters
 
@@ -98,7 +98,7 @@ ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 ```
 
-<img src="tools/README-cluster-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="tools/README-cluster-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-cluster-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-cluster-2.png" alt="" width="49%" style="display: block; margin: auto;" />
 
 ### Lower / upper triangle
 
@@ -110,7 +110,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 ```
 
-<img src="tools/README-triangle-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="tools/README-triangle-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-triangle-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-triangle-2.png" alt="" width="49%" style="display: block; margin: auto;" />
 
 ### Mixed layout
 
@@ -125,7 +125,7 @@ ggcorrplot(corr,
 )
 ```
 
-<img src="tools/README-mixed-1.png" alt="" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-mixed-1.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 ### Add the coefficients
 
@@ -133,7 +133,7 @@ ggcorrplot(corr,
 ggcorrplot(corr, hc.order = TRUE, type = "lower", lab = TRUE)
 ```
 
-<img src="tools/README-labels-1.png" alt="" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-labels-1.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 ## Highlighting significance
 
@@ -148,7 +148,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
 ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank")
 ```
 
-<img src="tools/README-insig-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="tools/README-insig-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-insig-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-insig-2.png" alt="" width="49%" style="display: block; margin: auto;" />
 
 ### Significance map
 
@@ -163,7 +163,7 @@ the default `lab = FALSE` this is a standalone significance map; with
 ggcorrplot(corr, p.mat = p.mat, insig = "stars")
 ```
 
-<img src="tools/README-stars-1.png" alt="" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-stars-1.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 ## Colors and theme
 
@@ -178,4 +178,4 @@ ggcorrplot(corr,
 )
 ```
 
-<img src="tools/README-colors-1.png" alt="" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-colors-1.png" alt="" width="70%" style="display: block; margin: auto;" />
