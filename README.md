@@ -130,12 +130,13 @@ ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 
 `lower.method` and `upper.method` draw a **different glyph in each
 triangle** — here the coefficients as numbers below the diagonal and
-circles above it, with the variable names on the diagonal.
+circles above it, with the variable names on the diagonal. Adding
+`cell.grid = TRUE` boxes every cell for the tidy corrplot look.
 
 ``` r
 ggcorrplot(corr,
   lower.method = "number", upper.method = "circle",
-  show.legend = FALSE
+  cell.grid = TRUE, show.legend = FALSE
 )
 ```
 

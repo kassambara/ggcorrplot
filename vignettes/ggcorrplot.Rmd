@@ -111,12 +111,13 @@ ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 A **mixed layout** draws a different glyph in each triangle. Set `lower.method`
 and/or `upper.method` to `"square"`, `"circle"`, or `"number"`; the variable
 names are placed on the diagonal. A common choice is the coefficients as numbers
-on one side and circles on the other:
+on one side and circles on the other. Adding `cell.grid = TRUE` boxes every cell
+so the glyphs sit in a tidy grid:
 
 ```{r mixed, fig.width = 6.5, fig.height = 6}
 ggcorrplot(corr,
   lower.method = "number", upper.method = "circle",
-  show.legend = FALSE
+  cell.grid = TRUE, show.legend = FALSE
 )
 ```
 
