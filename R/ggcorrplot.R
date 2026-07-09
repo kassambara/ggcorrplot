@@ -420,6 +420,9 @@ ggcorrplot <- function(corr,
       scale.square = scale.square,
       cell.grid = cell.grid, cell.grid.col = cell.grid.col
     )
+    # A mixed layout always boxes at least the diagonal (name) region when
+    # cell.grid = TRUE, so the gridline blanking below is always consistent here.
+    draw.cell.grid <- cell.grid
   } else {
     p <-
       ggplot2::ggplot(
@@ -434,7 +437,8 @@ ggcorrplot <- function(corr,
     # (outline.color), so a second border would double-draw. fill = NA overrides
     # the inherited aes(fill = value) for drawing while still training the same
     # fill scale as the glyph layer (byte-identical fill legend).
-    if (cell.grid && !(method == "square" && !scale.square)) {
+    draw.cell.grid <- cell.grid && !(method == "square" && !scale.square)
+    if (draw.cell.grid) {
       p <- p + ggplot2::geom_tile(fill = NA, colour = cell.grid.col)
     }
 
@@ -513,10 +517,12 @@ ggcorrplot <- function(corr,
       axis.text.y = ggplot2::element_text(size = tl.cex, colour = tl.col)
     )
   # cell.grid replaces the through-center gridlines with per-cell rectangles, so
-  # blank the panel grid (added after the theme() above so it wins). No visual
-  # change for a full-tile square heatmap (its gridlines already sit behind the
-  # opaque tiles), so this stays scoped to the opt-in.
-  if (cell.grid) {
+  # blank the panel grid (added after the theme() above so it wins). Gated on
+  # draw.cell.grid -- TRUE only when boxes were actually drawn -- so a full-tile
+  # square heatmap (which draws no box and keeps its gridlines behind the opaque
+  # tiles) is genuinely untouched, matching the documented "no effect". This also
+  # keeps a lower/upper full-tile square's gridlines in the blank triangle intact.
+  if (draw.cell.grid) {
     p <- p + ggplot2::theme(
       panel.grid.major = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank()

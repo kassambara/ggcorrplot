@@ -51,6 +51,12 @@ test_that("cell.grid has no effect on a full-tile square heatmap", {
     ggplot2::ggplot_build(a)$data,
     ggplot2::ggplot_build(b)$data
   )
+  # "no effect" must include the theme: the gridlines are NOT blanked for a
+  # full-tile square heatmap (no box was drawn to replace them). Checked on a
+  # lower triangle, where those gridlines are actually visible in the blank half.
+  low <- ggcorrplot(corr, method = "square", type = "lower", cell.grid = TRUE)
+  expect_false(inherits(b$theme$panel.grid.major, "element_blank"))
+  expect_false(inherits(low$theme$panel.grid.major, "element_blank"))
 })
 
 test_that("cell.grid = TRUE blanks the panel gridlines", {
