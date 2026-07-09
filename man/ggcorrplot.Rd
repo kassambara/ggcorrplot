@@ -25,7 +25,7 @@ ggcorrplot(
   sig.stars = FALSE,
   p.mat = NULL,
   sig.level = 0.05,
-  insig = c("pch", "blank"),
+  insig = c("pch", "blank", "stars"),
   pch = 4,
   pch.col = "black",
   pch.cex = 5,
@@ -53,17 +53,6 @@ cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
 
 \item{method}{character, the visualization method of correlation matrix to be
 used. Allowed values are "square" (default), "circle".}
-
-\item{lower.method, upper.method}{character, an optional per-triangle glyph for
-a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-as text, colored by its value on the same scale as the fill, so coefficients
-near zero are faint). When either is set, the plot switches to a mixed layout
-where the lower and upper triangles are drawn separately and the variable names
-are drawn on the diagonal; a triangle left \code{NULL} uses \code{method}. Both
-default to \code{NULL} (single-method plot, unchanged). In a mixed layout the
-single-method significance and label overlays (\code{lab}, \code{sig.stars},
-\code{p.mat}, \code{insig}, \code{pch*}) do not apply; show coefficients with a
-"number" triangle instead.}
 
 \item{type}{character, "full" (default), "lower" or "upper" display. A mixed
 layout (see \code{lower.method}/\code{upper.method}) always uses the full
@@ -100,14 +89,6 @@ length-3 vector for the low, mid and high correlation values (mapped with
 using hclust function.}
 
 \item{hc.method}{the agglomeration method to be used in hclust (see ?hclust).}
-
-\item{hc.rect}{integer or \code{NULL} (default). If an integer \code{k}, draws
-\code{k} rectangles (fixed style: grey outline, no fill) around the clusters
-obtained by cutting the hierarchical tree, marking the cluster blocks on the
-diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
-span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
-custom box style, add your own \code{annotate("rect", ...)} to the returned
-plot.}
 
 \item{lab}{logical value. If TRUE, add correlation coefficient on the plot.}
 
@@ -187,6 +168,25 @@ small or too large. Has no effect when \code{method = "square"}.}
 \code{\link[ggplot2]{coord_fixed}} so the cells are square. Set to
 \code{FALSE} to let the cells fill the plotting area (a non 1:1 aspect
 ratio), which can look better with many long variable names.}
+
+\item{lower.method, upper.method}{character, an optional per-triangle glyph for
+a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
+as text, colored by its value on the same scale as the fill, so coefficients
+near zero are faint). When either is set, the plot switches to a mixed layout
+where the lower and upper triangles are drawn separately and the variable
+names are drawn on the diagonal; a triangle left \code{NULL} uses
+\code{method}. Both default to \code{NULL} (single-method plot, unchanged).
+In a mixed layout the single-method significance and label overlays
+(\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig}, \code{pch*}) do
+not apply; show coefficients with a "number" triangle instead.}
+
+\item{hc.rect}{integer or \code{NULL} (default). If an integer \code{k}, draws
+\code{k} rectangles (fixed style: grey outline, no fill) around the clusters
+obtained by cutting the hierarchical tree, marking the cluster blocks on the
+diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
+span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
+custom box style, add your own \code{annotate("rect", ...)} to the returned
+plot.}
 
 \item{x}{numeric matrix or data frame}
 
