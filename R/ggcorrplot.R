@@ -37,6 +37,12 @@
 #'   (\code{>= 2}) is spread evenly across the scale with
 #'   \code{\link[ggplot2]{scale_fill_gradientn}}, so an n-color palette (e.g.
 #'   \code{RColorBrewer::brewer.pal(11, "RdBu")}) can be passed directly.
+#' @param palette optional name of a built-in colorblind-safe diverging palette
+#'   for the fill gradient: \code{"RdBu"} or \code{"PuOr"}. A convenience
+#'   shortcut for \code{colors}: when set it supplies the gradient (an 11-stop
+#'   ramp, white at zero, cool = negative / warm = positive) and takes precedence
+#'   over \code{colors}. Defaults to \code{NULL} (use \code{colors}), so existing
+#'   calls are unchanged.
 #' @param outline.color the outline color of square or circle. Default value is
 #'   "gray".
 #' @param hc.order logical value. If TRUE, correlation matrix will be hc.ordered
@@ -239,7 +245,8 @@ ggcorrplot <- function(corr,
                        coord.fixed = TRUE,
                        lower.method = NULL,
                        upper.method = NULL,
-                       hc.rect = NULL) {
+                       hc.rect = NULL,
+                       palette = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
   # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
@@ -249,6 +256,14 @@ ggcorrplot <- function(corr,
   # "stars" made c("pch", "blank") non-identical. Scalar/partial matching and the
   # default are unchanged.
   insig <- match.arg(insig[1], c("pch", "blank", "stars"))
+  # A named colorblind-safe diverging palette is a convenience shortcut for
+  # `colors`: when set (non-NULL, the default), it supplies the fill gradient and
+  # takes precedence over `colors`. `palette = NULL` leaves `colors` untouched, so
+  # every existing call is unchanged.
+  if (!is.null(palette)) {
+    palette <- match.arg(palette, c("RdBu", "PuOr"))
+    colors <- .ggcorrplot_palette(palette)
+  }
   if (is.null(show.diag)) {
     if (type == "full") {
       show.diag <- TRUE
@@ -924,6 +939,25 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     }
   }
   cormat
+}
+
+# Named colorblind-safe diverging palettes, as hardcoded hex vectors (the package
+# targets R >= 3.3, which predates hcl.colors(), and Imports are kept minimal, so
+# the values are not computed at run time). Each is an 11-stop ColorBrewer
+# diverging ramp with white at the center, ordered low -> high (cool = negative,
+# warm = positive) to match the default colors = c("blue", "white", "red")
+# polarity. Verified against RColorBrewer::brewer.pal(11, .) at development time.
+.ggcorrplot_palette <- function(name) {
+  switch(name,
+    RdBu = c(
+      "#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#F7F7F7",
+      "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"
+    ),
+    PuOr = c(
+      "#2D004B", "#542788", "#8073AC", "#B2ABD2", "#D8DAEB", "#F7F7F7",
+      "#FEE0B6", "#FDB863", "#E08214", "#B35806", "#7F3B08"
+    )
+  )
 }
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
 # the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).

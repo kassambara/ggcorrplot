@@ -43,7 +43,8 @@ ggcorrplot(
   coord.fixed = TRUE,
   lower.method = NULL,
   upper.method = NULL,
-  hc.rect = NULL
+  hc.rect = NULL,
+  palette = NULL
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -187,6 +188,13 @@ diagonal. Requires \code{hc.order = TRUE} and \code{type = "full"} (the boxes
 span whole diagonal blocks). \code{NULL} (default) draws no rectangles. For a
 custom box style, add your own \code{annotate("rect", ...)} to the returned
 plot.}
+
+\item{palette}{optional name of a built-in colorblind-safe diverging palette
+for the fill gradient: \code{"RdBu"} or \code{"PuOr"}. A convenience
+shortcut for \code{colors}: when set it supplies the gradient (an 11-stop
+ramp, white at zero, cool = negative / warm = positive) and takes precedence
+over \code{colors}. Defaults to \code{NULL} (use \code{colors}), so existing
+calls are unchanged.}
 
 \item{x}{numeric matrix or data frame}
 
