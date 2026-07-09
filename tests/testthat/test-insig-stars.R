@@ -87,6 +87,23 @@ test_that("insig = 'stars' with sig.stars = TRUE and lab = FALSE still draws the
   expect_equal(sum(geoms(p2) == "GeomText"), 1)
 })
 
+test_that("insig = 'stars' with lab = TRUE appends stars to the labels, no second layer", {
+  # lab = TRUE puts the coefficient at the cell center; the stars must be appended
+  # to that label (one GeomText: numbers + stars) rather than drawn as a second
+  # geom_text overprinting into illegible output.
+  p <- ggcorrplot(corr, p.mat = p.mat, insig = "stars", lab = TRUE)
+  expect_equal(sum(geoms(p) == "GeomText"), 1L)
+  labs <- ggplot2::ggplot_build(p)$data[[which(geoms(p) == "GeomText")]]$label
+  # the label carries the number and, on significant cells, the appended stars
+  expect_true(any(grepl("[0-9].*\\*", labs)))
+  # it equals the sig.stars = TRUE, lab = TRUE label (both are numbers + stars)
+  q <- ggcorrplot(corr, p.mat = p.mat, sig.stars = TRUE, lab = TRUE)
+  expect_identical(
+    ggplot2::ggplot_build(p)$data[[which(geoms(p) == "GeomText")]]$label,
+    ggplot2::ggplot_build(q)$data[[which(geoms(q) == "GeomText")]]$label
+  )
+})
+
 test_that("sig.stars and insig = 'stars' share one star definition", {
   # sig.stars appends the SAME stars to the coefficient labels
   p <- ggcorrplot(corr, p.mat = p.mat, lab = TRUE, sig.stars = TRUE)

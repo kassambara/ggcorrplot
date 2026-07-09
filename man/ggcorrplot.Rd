@@ -136,9 +136,11 @@ insignificant.}
 (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 instead marks the SIGNIFICANT cells with significance stars
-(\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05), drawn in \code{pch.col}
-and sized by \code{lab_size}, independent of \code{lab} -- a standalone
-significance map.}
+(\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+\code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
+by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
+they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
+\code{sig.stars}) so the two do not overprint.}
 
 \item{pch}{add character on the glyphs of insignificant correlation
 coefficients (only valid when insig is "pch"). Default value is 4.}

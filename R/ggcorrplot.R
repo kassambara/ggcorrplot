@@ -70,9 +70,11 @@
 #'   (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 #'   glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 #'   instead marks the SIGNIFICANT cells with significance stars
-#'   (\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05), drawn in
-#'   \code{pch.col} and sized by \code{lab_size}, independent of \code{lab} -- a
-#'   standalone significance map.
+#'   (\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+#'   \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
+#'   by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
+#'   they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
+#'   \code{sig.stars}) so the two do not overprint.
 #' @param pch add character on the glyphs of insignificant correlation
 #'   coefficients (only valid when insig is "pch"). Default value is 4.
 #' @param pch.col,pch.cex the color and the cex (size) of pch (only valid when
@@ -447,7 +449,13 @@ ggcorrplot <- function(corr,
   if (!mixed) {
     label <- .format_coef(corr[, "value"], digits = digits, nsmall = nsmall,
                           leading.zero = leading.zero)
-    if (sig.stars && !is.null(p.mat)) {
+    # Append significance stars to the coefficient labels for sig.stars, and also
+    # for insig = "stars" when labels are shown (lab = TRUE): the stars share the
+    # label's cell center, so routing them into the suffix here -- rather than
+    # adding the standalone geom_text below -- avoids two text layers overprinting
+    # into illegible output. For all other insig values this reduces to the
+    # sig.stars condition exactly as before (byte-identical).
+    if ((sig.stars || insig == "stars") && !is.null(p.mat)) {
       label <- paste0(label, .sig_stars(corr$pvalue))
     }
     if (!is.null(p.mat) & insig == "blank") {
@@ -480,12 +488,10 @@ ggcorrplot <- function(corr,
     }
 
     # standalone significance stars: mark the SIGNIFICANT cells with */**/***
-    # (non-significant cells get nothing), independent of lab. Keyed off the
-    # per-cell p-values, so it works as a significance-only map with lab = FALSE.
-    # Suppress only when the sig.stars label suffix will actually draw the stars
-    # (it needs lab = TRUE); otherwise insig = "stars" with sig.stars = TRUE and
-    # lab = FALSE would render neither and leave a bare heatmap.
-    if (!is.null(p.mat) & insig == "stars" & !(sig.stars & lab)) {
+    # (non-significant cells get nothing) as a significance-only map. Only drawn
+    # when lab = FALSE; with lab = TRUE the stars are appended to the coefficient
+    # labels above (numbers + stars, one text layer) so the two do not overprint.
+    if (!is.null(p.mat) & insig == "stars" & !lab) {
       p <- p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
         label = .sig_stars(corr$pvalue),
