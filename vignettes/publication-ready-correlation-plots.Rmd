@@ -94,6 +94,21 @@ strong correlations dominate, which reads well for large matrices and for colorb
 ggcorrplot(corr, scale.square = TRUE, hc.order = TRUE, outline.color = "white")
 ```
 
+# corrplot-style boxed cells
+
+`cell.grid = TRUE` draws a light rectangle around every cell and drops the
+gridlines that otherwise run through the glyph centers, so each sized glyph sits
+inside its own box. Combined with `scale.square = TRUE` (or `method = "circle"`)
+this is the boxed-cell corrplot signature, drawn in ggplot2. It has no effect on
+a plain full-tile square heatmap, whose cells already have a border.
+
+```{r cell-grid, fig.show = "hold", out.width = "48%", fig.align = "default", fig.width = 5.4, fig.height = 5}
+# size-scaled squares in boxed cells
+ggcorrplot(corr, scale.square = TRUE, cell.grid = TRUE, hc.order = TRUE, outline.color = "white")
+# circles in boxed cells
+ggcorrplot(corr, method = "circle", cell.grid = TRUE, hc.order = TRUE)
+```
+
 # A colorblind-safe palette
 
 `preset = "publication"` is a one-token beautiful default (white separators + the colorblind-safe RdBu
