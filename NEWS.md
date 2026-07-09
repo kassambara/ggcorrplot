@@ -2,6 +2,14 @@
 
 ## New features
 
+- New argument `cell.grid` to draw a light rectangle around every cell (behind
+  the glyphs) and drop the through-center gridlines, so the sized glyphs
+  (`method = "circle"` or `scale.square = TRUE`) sit inside boxed cells -- the
+  corrplot boxed-cell look: `ggcorrplot(corr, method = "circle", cell.grid =
+  TRUE)`. The cell border color is set with the companion argument
+  `cell.grid.col` (default `"grey90"`). Defaults to `FALSE`; has no effect on a
+  full-tile square heatmap, whose tiles already carry an `outline.color` border.
+
 - New argument `scale.square` to size the squares by the absolute correlation
   when `method = "square"`: `ggcorrplot(corr, scale.square = TRUE)` scales each
   square (larger = stronger correlation) on top of the fill color, the classic

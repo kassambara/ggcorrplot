@@ -47,7 +47,9 @@ ggcorrplot(
   palette = NULL,
   preset = NULL,
   hc.rect.col = "gray30",
-  scale.square = FALSE
+  scale.square = FALSE,
+  cell.grid = FALSE,
+  cell.grid.col = "grey90"
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -219,6 +221,17 @@ squares, the current behavior). Has no effect for \code{method = "circle"}
 (circles are always sized). Uses \code{circle.scale} to tune the size range.
 As with \code{method = "circle"}, coefficient labels (\code{lab = TRUE}) are
 drawn at full size and may overflow the smallest squares.}
+
+\item{cell.grid}{logical. If \code{TRUE}, draw a light rectangle around every
+cell (behind the glyphs) and remove the through-center gridlines, so the
+sized glyphs (\code{method = "circle"} or \code{scale.square = TRUE}) sit
+inside boxed cells -- the corrplot boxed-cell look. Defaults to \code{FALSE}
+(the current behavior). Has no effect on a full-tile square heatmap
+(\code{method = "square"} without \code{scale.square}), whose tiles already
+carry a cell border (\code{outline.color}).}
+
+\item{cell.grid.col}{the color of the \code{cell.grid} cell borders. Defaults
+to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.}
 
 \item{x}{numeric matrix or data frame}
 
