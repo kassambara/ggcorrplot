@@ -132,9 +132,13 @@ pch.col, pch.cex is invalid.}
 sig.level, then the corresponding correlation coefficient is regarded as
 insignificant.}
 
-\item{insig}{character, specialized insignificant correlation coefficients,
-"pch" (default), "blank". If "blank", wipe away the corresponding glyphs;
-if "pch", add characters (see pch for details) on corresponding glyphs.}
+\item{insig}{character, how to convey significance from \code{p.mat}: "pch"
+(default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
+glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
+instead marks the SIGNIFICANT cells with significance stars
+(\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05), drawn in \code{pch.col}
+and sized by \code{lab_size}, independent of \code{lab} -- a standalone
+significance map.}
 
 \item{pch}{add character on the glyphs of insignificant correlation
 coefficients (only valid when insig is "pch"). Default value is 4.}

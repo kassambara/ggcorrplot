@@ -43,5 +43,11 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - hc.rect",
       fig = ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - insig stars",
+      fig = ggcorrplot(corr, p.mat = p.mat, insig = "stars")
+    )
   })
 }
