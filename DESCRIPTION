@@ -30,8 +30,10 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr,
+    rmarkdown,
     spelling,
     vdiffr (>= 1.0.0)
+VignetteBuilder: knitr
 Encoding: UTF-8
 Language: en-US
 Config/testthat/edition: 3

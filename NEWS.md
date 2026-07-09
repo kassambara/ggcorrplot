@@ -33,6 +33,10 @@
 
 ## Minor changes
 
+- Added an introductory vignette, `vignette("ggcorrplot")`, walking through the
+  package end to end: the inputs, glyphs and layouts, clustering, coefficient
+  labels, significance styles, and theming.
+
 - Internal refactor: the data-preparation pipeline and the glyph-layer
   construction are now factored into internal helpers, with no change to the
   output of any existing call. This is groundwork for forthcoming per-triangle
