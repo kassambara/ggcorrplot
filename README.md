@@ -87,6 +87,20 @@ ggcorrplot(corr, method = "circle")
 
 <img src="man/figures/README-basic-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-basic-2.png" alt="" width="49%" style="display: block; margin: auto;" />
 
+### Sized glyphs in boxed cells
+
+`scale.square = TRUE` sizes the squares by the absolute correlation, so
+strong correlations dominate; `cell.grid = TRUE` draws a light box
+around every cell so the glyphs sit inside a grid instead of floating on
+the axis lines.
+
+``` r
+ggcorrplot(corr, scale.square = TRUE, cell.grid = TRUE, outline.color = "white")
+ggcorrplot(corr, method = "circle", cell.grid = TRUE)
+```
+
+<img src="man/figures/README-boxed-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-boxed-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+
 ### Reorder by clustering, and outline the clusters
 
 `hc.order = TRUE` reorders the variables by hierarchical clustering so
