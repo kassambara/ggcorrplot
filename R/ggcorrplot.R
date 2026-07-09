@@ -14,6 +14,15 @@
 #'   (circles are always sized). Uses \code{circle.scale} to tune the size range.
 #'   As with \code{method = "circle"}, coefficient labels (\code{lab = TRUE}) are
 #'   drawn at full size and may overflow the smallest squares.
+#' @param cell.grid logical. If \code{TRUE}, draw a light rectangle around every
+#'   cell (behind the glyphs) and remove the through-center gridlines, so the
+#'   sized glyphs (\code{method = "circle"} or \code{scale.square = TRUE}) sit
+#'   inside boxed cells -- the corrplot boxed-cell look. Defaults to \code{FALSE}
+#'   (the current behavior). Has no effect on a full-tile square heatmap
+#'   (\code{method = "square"} without \code{scale.square}), whose tiles already
+#'   carry a cell border (\code{outline.color}).
+#' @param cell.grid.col the color of the \code{cell.grid} cell borders. Defaults
+#'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
 #'   as text, colored by its value on the same scale as the fill, so coefficients
@@ -267,7 +276,9 @@ ggcorrplot <- function(corr,
                        palette = NULL,
                        preset = NULL,
                        hc.rect.col = "gray30",
-                       scale.square = FALSE) {
+                       scale.square = FALSE,
+                       cell.grid = FALSE,
+                       cell.grid.col = "grey90") {
   type <- match.arg(type)
   method <- match.arg(method)
   # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
@@ -406,14 +417,30 @@ ggcorrplot <- function(corr,
       outline.color = outline.color, circle.scale = circle.scale,
       lab_size = lab_size, tl.cex = tl.cex, tl.col = tl.col,
       digits = digits, nsmall = nsmall, leading.zero = leading.zero,
-      scale.square = scale.square
+      scale.square = scale.square,
+      cell.grid = cell.grid, cell.grid.col = cell.grid.col
     )
+    # A mixed layout always boxes at least the diagonal (name) region when
+    # cell.grid = TRUE, so the gridline blanking below is always consistent here.
+    draw.cell.grid <- cell.grid
   } else {
     p <-
       ggplot2::ggplot(
         data = corr,
         mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]], fill = .data[["value"]])
       )
+
+    # cell.grid: draw a light cell-rectangle grid BEHIND the sized glyphs so they
+    # sit inside boxed cells (the corrplot look). Added before the glyph layer so
+    # it renders underneath. Skipped for a full-tile square heatmap (method =
+    # "square" without scale.square): its geom_tile already carries a cell border
+    # (outline.color), so a second border would double-draw. fill = NA overrides
+    # the inherited aes(fill = value) for drawing while still training the same
+    # fill scale as the glyph layer (byte-identical fill legend).
+    draw.cell.grid <- cell.grid && !(method == "square" && !scale.square)
+    if (draw.cell.grid) {
+      p <- p + ggplot2::geom_tile(fill = NA, colour = cell.grid.col)
+    }
 
     # modification based on method (extracted so the mixed-method path can request
     # a different glyph per triangle from the same builder, P0.0)
@@ -489,6 +516,18 @@ ggcorrplot <- function(corr,
       ),
       axis.text.y = ggplot2::element_text(size = tl.cex, colour = tl.col)
     )
+  # cell.grid replaces the through-center gridlines with per-cell rectangles, so
+  # blank the panel grid (added after the theme() above so it wins). Gated on
+  # draw.cell.grid -- TRUE only when boxes were actually drawn -- so a full-tile
+  # square heatmap (which draws no box and keeps its gridlines behind the opaque
+  # tiles) is genuinely untouched, matching the documented "no effect". This also
+  # keeps a lower/upper full-tile square's gridlines in the blank triangle intact.
+  if (draw.cell.grid) {
+    p <- p + ggplot2::theme(
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank()
+    )
+  }
   if (coord.fixed) {
     p <- p + ggplot2::coord_fixed()
   } else {
@@ -876,7 +915,8 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # variable name. Returns a list of ggplot components.
 .mixed_layers <- function(df, lower.method, upper.method,
                           outline.color, circle.scale, lab_size, tl.cex, tl.col,
-                          digits, nsmall, leading.zero, scale.square = FALSE) {
+                          digits, nsmall, leading.zero, scale.square = FALSE,
+                          cell.grid = FALSE, cell.grid.col = "grey90") {
   xi <- as.integer(df$Var1)
   yi <- as.integer(df$Var2)
   regions <- list(
@@ -891,6 +931,16 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     d <- r$data
     if (nrow(d) == 0) next
     m <- r$method
+    # cell.grid: box every region behind its glyph, EXCEPT a full-tile square
+    # region (m == "square" without scale.square), whose geom_tile already draws
+    # an outline.color border -- a second box would double-draw. Added before the
+    # region's glyph so it renders underneath. fill = NA (no aes fill inherited
+    # from the mixed base plot) draws only the border.
+    if (cell.grid && !(m == "square" && !scale.square)) {
+      layers <- c(layers, list(ggplot2::geom_tile(
+        data = d, fill = NA, colour = cell.grid.col
+      )))
+    }
     if (m == "square" && !scale.square) {
       layers <- c(layers, list(ggplot2::geom_tile(
         data = d,

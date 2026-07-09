@@ -78,5 +78,11 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - scale square",
       fig = ggcorrplot(corr, scale.square = TRUE, outline.color = "white")
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - cell grid circle",
+      fig = ggcorrplot(corr, method = "circle", cell.grid = TRUE)
+    )
   })
 }
