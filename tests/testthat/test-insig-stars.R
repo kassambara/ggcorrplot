@@ -58,6 +58,35 @@ test_that("the default insig ('pch') is unchanged when 'stars' is added to the s
   expect_error(ggcorrplot(corr, p.mat = p.mat, insig = "nope"))
 })
 
+test_that("the old default vector insig = c('pch', 'blank') still resolves to 'pch'", {
+  # adding "stars" to the choice set must not break a caller that passes the
+  # previously-documented default vector explicitly: match.arg() only accepts a
+  # multi-value arg identical to the full choices, so c("pch", "blank") would
+  # error unless we resolve on insig[1]. It must behave exactly like insig = "pch".
+  expect_error(ggcorrplot(corr, p.mat = p.mat, insig = c("pch", "blank")), NA)
+  a <- ggplot2::ggplot_build(ggcorrplot(corr, p.mat = p.mat, insig = c("pch", "blank")))
+  b <- ggplot2::ggplot_build(ggcorrplot(corr, p.mat = p.mat, insig = "pch"))
+  expect_equal(a$data, b$data)
+})
+
+test_that("insig = 'stars' with sig.stars = TRUE and lab = FALSE still draws the stars", {
+  # sig.stars appends stars to the coefficient labels, but those only exist when
+  # lab = TRUE; with lab = FALSE the standalone stars must still render so the
+  # call is not a bare heatmap.
+  p <- ggcorrplot(corr, p.mat = p.mat, insig = "stars", sig.stars = TRUE)
+  expect_true("GeomText" %in% geoms(p))
+  expect_identical(star_layer_labels(p), .sig_stars(unname(
+    p.mat[cbind(
+      as.character(ggplot2::ggplot_build(p)$plot$data$Var1),
+      as.character(ggplot2::ggplot_build(p)$plot$data$Var2)
+    )]
+  )))
+  # and with lab = TRUE the suffix path draws them, so the standalone layer is
+  # suppressed (no double stars): exactly one GeomText, from the labels
+  p2 <- ggcorrplot(corr, p.mat = p.mat, insig = "stars", sig.stars = TRUE, lab = TRUE)
+  expect_equal(sum(geoms(p2) == "GeomText"), 1)
+})
+
 test_that("sig.stars and insig = 'stars' share one star definition", {
   # sig.stars appends the SAME stars to the coefficient labels
   p <- ggcorrplot(corr, p.mat = p.mat, lab = TRUE, sig.stars = TRUE)

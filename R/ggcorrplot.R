@@ -240,7 +240,13 @@ ggcorrplot <- function(corr,
                        hc.rect = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
-  insig <- match.arg(insig)
+  # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
+  # documented default vector explicitly -- insig = c("pch", "blank") -- still
+  # collapses to its first element instead of erroring: match.arg() only accepts
+  # a multi-value arg when it is identical to the full choices set, and adding
+  # "stars" made c("pch", "blank") non-identical. Scalar/partial matching and the
+  # default are unchanged.
+  insig <- match.arg(insig[1], c("pch", "blank", "stars"))
   if (is.null(show.diag)) {
     if (type == "full") {
       show.diag <- TRUE
@@ -476,7 +482,10 @@ ggcorrplot <- function(corr,
     # standalone significance stars: mark the SIGNIFICANT cells with */**/***
     # (non-significant cells get nothing), independent of lab. Keyed off the
     # per-cell p-values, so it works as a significance-only map with lab = FALSE.
-    if (!is.null(p.mat) & insig == "stars" & !sig.stars) {
+    # Suppress only when the sig.stars label suffix will actually draw the stars
+    # (it needs lab = TRUE); otherwise insig = "stars" with sig.stars = TRUE and
+    # lab = FALSE would render neither and leave a bare heatmap.
+    if (!is.null(p.mat) & insig == "stars" & !(sig.stars & lab)) {
       p <- p + ggplot2::geom_text(
         mapping = ggplot2::aes(x = .data[["Var1"]], y = .data[["Var2"]]),
         label = .sig_stars(corr$pvalue),
