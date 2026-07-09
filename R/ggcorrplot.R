@@ -905,7 +905,20 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   if (is.null(cormat)) {
     return(cormat)
   }
-  diag(cormat) <- NA
+  if (nrow(cormat) == ncol(cormat)) {
+    diag(cormat) <- NA
+  } else {
+    # A non-square (m x n) matrix has no positional diagonal: `diag(cormat) <- NA`
+    # would blank min(m, n) cells at (1,1), (2,2), ... regardless of what variables
+    # sit there, wiping the wrong cells. Remove only the genuine self-pairs -- cells
+    # whose row and column name the same variable -- so a matrix whose row and column
+    # variables are disjoint keeps every cell.
+    rn <- rownames(cormat)
+    cn <- colnames(cormat)
+    if (!is.null(rn) && !is.null(cn)) {
+      cormat[outer(rn, cn, `==`)] <- NA
+    }
+  }
   cormat
 }
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives

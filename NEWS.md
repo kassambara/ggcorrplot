@@ -38,6 +38,15 @@
   output of any existing call. This is groundwork for forthcoming per-triangle
   layout options.
 
+## Bug fixes
+
+- `show.diag = FALSE` on a non-square matrix no longer blanks the wrong cells.
+  The diagonal has no positional meaning for an m x n matrix, yet the removal
+  wiped `min(m, n)` cells along the leading diagonal; it now removes only the
+  genuine self-pairs (a row and column naming the same variable), leaving a
+  matrix with disjoint row and column variables untouched. Square matrices are
+  unaffected (#5, #10).
+
 # ggcorrplot 0.2.0
 
 ## New features
