@@ -50,3 +50,11 @@ test_that("non-square + show.diag = TRUE (the default for full) keeps every cell
   rect <- cor(mtcars[, 1:3], mtcars[, 4:7])
   expect_equal(nrow(cells(ggcorrplot(rect))), length(rect)) # default show.diag path unchanged
 })
+
+test_that("unnamed non-square + show.diag = FALSE keeps the historical positional removal", {
+  rect <- cor(mtcars[, 1:3], mtcars[, 4:7]) # 3 x 4
+  dimnames(rect) <- NULL
+  # no names to match self-pairs by, so the positional diagonal (min(m,n) = 3
+  # cells) is removed as before -> 12 - 3 = 9 cells
+  expect_equal(nrow(cells(ggcorrplot(rect, show.diag = FALSE))), length(rect) - 3L)
+})

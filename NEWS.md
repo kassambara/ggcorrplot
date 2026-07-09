@@ -44,8 +44,9 @@
   The diagonal has no positional meaning for an m x n matrix, yet the removal
   wiped `min(m, n)` cells along the leading diagonal; it now removes only the
   genuine self-pairs (a row and column naming the same variable), leaving a
-  matrix with disjoint row and column variables untouched. Square matrices are
-  unaffected (#5, #10).
+  matrix with disjoint row and column variables untouched. Square matrices, and
+  non-square matrices without dimnames, are unaffected. Follows up the non-square
+  support requested by @mt1022 (#5) and @qalid7 (#10).
 
 # ggcorrplot 0.2.0
 

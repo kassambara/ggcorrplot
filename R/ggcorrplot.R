@@ -917,6 +917,10 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     cn <- colnames(cormat)
     if (!is.null(rn) && !is.null(cn)) {
       cormat[outer(rn, cn, `==`)] <- NA
+    } else {
+      # Unnamed matrix: there are no names to identify self-pairs by, so keep the
+      # historical positional removal (unchanged from previous behavior).
+      diag(cormat) <- NA
     }
   }
   cormat
