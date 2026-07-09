@@ -1,0 +1,257 @@
+---
+title: "Introduction to ggcorrplot"
+author: "Alboukadel Kassambara"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+    fig_width: 6
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Introduction to ggcorrplot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  dpi = 200,
+  fig.align = "center",
+  out.width = "80%"
+)
+```
+
+**ggcorrplot** draws a correlation matrix as a **ggplot2** plot. Because the
+result is an ordinary ggplot object, you keep the full ggplot2 vocabulary:
+restyle it with a theme, add layers or annotations, and compose it with other
+plots using `+`.
+
+This vignette walks through the package end to end: computing the inputs,
+choosing a glyph and layout, reordering by clustering, adding the coefficients,
+marking statistical significance, and restyling the result.
+
+```{r}
+library(ggcorrplot)
+```
+
+# The inputs: a correlation matrix and its p-values
+
+Every plot starts from a correlation matrix. The examples use the built-in
+`mtcars` data set.
+
+```{r}
+data(mtcars)
+corr <- round(cor(mtcars), 1)
+corr[1:5, 1:5]
+```
+
+To mark significance later, you also need the matrix of correlation p-values.
+`cor_pmat()` computes it with `stats::cor.test()`:
+
+```{r}
+p.mat <- cor_pmat(mtcars)
+p.mat[1:5, 1:5]
+```
+
+`ggcorrplot()` never computes correlations itself — it takes a matrix you
+already have. That means it works equally well with a partial correlation
+matrix, a distance-derived similarity, or any other square matrix in
+`[-1, 1]` (and, with `legend.limit = NULL`, matrices outside that range such as
+a covariance matrix).
+
+# Basic correlogram
+
+The default encodes each correlation as a colored square. `method = "circle"`
+encodes the value with the circle's area instead, which reads well when you want
+the magnitude to pop out.
+
+```{r basic, fig.show = "hold", out.width = "48%"}
+ggcorrplot(corr)
+ggcorrplot(corr, method = "circle")
+```
+
+When `method = "circle"`, `circle.scale` tunes the circle sizes for your output
+device.
+
+```{r circle-scale}
+ggcorrplot(corr, method = "circle", circle.scale = 0.6)
+```
+
+# Reorder by clustering
+
+Ordering the variables by hierarchical clustering brings correlated variables
+next to each other, so the block structure becomes visible. Set
+`hc.order = TRUE`; `hc.method` chooses the linkage (as in `hclust()`).
+
+```{r hc}
+ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+```
+
+`hc.rect` then draws rectangles around the clusters obtained by cutting the tree
+into `k` groups — a quick way to highlight the blocks.
+
+```{r hc-rect}
+ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
+```
+
+# Layout: triangles and mixed glyphs
+
+For a symmetric matrix the two triangles carry the same information, so you can
+show just one with `type = "lower"` or `type = "upper"`.
+
+```{r triangle, fig.show = "hold", out.width = "48%"}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
+ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
+```
+
+A **mixed layout** draws a different glyph in each triangle. Set `lower.method`
+and/or `upper.method` to `"square"`, `"circle"`, or `"number"`; the variable
+names are placed on the diagonal. A common choice is the coefficients as numbers
+on one side and circles on the other:
+
+```{r mixed, fig.width = 6.5, fig.height = 6}
+ggcorrplot(corr,
+  lower.method = "number", upper.method = "circle",
+  show.legend = FALSE
+)
+```
+
+With `"number"`, the coefficient text is colored on the same scale as the fill,
+so values near zero fade out and the strong correlations stand out.
+
+# Add the coefficients
+
+`lab = TRUE` prints the correlation coefficient in each cell. `lab_size`,
+`lab_col`, and `lab_fontface` control its appearance.
+
+```{r lab, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", lab = TRUE)
+```
+
+Two options match common conventions for correlation tables:
+
+- `leading.zero = FALSE` drops the leading zero (`.85` instead of `0.85`).
+- `nsmall` keeps a fixed number of decimals (e.g. `nsmall = 2` shows `0.70`).
+
+```{r lab-style, fig.width = 6, fig.height = 5.6}
+ggcorrplot(cor(mtcars[, 1:6]),
+  lab = TRUE, lab_size = 3.5,
+  leading.zero = FALSE, nsmall = 2,
+  type = "lower"
+)
+```
+
+# Mark statistical significance
+
+Supplying `p.mat` lets the plot convey which correlations are significant at
+`sig.level` (default `0.05`). There are three styles, chosen with `insig`.
+
+**`insig = "pch"` (default)** crosses out the non-significant cells:
+
+```{r insig-pch, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
+```
+
+**`insig = "blank"`** hides them entirely:
+
+```{r insig-blank, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank")
+```
+
+**`insig = "stars"`** flips the emphasis: rather than crossing out the
+non-significant cells, it marks the **significant** ones with significance stars
+(`***`, `**`, `*` for *p* < 0.001, 0.01, 0.05). With the default `lab = FALSE`
+this is a standalone significance map:
+
+```{r insig-stars, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr, p.mat = p.mat, insig = "stars")
+```
+
+With `lab = TRUE`, the stars are appended to the coefficients instead
+(`-0.85***`), so one plot shows both the value and its significance:
+
+```{r sig-stars, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr,
+  type = "lower", p.mat = p.mat,
+  lab = TRUE, insig = "stars"
+)
+```
+
+# Colors and theme
+
+`colors` sets the diverging gradient. A length-3 vector maps to low / mid /
+high; any longer vector (for example an 11-color palette) is spread evenly
+across the scale.
+
+```{r colors, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr,
+  hc.order = TRUE, type = "lower", outline.color = "white",
+  colors = c("#6D9EC1", "white", "#E46726")
+)
+```
+
+`ggtheme` swaps the base ggplot2 theme, and `tl.cex`, `tl.col`, `tl.srt` style
+the variable-name labels. `legend.limit` controls the color-scale range — set it
+to `NULL` to use the data range, which is what you want for a covariance matrix.
+
+```{r theme, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr,
+  hc.order = TRUE, type = "lower",
+  ggtheme = ggplot2::theme_minimal,
+  tl.col = "gray30", tl.srt = 90,
+  colors = c("#003C67", "white", "#8F2727")
+)
+```
+
+# It is a ggplot: compose freely
+
+Because `ggcorrplot()` returns a ggplot object, you refine it with the usual
+ggplot2 grammar — titles, captions, and any additional layer:
+
+```{r compose, fig.width = 6, fig.height = 5.8}
+library(ggplot2)
+
+ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white") +
+  labs(
+    title = "Correlations among mtcars variables",
+    caption = "Hierarchically clustered"
+  ) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+The fixed 1:1 aspect ratio comes from `coord_fixed()`. To let the cells fill the
+plotting area — useful with many long variable names — use `coord.fixed = FALSE`
+(or add your own `+ coord_*`, since the last coordinate system wins).
+
+Saving works the same as any ggplot:
+
+```{r save, eval = FALSE}
+p <- ggcorrplot(corr, hc.order = TRUE, lab = TRUE)
+ggplot2::ggsave("correlogram.png", p, width = 7, height = 6, dpi = 300)
+```
+
+# Computing p-values with `cor_pmat()`
+
+`cor_pmat(x, ...)` returns the symmetric matrix of p-values from
+`stats::cor.test()`, and passes `...` through to it — so you can, for example,
+request a Spearman test:
+
+```{r pmat, eval = FALSE}
+cor_pmat(mtcars, method = "spearman")
+```
+
+The `use` argument controls how missing values are handled when deciding which
+cells are `NA`, mirroring `stats::cor()`: the default
+`"pairwise.complete.obs"` tests every pair with enough overlapping observations,
+while `"everything"` sets a pair to `NA` as soon as either variable has a missing
+value (so its `NA` pattern lines up with `cor(x)`).
+
+# Session information
+
+```{r session}
+sessionInfo()
+```
