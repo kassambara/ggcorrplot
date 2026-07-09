@@ -43,6 +43,12 @@
 #'   ramp, white at zero, cool = negative / warm = positive) and takes precedence
 #'   over \code{colors}. Defaults to \code{NULL} (use \code{colors}), so existing
 #'   calls are unchanged.
+#' @param preset optional name of a bundle of publication-grade defaults. The only
+#'   value, \code{"publication"}, sets white cell outlines and the colorblind-safe
+#'   \code{"RdBu"} palette in one token. It fills only the arguments you did not
+#'   supply, so any argument you pass explicitly (e.g. \code{outline.color},
+#'   \code{colors}, \code{palette}) overrides the preset. Defaults to \code{NULL}
+#'   (no preset), leaving existing calls unchanged.
 #' @param outline.color the outline color of square or circle. Default value is
 #'   "gray".
 #' @param hc.order logical value. If TRUE, correlation matrix will be hc.ordered
@@ -246,7 +252,8 @@ ggcorrplot <- function(corr,
                        lower.method = NULL,
                        upper.method = NULL,
                        hc.rect = NULL,
-                       palette = NULL) {
+                       palette = NULL,
+                       preset = NULL) {
   type <- match.arg(type)
   method <- match.arg(method)
   # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
@@ -256,6 +263,19 @@ ggcorrplot <- function(corr,
   # "stars" made c("pch", "blank") non-identical. Scalar/partial matching and the
   # default are unchanged.
   insig <- match.arg(insig[1], c("pch", "blank", "stars"))
+  # A preset is a bundle of "publication-grade" defaults (white cell outlines and
+  # a colorblind-safe diverging palette). It fills ONLY the arguments the caller
+  # did not supply -- detected with missing() BEFORE any reassignment, so an
+  # explicit argument always overrides the preset, and preset = NULL (the default)
+  # changes nothing. This must run above the palette block, which reassigns
+  # `colors`/`palette`.
+  if (!is.null(preset)) {
+    preset <- match.arg(preset, "publication")
+    if (missing(outline.color)) outline.color <- "white"
+    # Reach for the preset palette only when the caller pinned neither `palette`
+    # nor `colors`, so an explicit `colors` is never clobbered.
+    if (missing(palette) && missing(colors)) palette <- "RdBu"
+  }
   # A named colorblind-safe diverging palette is a convenience shortcut for
   # `colors`: when set (non-NULL, the default), it supplies the fill gradient and
   # takes precedence over `colors`. `palette = NULL` leaves `colors` untouched, so

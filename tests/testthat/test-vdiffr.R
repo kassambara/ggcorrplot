@@ -66,5 +66,11 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - palette RdBu",
       fig = ggcorrplot(corr, palette = "RdBu", outline.color = "white", lab = TRUE)
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - preset publication",
+      fig = ggcorrplot(corr, preset = "publication", lab = TRUE)
+    )
   })
 }

@@ -44,7 +44,8 @@ ggcorrplot(
   lower.method = NULL,
   upper.method = NULL,
   hc.rect = NULL,
-  palette = NULL
+  palette = NULL,
+  preset = NULL
 )
 
 cor_pmat(x, ..., use = c("pairwise.complete.obs", "everything"))
@@ -195,6 +196,13 @@ shortcut for \code{colors}: when set it supplies the gradient (an 11-stop
 ramp, white at zero, cool = negative / warm = positive) and takes precedence
 over \code{colors}. Defaults to \code{NULL} (use \code{colors}), so existing
 calls are unchanged.}
+
+\item{preset}{optional name of a bundle of publication-grade defaults. The only
+value, \code{"publication"}, sets white cell outlines and the colorblind-safe
+\code{"RdBu"} palette in one token. It fills only the arguments you did not
+supply, so any argument you pass explicitly (e.g. \code{outline.color},
+\code{colors}, \code{palette}) overrides the preset. Defaults to \code{NULL}
+(no preset), leaving existing calls unchanged.}
 
 \item{x}{numeric matrix or data frame}
 
