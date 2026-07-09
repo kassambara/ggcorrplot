@@ -60,5 +60,11 @@ if (getRversion() >= "4.1") {
       title = "ggcorrplot works - non-square no-diag",
       fig = ggcorrplot(nonsq, show.diag = FALSE, lab = TRUE)
     )
+
+    set.seed(123)
+    vdiffr::expect_doppelganger(
+      title = "ggcorrplot works - palette RdBu",
+      fig = ggcorrplot(corr, palette = "RdBu", outline.color = "white", lab = TRUE)
+    )
   })
 }

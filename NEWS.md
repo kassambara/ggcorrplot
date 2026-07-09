@@ -2,6 +2,12 @@
 
 ## New features
 
+- New argument `palette` to pick a built-in colorblind-safe diverging palette for
+  the fill gradient: `ggcorrplot(corr, palette = "RdBu")` (or `"PuOr"`). Each is
+  an 11-stop ramp with white at zero and the usual cool = negative / warm =
+  positive polarity, so it is a one-word alternative to spelling out `colors`.
+  Defaults to `NULL` (use `colors`), leaving existing calls unchanged.
+
 - New value `insig = "stars"` to mark the significant cells with significance
   stars (`***`/`**`/`*` for p < 0.001/0.01/0.05) instead of crossing out the
   insignificant ones. Works without `lab`, so `ggcorrplot(corr, p.mat = p.mat,
