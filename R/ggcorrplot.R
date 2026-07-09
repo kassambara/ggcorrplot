@@ -12,6 +12,8 @@
 #'   size-scaled square look. Defaults to \code{FALSE} (constant full-cell
 #'   squares, the current behavior). Has no effect for \code{method = "circle"}
 #'   (circles are always sized). Uses \code{circle.scale} to tune the size range.
+#'   As with \code{method = "circle"}, coefficient labels (\code{lab = TRUE}) are
+#'   drawn at full size and may overflow the smallest squares.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
 #'   as text, colored by its value on the same scale as the fill, so coefficients

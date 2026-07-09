@@ -216,7 +216,9 @@ squares are sized by the absolute correlation (larger square = stronger
 correlation), in addition to the fill color -- the classic corrplot
 size-scaled square look. Defaults to \code{FALSE} (constant full-cell
 squares, the current behavior). Has no effect for \code{method = "circle"}
-(circles are always sized). Uses \code{circle.scale} to tune the size range.}
+(circles are always sized). Uses \code{circle.scale} to tune the size range.
+As with \code{method = "circle"}, coefficient labels (\code{lab = TRUE}) are
+drawn at full size and may overflow the smallest squares.}
 
 \item{x}{numeric matrix or data frame}
 
