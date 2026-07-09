@@ -51,6 +51,12 @@
   package end to end: the inputs, glyphs and layouts, clustering, coefficient
   labels, significance styles, and theming.
 
+- Added a second vignette,
+  `vignette("publication-ready-correlation-plots")`, a gallery of finished
+  publication-ready correlogram recipes (clustered, triangle, significance,
+  circle, colorblind palette, edgeless heatmap, rectangular predictor-by-outcome
+  matrix, and full ggplot2 polish).
+
 - Internal refactor: the data-preparation pipeline and the glyph-layer
   construction are now factored into internal helpers, with no change to the
   output of any existing call. This is groundwork for forthcoming per-triangle

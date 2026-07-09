@@ -1,0 +1,160 @@
+---
+title: "Publication-ready correlation plots"
+author: "Alboukadel Kassambara"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+    fig_width: 6
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Publication-ready correlation plots}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  dpi = 200,
+  fig.align = "center",
+  out.width = "80%"
+)
+```
+
+This is a **gallery of finished figures** — each with the code that produces it — for the kinds of
+correlograms that show up in papers. For the argument-by-argument tour of every option, see
+`vignette("ggcorrplot")`.
+
+Two facts make ggcorrplot well suited to publication work: it takes a correlation matrix you already have
+(so it never gets between you and your statistics), and it returns a plain **ggplot object**, so any figure
+here can be restyled, titled, and combined with `+`.
+
+```{r}
+library(ggcorrplot)
+library(ggplot2)
+
+data(mtcars)
+corr <- round(cor(mtcars), 1)
+p.mat <- cor_pmat(mtcars)
+```
+
+# The clustered correlogram
+
+The workhorse figure: reorder the variables by hierarchical clustering so correlated variables sit
+together and the block structure is visible, and draw thin white separators between cells.
+
+```{r clustered, fig.width = 6, fig.height = 5.4}
+ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+```
+
+# Lower triangle with coefficients
+
+For a symmetric matrix the two triangles are redundant, so a paper usually shows one, often with the
+coefficients printed in the cells — a figure that replaces a correlation table.
+
+```{r lower-lab, fig.width = 6, fig.height = 5.4}
+ggcorrplot(corr, hc.order = TRUE, type = "lower", lab = TRUE, lab_size = 3)
+```
+
+# Marking significance
+
+Supply the p-value matrix from `cor_pmat()` and choose how to convey significance. `insig = "blank"`
+drops the non-significant cells; `insig = "stars"` instead marks the **significant** ones with
+`*`/`**`/`***` — a standalone significance map.
+
+```{r significance, fig.show = "hold", out.width = "48%", fig.align = "default", fig.width = 5.4, fig.height = 5}
+# non-significant cells left blank
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank")
+# significant cells starred
+ggcorrplot(corr, p.mat = p.mat, insig = "stars")
+```
+
+The default, `insig = "pch"`, crosses out the non-significant cells with an `X` instead.
+
+# Circles for magnitude
+
+`method = "circle"` encodes the correlation with the circle's area, so strong correlations pop out — the
+familiar corrplot look, drawn in ggplot2.
+
+```{r circle, fig.width = 6, fig.height = 5.4}
+ggcorrplot(corr, method = "circle", hc.order = TRUE, type = "upper", outline.color = "white")
+```
+
+# A colorblind-safe palette
+
+`preset = "publication"` is a one-token beautiful default (white separators + the colorblind-safe RdBu
+palette). For a specific journal look, set `colors` and `ggtheme` yourself.
+
+```{r palette, fig.show = "hold", out.width = "48%", fig.align = "default", fig.width = 5.4, fig.height = 5}
+# one-token publication preset
+ggcorrplot(corr, hc.order = TRUE, preset = "publication")
+# a custom diverging palette on a minimal theme
+ggcorrplot(corr,
+  hc.order = TRUE, type = "lower", outline.color = "white",
+  ggtheme = theme_minimal, colors = c("#6D9EC1", "white", "#E46726")
+)
+```
+
+# A clean, edgeless heatmap
+
+A correlogram of solid colored squares with **no cell border** — the look used in many module–trait and
+omics papers. `method = "square"` is a full-tile heatmap; `outline.color = NA` removes the border. Reverse
+the default gradient to `c("red", "white", "blue")` for red-negative / blue-positive, and put the variable
+names on top with a one-line scale.
+
+```{r edgeless, fig.width = 6, fig.height = 5.6}
+ggcorrplot(corr,
+  outline.color = NA,
+  colors = c("red", "white", "blue"),
+  legend.title = "Correlation"
+) +
+  scale_x_discrete(position = "top")
+```
+
+# A rectangular predictor-by-outcome matrix
+
+Correlations are not always a square symmetric matrix. To relate one set of variables to another — say
+engine/size variables against performance variables — pass a **rectangular** correlation matrix. Clustering
+and the triangle options need a square matrix, so use `hc.order = FALSE`.
+
+```{r rectangular, fig.width = 6.5, fig.height = 4.4}
+rect <- round(cor(
+  mtcars[, c("mpg", "hp", "wt", "qsec")],
+  mtcars[, c("disp", "drat", "vs", "am", "gear")]
+), 1)
+ggcorrplot(rect, hc.order = FALSE, lab = TRUE, outline.color = "white")
+```
+
+# Going further: it is a ggplot
+
+Because `ggcorrplot()` returns a ggplot object, anything ggplot2 can do is available. Start from any
+correlogram and add a title, a clearer legend label, and theme tweaks; then save at print resolution.
+
+The legend label is a ggcorrplot argument (`legend.title`); the title, subtitle and theme come from ggplot2.
+
+```{r polish, fig.width = 6, fig.height = 5.8}
+p <- ggcorrplot(corr,
+  hc.order = TRUE, type = "lower", outline.color = "white",
+  legend.title = "Pearson r"
+) +
+  labs(
+    title = "Correlations among car-design variables",
+    subtitle = "mtcars, Pearson correlation"
+  ) +
+  theme(plot.title = element_text(face = "bold"))
+p
+```
+
+```{r save, eval = FALSE}
+ggsave("correlogram.png", p, width = 7, height = 6, dpi = 300)
+```
+
+# Session information
+
+```{r session}
+sessionInfo()
+```
