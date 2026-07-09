@@ -6,6 +6,12 @@
 #' @param corr the correlation matrix to visualize
 #' @param method character, the visualization method of correlation matrix to be
 #'   used. Allowed values are "square" (default), "circle".
+#' @param scale.square logical. If \code{TRUE} and \code{method = "square"}, the
+#'   squares are sized by the absolute correlation (larger square = stronger
+#'   correlation), in addition to the fill color -- the classic corrplot
+#'   size-scaled square look. Defaults to \code{FALSE} (constant full-cell
+#'   squares, the current behavior). Has no effect for \code{method = "circle"}
+#'   (circles are always sized). Uses \code{circle.scale} to tune the size range.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
 #'   as text, colored by its value on the same scale as the fill, so coefficients
@@ -258,7 +264,8 @@ ggcorrplot <- function(corr,
                        hc.rect = NULL,
                        palette = NULL,
                        preset = NULL,
-                       hc.rect.col = "gray30") {
+                       hc.rect.col = "gray30",
+                       scale.square = FALSE) {
   type <- match.arg(type)
   method <- match.arg(method)
   # Resolve on insig[1] (not match.arg(insig)) so a caller passing the old
@@ -396,7 +403,8 @@ ggcorrplot <- function(corr,
       corr, lower.method, upper.method,
       outline.color = outline.color, circle.scale = circle.scale,
       lab_size = lab_size, tl.cex = tl.cex, tl.col = tl.col,
-      digits = digits, nsmall = nsmall, leading.zero = leading.zero
+      digits = digits, nsmall = nsmall, leading.zero = leading.zero,
+      scale.square = scale.square
     )
   } else {
     p <-
@@ -407,7 +415,10 @@ ggcorrplot <- function(corr,
 
     # modification based on method (extracted so the mixed-method path can request
     # a different glyph per triangle from the same builder, P0.0)
-    p <- p + .method_layer(method, outline.color = outline.color, circle.scale = circle.scale)
+    p <- p + .method_layer(method,
+      outline.color = outline.color, circle.scale = circle.scale,
+      scale.square = scale.square
+    )
   }
 
   # adding colors
@@ -798,9 +809,22 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # Build the glyph layer(s) for a given method. Returns a list of ggplot
 # components so the caller can add them with a single `+` (and so the
 # mixed-method path can request a different glyph per triangle, P0.0).
-.method_layer <- function(method, outline.color, circle.scale) {
-  if (method == "square") {
+.method_layer <- function(method, outline.color, circle.scale, scale.square = FALSE) {
+  if (method == "square" && !scale.square) {
     list(ggplot2::geom_tile(color = outline.color))
+  } else if (method == "square" && scale.square) {
+    # size-scaled squares (corrplot-style): a filled square (shape 22) whose size
+    # encodes |r|, mirroring the sized-circle glyph. Only reached when the caller
+    # opts in with scale.square = TRUE, so the default square heatmap is unchanged.
+    list(
+      ggplot2::geom_point(
+        color = outline.color,
+        shape = 22,
+        ggplot2::aes(size = .data[["abs_corr"]])
+      ),
+      ggplot2::scale_size(range = c(4, 10) * circle.scale),
+      ggplot2::guides(size = "none")
+    )
   } else if (method == "circle") {
     list(
       ggplot2::geom_point(
@@ -850,7 +874,7 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # variable name. Returns a list of ggplot components.
 .mixed_layers <- function(df, lower.method, upper.method,
                           outline.color, circle.scale, lab_size, tl.cex, tl.col,
-                          digits, nsmall, leading.zero) {
+                          digits, nsmall, leading.zero, scale.square = FALSE) {
   xi <- as.integer(df$Var1)
   yi <- as.integer(df$Var2)
   regions <- list(
@@ -860,19 +884,26 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   )
 
   layers <- list()
-  has_circle <- FALSE
+  has_sized <- FALSE
   for (r in regions) {
     d <- r$data
     if (nrow(d) == 0) next
     m <- r$method
-    if (m == "square") {
+    if (m == "square" && !scale.square) {
       layers <- c(layers, list(ggplot2::geom_tile(
         data = d,
         mapping = ggplot2::aes(fill = .data[["value"]]),
         color = outline.color
       )))
+    } else if (m == "square" && scale.square) {
+      has_sized <- TRUE
+      layers <- c(layers, list(ggplot2::geom_point(
+        data = d,
+        mapping = ggplot2::aes(fill = .data[["value"]], size = .data[["abs_corr"]]),
+        color = outline.color, shape = 22
+      )))
     } else if (m == "circle") {
-      has_circle <- TRUE
+      has_sized <- TRUE
       layers <- c(layers, list(ggplot2::geom_point(
         data = d,
         mapping = ggplot2::aes(fill = .data[["value"]], size = .data[["abs_corr"]]),
@@ -895,7 +926,7 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     }
   }
 
-  if (has_circle) {
+  if (has_sized) {
     layers <- c(layers, list(
       ggplot2::scale_size(range = c(4, 10) * circle.scale),
       ggplot2::guides(size = "none")
