@@ -85,7 +85,7 @@ ggcorrplot(corr)
 ggcorrplot(corr, method = "circle")
 ```
 
-<img src="man/figures/README-basic-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-basic-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-basic-1.png" alt="" width="49%" /><img src="man/figures/README-basic-2.png" alt="" width="49%" />
 
 ### Sized glyphs in boxed cells
 
@@ -99,7 +99,7 @@ ggcorrplot(corr, scale.square = TRUE, cell.grid = TRUE, outline.color = "white")
 ggcorrplot(corr, method = "circle", cell.grid = TRUE)
 ```
 
-<img src="man/figures/README-boxed-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-boxed-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-boxed-1.png" alt="" width="49%" /><img src="man/figures/README-boxed-2.png" alt="" width="49%" />
 
 ### Reorder by clustering, and outline the clusters
 
@@ -112,7 +112,7 @@ ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 ```
 
-<img src="man/figures/README-cluster-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-cluster-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-cluster-1.png" alt="" width="49%" /><img src="man/figures/README-cluster-2.png" alt="" width="49%" />
 
 ### Lower / upper triangle
 
@@ -124,7 +124,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 ```
 
-<img src="man/figures/README-triangle-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-triangle-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-triangle-1.png" alt="" width="49%" /><img src="man/figures/README-triangle-2.png" alt="" width="49%" />
 
 ### Mixed layout
 
@@ -163,7 +163,7 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
 ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank")
 ```
 
-<img src="man/figures/README-insig-1.png" alt="" width="49%" style="display: block; margin: auto;" /><img src="man/figures/README-insig-2.png" alt="" width="49%" style="display: block; margin: auto;" />
+<img src="man/figures/README-insig-1.png" alt="" width="49%" /><img src="man/figures/README-insig-2.png" alt="" width="49%" />
 
 ### Significance map
 

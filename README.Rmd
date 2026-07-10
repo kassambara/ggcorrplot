@@ -79,7 +79,7 @@ p.mat[1:4, 1:4]
 The default draws each correlation as a colored square; `method = "circle"`
 encodes the value with the circle area instead.
 
-```{r basic, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+```{r basic, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%", fig.align = "default"}
 ggcorrplot(corr)
 ggcorrplot(corr, method = "circle")
 ```
@@ -90,7 +90,7 @@ ggcorrplot(corr, method = "circle")
 correlations dominate; `cell.grid = TRUE` draws a light box around every cell so
 the glyphs sit inside a grid instead of floating on the axis lines.
 
-```{r boxed, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+```{r boxed, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%", fig.align = "default"}
 ggcorrplot(corr, scale.square = TRUE, cell.grid = TRUE, outline.color = "white")
 ggcorrplot(corr, method = "circle", cell.grid = TRUE)
 ```
@@ -101,7 +101,7 @@ ggcorrplot(corr, method = "circle", cell.grid = TRUE)
 correlated variables sit together. `hc.rect` then draws rectangles around the
 clusters obtained by cutting the tree.
 
-```{r cluster, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+```{r cluster, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%", fig.align = "default"}
 ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 ```
@@ -110,7 +110,7 @@ ggcorrplot(corr, hc.order = TRUE, hc.rect = 3, outline.color = "white")
 
 For a symmetric matrix the two triangles are redundant, so you can keep just one.
 
-```{r triangle, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+```{r triangle, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%", fig.align = "default"}
 ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")
 ggcorrplot(corr, hc.order = TRUE, type = "upper", outline.color = "white")
 ```
@@ -141,7 +141,7 @@ Passing `p.mat` marks the cells whose correlation is not significant at
 `sig.level` (default 0.05). By default a cross is drawn over them (`insig =
 "pch"`); `insig = "blank"` hides them instead.
 
-```{r insig, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%"}
+```{r insig, fig.width = 5.2, fig.height = 5, fig.show = "hold", out.width = "49%", fig.align = "default"}
 # Cross out the non-significant coefficients
 ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
 # Leave them blank
