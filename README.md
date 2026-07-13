@@ -10,7 +10,7 @@ Checks](https://badges.cranchecks.info/summary/ggcorrplot.svg)](https://cran.r-p
 [![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot?color=orange)](https://cranlogs.r-pkg.org/badges/grand-total/ggcorrplot)
 
-# ggcorrplot: Visualization of a correlation matrix using ggplot2
+# ggcorrplot: Visualization of a correlation matrix using ggplot2 <img src="man/figures/logo.png" align="right" height="139" alt="ggcorrplot hex logo" />
 
 **ggcorrplot** draws a correlation matrix as a **ggplot2** plot. Because
 the result is a plain ggplot object, you can restyle it, annotate it,
