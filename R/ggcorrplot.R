@@ -5,10 +5,10 @@
 #'   correlation matrix using ggplot2. The plot options are walked through in
 #'   \href{https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r}{ggcorrplot:
 #'   Correlation Matrix Heatmap in R with ggplot2}. \item cor_pmat(): Compute a
-#'   correlation matrix p-values. Its use alongside the correlation matrix
-#'   itself is covered in
-#'   \href{https://www.datanovia.com/learn/biostatistics/correlation/correlation-matrix-in-r}{Correlation
-#'   Matrix in R: Compute, Visualize & P-values}. }
+#'   correlation matrix p-values, to mark the significant cells. A worked
+#'   example is in
+#'   \href{https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r}{ggcorrplot:
+#'   Correlation Matrix Heatmap in R with ggplot2}. }
 #' @param corr the correlation matrix to visualize
 #' @param method character, the visualization method of correlation matrix to be
 #'   used. Allowed values are "square" (default), "circle".
@@ -254,10 +254,11 @@
 #' )
 #' @seealso
 #'   \href{https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r}{ggcorrplot:
-#'   Correlation Matrix Heatmap in R with ggplot2} and
+#'   Correlation Matrix Heatmap in R with ggplot2} for worked examples of the
+#'   plot, and
 #'   \href{https://www.datanovia.com/learn/biostatistics/correlation/correlation-matrix-in-r}{Correlation
-#'   Matrix in R: Compute, Visualize & P-values} for worked examples of the
-#'   plot.
+#'   Matrix in R: Compute, Visualize & P-values} for computing the matrix and
+#'   its p-values beforehand.
 #' @name ggcorrplot
 #' @rdname ggcorrplot
 #' @export
