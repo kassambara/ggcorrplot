@@ -266,8 +266,13 @@ Returns a matrix containing the p-values of correlations }
 }
 \description{
 \itemize{ \item ggcorrplot(): A graphical display of a
-  correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
-  matrix p-values. }
+  correlation matrix using ggplot2. The plot options are walked through in
+  \href{https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r}{ggcorrplot:
+  Correlation Matrix Heatmap in R with ggplot2}. \item cor_pmat(): Compute a
+  correlation matrix p-values. Its use alongside the correlation matrix
+  itself is covered in
+  \href{https://www.datanovia.com/learn/biostatistics/correlation/correlation-matrix-in-r}{Correlation
+  Matrix in R: Compute, Visualize & P-values}. }
 }
 \details{
 \code{cor_pmat()} tests each pair of columns with
@@ -370,4 +375,14 @@ ggcorrplot(cor(mtcars),
   lab = TRUE,
   digits = 3
 )
+}
+\seealso{
+\href{https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r}{ggcorrplot:
+  Correlation Matrix Heatmap in R with ggplot2} and
+  \href{https://www.datanovia.com/learn/biostatistics/correlation/correlation-matrix-in-r}{Correlation
+  Matrix in R: Compute, Visualize & P-values} for worked examples of the
+  plot.
+
+\href{https://www.datanovia.com/learn/biostatistics/correlation/correlation-test-in-r}{Correlation
+  Test in R: Pearson, Spearman & Kendall} for the test behind the p-values.
 }
