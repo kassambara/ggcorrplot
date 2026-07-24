@@ -107,23 +107,28 @@ labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.}
 
 \item{sig.stars}{logical value. If \code{TRUE} and a \code{p.mat} is
 supplied, significance stars are appended to the coefficient labels
-(\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
-e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
-\code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
-\code{insig = "pch"} markers are not drawn.}
+(\code{***} for p <= 0.001, \code{**} for p <= 0.01, \code{*} for
+p <= 0.05), e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default
+is \code{FALSE}. When \code{TRUE}, significance is shown by the stars and
+the \code{insig = "pch"} markers are not drawn. These three thresholds are
+fixed and are not affected by \code{sig.level}.}
 
 \item{p.mat}{matrix of p-value. If NULL, arguments sig.level, insig, pch,
 pch.col, pch.cex is invalid.}
 
 \item{sig.level}{significant level, if the p-value in p-mat is bigger than
 sig.level, then the corresponding correlation coefficient is regarded as
-insignificant.}
+insignificant. This governs which cells \code{insig = "pch"} marks and
+\code{insig = "blank"} wipes; the star thresholds used by
+\code{insig = "stars"} and \code{sig.stars} are fixed (see those arguments)
+and do not follow \code{sig.level}.}
 
 \item{insig}{character, how to convey significance from \code{p.mat}: "pch"
 (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 instead marks the SIGNIFICANT cells with significance stars
-(\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+(\code{***}/\code{**}/\code{*} for p <= 0.001/0.01/0.05 -- fixed thresholds,
+not \code{sig.level}). With the default
 \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
 by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
 they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
@@ -177,8 +182,10 @@ ratio), which can look better with many long variable names.}
 
 \item{lower.method, upper.method}{character, an optional per-triangle glyph for
 a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-as text, colored by its value on the same scale as the fill, so coefficients
-near zero are faint). When either is set, the plot switches to a mixed layout
+as text, colored by its value on a darkened copy of the fill ramp -- same
+hues, so warm still reads as positive and cool as negative, but dark enough
+that a coefficient near zero stays readable against the panel). When either
+is set, the plot switches to a mixed layout
 where the lower and upper triangles are drawn separately and the variable
 names are drawn on the diagonal; a triangle left \code{NULL} uses
 \code{method}. Both default to \code{NULL} (single-method plot, unchanged).

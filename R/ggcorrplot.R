@@ -1,5 +1,6 @@
 #' Visualization of a correlation matrix using ggplot2
 #' @import ggplot2
+#' @importFrom grDevices col2rgb rgb
 #' @description \itemize{ \item ggcorrplot(): A graphical display of a
 #'   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
 #'   matrix p-values. }
@@ -25,8 +26,10 @@
 #'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-#'   as text, colored by its value on the same scale as the fill, so coefficients
-#'   near zero are faint). When either is set, the plot switches to a mixed layout
+#'   as text, colored by its value on a darkened copy of the fill ramp -- same
+#'   hues, so warm still reads as positive and cool as negative, but dark enough
+#'   that a coefficient near zero stays readable against the panel). When either
+#'   is set, the plot switches to a mixed layout
 #'   where the lower and upper triangles are drawn separately and the variable
 #'   names are drawn on the diagonal; a triangle left \code{NULL} uses
 #'   \code{method}. Both default to \code{NULL} (single-method plot, unchanged).
@@ -90,20 +93,25 @@
 #'   labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.
 #' @param sig.stars logical value. If \code{TRUE} and a \code{p.mat} is
 #'   supplied, significance stars are appended to the coefficient labels
-#'   (\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
-#'   e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
-#'   \code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
-#'   \code{insig = "pch"} markers are not drawn.
+#'   (\code{***} for p <= 0.001, \code{**} for p <= 0.01, \code{*} for
+#'   p <= 0.05), e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default
+#'   is \code{FALSE}. When \code{TRUE}, significance is shown by the stars and
+#'   the \code{insig = "pch"} markers are not drawn. These three thresholds are
+#'   fixed and are not affected by \code{sig.level}.
 #' @param p.mat matrix of p-value. If NULL, arguments sig.level, insig, pch,
 #'   pch.col, pch.cex is invalid.
 #' @param sig.level significant level, if the p-value in p-mat is bigger than
 #'   sig.level, then the corresponding correlation coefficient is regarded as
-#'   insignificant.
+#'   insignificant. This governs which cells \code{insig = "pch"} marks and
+#'   \code{insig = "blank"} wipes; the star thresholds used by
+#'   \code{insig = "stars"} and \code{sig.stars} are fixed (see those arguments)
+#'   and do not follow \code{sig.level}.
 #' @param insig character, how to convey significance from \code{p.mat}: "pch"
 #'   (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 #'   glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 #'   instead marks the SIGNIFICANT cells with significance stars
-#'   (\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+#'   (\code{***}/\code{**}/\code{*} for p <= 0.001/0.01/0.05 -- fixed thresholds,
+#'   not \code{sig.level}). With the default
 #'   \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
 #'   by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
 #'   they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
@@ -396,14 +404,27 @@ ggcorrplot <- function(corr,
 
   # heatmap
   if (mixed) {
-    # Re-level the axes to exactly the variables PRESENT after melting, in matrix
-    # order. .build_corr_df() has already coerced named matrices to matrix-order
-    # factors; here we (a) coerce an unnamed matrix (integer axis) to a
-    # position-based factor, and (b) drop any level that is absent from the data
-    # (e.g. an all-NA variable) so the mixed layout -- which pins the discrete
-    # axes with drop = FALSE -- does not resurrect it as an empty band.
-    corr$Var1 <- factor(as.character(corr$Var1), levels = as.character(unique(corr$Var1)))
-    corr$Var2 <- factor(as.character(corr$Var2), levels = as.character(unique(corr$Var2)))
+    # Pin BOTH axes to ONE level order, taken from the matrix order that
+    # .build_corr_df() already established: its factor levels for a named matrix,
+    # or the sorted integer indices for an unnamed one (which melts to 1..n).
+    # Deriving the two axes independently from the order the cells happen to
+    # appear in after melt() dropped the NA cells puts them out of step whenever
+    # the NA pattern is ragged -- cor(x, use = "pairwise.complete.obs") with a
+    # non-co-occurring pair, or a zero-variance column, both produce one -- and
+    # then the region split below compares positions on two different axes, so
+    # the diagonal name region lands on cells that are not self-pairs and
+    # silently mislabels them. A level absent from the data on BOTH axes (an
+    # all-NA variable) is dropped so the drop = FALSE axes do not resurrect it as
+    # an empty band; a variable that still has data on one axis is kept.
+    lvls <- if (is.factor(corr$Var1)) {
+      levels(corr$Var1)
+    } else {
+      as.character(sort(unique(c(corr$Var1, corr$Var2))))
+    }
+    present <- unique(c(as.character(corr$Var1), as.character(corr$Var2)))
+    lvls <- lvls[lvls %in% present]
+    corr$Var1 <- factor(as.character(corr$Var1), levels = lvls)
+    corr$Var2 <- factor(as.character(corr$Var2), levels = lvls)
 
     # One glyph per region, each drawn from its own subset of the cells. The base
     # plot carries no global fill so the text glyphs ("number"/"name") are not
@@ -484,14 +505,22 @@ ggcorrplot <- function(corr,
   if (mixed && "number" %in% c(lower.method, upper.method)) {
     has_fill_glyph <- any(c(lower.method, upper.method) %in% c("square", "circle"))
     colour_name <- if (has_fill_glyph) ggplot2::waiver() else legend.title
+    # Text needs contrast that a fill does not: the fill ramp is centered on
+    # white, so mapping the coefficient TEXT onto it unchanged makes every
+    # near-zero coefficient invisible against the panel -- and a blank cell in a
+    # correlogram reads as removed/non-significant, so an unreadable number is
+    # misleading, not merely faint. Darken the ramp for the text only, keeping
+    # each stop's hue (so warm = positive / cool = negative still reads at a
+    # glance) but capping its luminance.
+    text_colors <- .legible_text_colors(colors)
     if (length(colors) == 3) {
       p <- p + ggplot2::scale_colour_gradient2(
-        low = colors[1], high = colors[3], mid = colors[2],
+        low = text_colors[1], high = text_colors[3], mid = text_colors[2],
         midpoint = 0, limit = legend.limit, space = "Lab", name = colour_name
       )
     } else {
       p <- p + ggplot2::scale_colour_gradientn(
-        colours = colors, limits = legend.limit, name = colour_name
+        colours = text_colors, limits = legend.limit, name = colour_name
       )
     }
     if (has_fill_glyph) p <- p + ggplot2::guides(colour = "none")
@@ -1067,6 +1096,34 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     )
   )
 }
+# Darken a vector of colors just enough to be readable as TEXT on a white panel,
+# keeping each color's hue. Used only for the mixed "number" glyph, whose text is
+# mapped onto the same diverging ramp as the fill: that ramp is white at zero, so
+# an unmodified near-zero coefficient renders invisible.
+#
+# Relative luminance is the WCAG definition (linearised sRGB, Rec. 709 weights).
+# A color already at or below the cap is returned unchanged, so the saturated
+# ends of the ramp (blue, red) keep their exact values and only the pale middle
+# moves; scaling the linear channels by a common factor preserves the hue. The
+# cap keeps the contrast ratio against white above 4.5:1, the usual threshold for
+# small text, with enough headroom that rounding to 8-bit channels cannot push a
+# stop back under it.
+.legible_text_colors <- function(colors, max_luminance = 0.179) {
+  lin <- function(u) ifelse(u <= 0.03928, u / 12.92, ((u + 0.055) / 1.055)^2.4)
+  unlist(lapply(colors, function(col) {
+    rgb01 <- grDevices::col2rgb(col)[, 1] / 255
+    chan <- lin(rgb01)
+    lum <- sum(c(0.2126, 0.7152, 0.0722) * chan)
+    if (is.na(lum) || lum <= max_luminance) {
+      return(col)
+    }
+    chan <- chan * (max_luminance / lum)
+    # back to sRGB
+    srgb <- ifelse(chan <= 0.0031308, chan * 12.92, 1.055 * chan^(1 / 2.4) - 0.055)
+    grDevices::rgb(srgb[1], srgb[2], srgb[3])
+  }), use.names = FALSE)
+}
+
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
 # the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).
 .hc_cormat_order <- function(cormat, hc.method = "complete") {

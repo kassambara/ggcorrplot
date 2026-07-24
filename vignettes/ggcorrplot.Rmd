@@ -150,6 +150,8 @@ ggcorrplot(cor(mtcars[, 1:6]),
 
 Supplying `p.mat` lets the plot convey which correlations are significant at
 `sig.level` (default `0.05`). There are three styles, chosen with `insig`.
+`sig.level` sets the cut-off used by the first two; the third labels each cell
+with stars at the conventional fixed thresholds instead.
 
 **`insig = "pch"` (default)** crosses out the non-significant cells:
 
@@ -165,7 +167,8 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank"
 
 **`insig = "stars"`** flips the emphasis: rather than crossing out the
 non-significant cells, it marks the **significant** ones with significance stars
-(`***`, `**`, `*` for *p* < 0.001, 0.01, 0.05). With the default `lab = FALSE`
+(`***`, `**`, `*` for *p* <= 0.001, 0.01, 0.05 -- these thresholds are fixed and
+do not follow `sig.level`). With the default `lab = FALSE`
 this is a standalone significance map:
 
 ```{r insig-stars, fig.width = 6, fig.height = 5.6}
