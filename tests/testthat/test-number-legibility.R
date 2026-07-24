@@ -128,3 +128,68 @@ test_that("a dark theme keeps the ramp as given, so its numbers stay readable", 
   # and the default light panel still gets the darkened ramp
   expect_false(identical(sort(dark_cols), sort(drawn(ggplot2::theme_minimal))))
 })
+
+test_that("a dark background set via plot.background is detected too", {
+  # theme_minimal (our default) and theme_void blank panel.background, so a dark
+  # recipe built on either carries its color on plot.background. Reading only
+  # panel.background classified those as light and darkened the text onto a dark
+  # panel -- the exact failure the light/dark gate exists to prevent.
+  dark_plot_bg <- ggplot2::theme_minimal() +
+    ggplot2::theme(plot.background = ggplot2::element_rect(fill = "grey10", colour = NA))
+  expect_false(ggcorrplot:::.panel_is_light(dark_plot_bg))
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_void() + ggplot2::theme(plot.background = ggplot2::element_rect(fill = "black"))
+  ))
+  # a fill inherited from `rect` must resolve as well
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::`%+replace%`(
+      ggplot2::theme_gray(),
+      ggplot2::theme(
+        rect = ggplot2::element_rect(fill = "grey10"),
+        panel.background = ggplot2::element_rect()
+      )
+    )
+  ))
+  # panel.background still wins when it paints one
+  expect_true(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_gray() + ggplot2::theme(plot.background = ggplot2::element_rect(fill = "black"))
+  ))
+})
+
+test_that("a transparent background is not mistaken for a dark one", {
+  # theme_void's plot.background is transparent black; read as a color it is the
+  # darkest possible background, but nothing is painted -- the device shows through.
+  expect_true(ggcorrplot:::.panel_is_light(ggplot2::theme_void))
+  expect_true(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "#00000000"))
+  ))
+  # ... but a transparent panel still falls through to an opaque dark plot background
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() + ggplot2::theme(
+      panel.background = ggplot2::element_rect(fill = "#00000000"),
+      plot.background = ggplot2::element_rect(fill = "grey10")
+    )
+  ))
+})
+
+test_that("the light/dark threshold sits at the break-even luminance", {
+  # below the crossover the plain ramp reads better against the panel, above it the
+  # darkened one does; the gate must agree with that on both sides.
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "grey67"))
+  ))
+  expect_true(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "grey70"))
+  ))
+})
+
+test_that("resolving the background never errors, whatever ggtheme holds", {
+  for (value in list(NULL, NA, 42, "nonsense", list(), ggplot2::element_blank(),
+                     function() stop("boom"), function() 42)) {
+    result <- ggcorrplot:::.panel_is_light(value)
+    expect_true(is.logical(result) && length(result) == 1L && !is.na(result))
+  }
+})

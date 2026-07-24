@@ -67,7 +67,10 @@ matrix.}
 \item{ggtheme}{ggplot2 function or theme object. Default value is
 `theme_minimal`. Allowed values are the official ggplot2 themes including
 theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
-objects are also allowed (e.g., `theme_classic()`).}
+objects are also allowed (e.g., `theme_classic()`). A mixed "number" region
+reads the background from this argument to decide how dark to draw the
+coefficient text (see \code{lower.method}/\code{upper.method}), so a dark
+theme belongs here rather than added to the returned plot with \code{+}.}
 
 \item{title}{character, title of the graph.}
 
@@ -182,11 +185,14 @@ ratio), which can look better with many long variable names.}
 
 \item{lower.method, upper.method}{character, an optional per-triangle glyph for
 a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-as text, colored by its value on the fill ramp, darkened where the panel is
-light -- same hues, so warm still reads as positive and cool as negative, but
-dark enough that a coefficient near zero stays readable rather than washing
-out into the panel. A dark \code{ggtheme}, whose panel already contrasts with
-the pale middle of the ramp, keeps the ramp as given). When either
+as text, colored by its value on the fill ramp, darkened over a light
+background -- same hues, so warm still reads as positive and cool as negative,
+but dark enough that a coefficient near zero stays readable rather than
+washing out. Over a dark background, whose contrast with the pale middle of
+the ramp is already what makes the text readable, the ramp is used as given.
+The background is read from \code{ggtheme}, so pass a dark theme there rather
+than adding it to the returned plot with \code{+}, which happens too late to
+be seen). When either
 is set, the plot switches to a mixed layout
 where the lower and upper triangles are drawn separately and the variable
 names are drawn on the diagonal; a triangle left \code{NULL} uses

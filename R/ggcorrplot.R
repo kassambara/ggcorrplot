@@ -26,11 +26,14 @@
 #'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-#'   as text, colored by its value on the fill ramp, darkened where the panel is
-#'   light -- same hues, so warm still reads as positive and cool as negative, but
-#'   dark enough that a coefficient near zero stays readable rather than washing
-#'   out into the panel. A dark \code{ggtheme}, whose panel already contrasts with
-#'   the pale middle of the ramp, keeps the ramp as given). When either
+#'   as text, colored by its value on the fill ramp, darkened over a light
+#'   background -- same hues, so warm still reads as positive and cool as negative,
+#'   but dark enough that a coefficient near zero stays readable rather than
+#'   washing out. Over a dark background, whose contrast with the pale middle of
+#'   the ramp is already what makes the text readable, the ramp is used as given.
+#'   The background is read from \code{ggtheme}, so pass a dark theme there rather
+#'   than adding it to the returned plot with \code{+}, which happens too late to
+#'   be seen). When either
 #'   is set, the plot switches to a mixed layout
 #'   where the lower and upper triangles are drawn separately and the variable
 #'   names are drawn on the diagonal; a triangle left \code{NULL} uses
@@ -44,7 +47,10 @@
 #' @param ggtheme ggplot2 function or theme object. Default value is
 #'   `theme_minimal`. Allowed values are the official ggplot2 themes including
 #'   theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
-#'   objects are also allowed (e.g., `theme_classic()`).
+#'   objects are also allowed (e.g., `theme_classic()`). A mixed "number" region
+#'   reads the background from this argument to decide how dark to draw the
+#'   coefficient text (see \code{lower.method}/\code{upper.method}), so a dark
+#'   theme belongs here rather than added to the returned plot with \code{+}.
 #' @param title character, title of the graph.
 #' @param show.legend logical, if TRUE the legend is displayed.
 #' @param legend.title a character string for the legend title. lower
@@ -1146,27 +1152,61 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   sum(c(0.2126, 0.7152, 0.0722) * chan)
 }
 
-# Is the panel light enough that DARK text reads against it? The legibility floor
-# only helps there: on a dark panel the ramp's pale middle is already the
-# READABLE end (white on grey50 clears 3.9:1), and darkening it would bury the
-# text instead. So the floor is applied to a light panel only, and a dark theme
-# keeps the plain ramp. A theme that draws no panel rectangle (theme_minimal, the
-# default, and theme_void) leaves the plot on the white device background, so an
-# absent or unresolvable fill counts as light.
-.panel_is_light <- function(ggtheme) {
+# Is the background behind the glyphs light enough that DARK text reads against
+# it? The legibility floor only helps there: on a dark background the ramp's pale
+# middle is already the READABLE end (white on grey50 clears 3.9:1), and darkening
+# it would bury the text instead. So the floor is applied over a light background
+# only, and a dark theme keeps the plain ramp.
+#
+# What sits behind a cell is panel.background when the theme draws one, and
+# plot.background when it does not -- theme_minimal (our default) and theme_void
+# blank the panel, so a dark recipe built on them carries its color on
+# plot.background. Both are consulted, in that order, and each is resolved through
+# the theme's inheritance before falling back to the raw element. A background we
+# cannot resolve at all counts as light, which is the default device background.
+#
+# This can only see the theme passed as `ggtheme`. A theme added afterwards with
+# `+` arrives long after the scale is built, so a dark theme must be passed here
+# to be taken into account; that limitation is documented on the arguments.
+.panel_is_light <- function(ggtheme, threshold = 0.44) {
   fill <- tryCatch(
     {
       th <- if (is.function(ggtheme)) ggtheme() else ggtheme
-      th$panel.background$fill
+      .theme_element_fill(th, "panel.background") %||%
+        .theme_element_fill(th, "plot.background")
     },
     error = function(e) NULL
   )
-  if (is.null(fill) || length(fill) != 1L || is.na(fill)) {
+  if (is.null(fill)) {
     return(TRUE)
   }
   lum <- tryCatch(.relative_luminance(fill), error = function(e) NA_real_)
-  is.na(lum) || lum > 0.4
+  is.na(lum) || lum > threshold
 }
+
+# The usable fill of one theme element: resolved through the theme's inheritance
+# where that works (a fill set on `rect` reaches `panel.background` that way), and
+# read off the element directly otherwise. Returns NULL for a blank element, a
+# missing or NA fill, anything that is not a single color, and anything not fully
+# opaque -- a transparent fill shows whatever is behind it rather than its own
+# color, and theme_void's plot.background is literally transparent black, which
+# would otherwise read as the darkest possible background.
+.theme_element_fill <- function(th, element) {
+  fill <- tryCatch(ggplot2::calc_element(element, th)$fill, error = function(e) NULL)
+  if (is.null(fill)) {
+    fill <- tryCatch(th[[element]]$fill, error = function(e) NULL)
+  }
+  if (is.null(fill) || length(fill) != 1L || is.na(fill)) {
+    return(NULL)
+  }
+  alpha <- tryCatch(grDevices::col2rgb(fill, alpha = TRUE)[4, 1], error = function(e) NA_real_)
+  if (is.na(alpha) || alpha < 255) {
+    return(NULL)
+  }
+  fill
+}
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
 
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
 # the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).

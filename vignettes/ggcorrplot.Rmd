@@ -121,9 +121,12 @@ ggcorrplot(corr,
 )
 ```
 
-With `"number"`, the coefficient text is colored by its value on a darkened copy
-of the fill ramp, so the polarity still reads at a glance while a near-zero
-coefficient stays legible against the panel.
+With `"number"`, the coefficient text is colored by its value on the fill ramp,
+darkened over a light background so the polarity still reads at a glance while a
+near-zero coefficient stays legible. Over a dark background the ramp is used as
+given, since its pale middle is then the readable end. The background is read
+from `ggtheme`, so pass a dark theme there rather than adding it afterwards with
+`+`.
 
 # Add the coefficients
 
