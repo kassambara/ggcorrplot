@@ -1186,8 +1186,14 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
       # dark while the panel actually drawn is the default's light grey (and a
       # globally theme_set() dark default looks light).
       if (inherits(th, "theme")) th <- ggplot2::theme_get() + th
-      .theme_element_fill(th, "panel.background") %||%
-        .theme_element_fill(th, "plot.background")
+      # What a cell actually sits on, painted in the order the device paints it:
+      # the white page, then plot.background, then panel.background. Compositing
+      # rather than picking one element is what makes a partly transparent
+      # background come out as the color the eye sees.
+      .composite_over(
+        .theme_element_fill(th, "panel.background"),
+        .composite_over(.theme_element_fill(th, "plot.background"), "white")
+      )
     },
     error = function(e) NULL
   )
@@ -1198,13 +1204,11 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   is.na(lum) || lum > threshold
 }
 
-# The usable fill of one theme element: resolved through the theme's inheritance
-# where that works (a fill set on `rect` reaches `panel.background` that way), and
-# read off the element directly otherwise. Returns NULL for a blank element, a
-# missing or NA fill, anything that is not a single color, and anything not fully
-# opaque -- a transparent fill shows whatever is behind it rather than its own
-# color, and theme_void's plot.background is literally transparent black, which
-# would otherwise read as the darkest possible background.
+# The fill of one theme element, exactly as the theme gives it (alpha included):
+# resolved through the theme's inheritance where that works (a fill set on `rect`
+# reaches `panel.background` that way), and read off the element directly
+# otherwise. NULL when the element paints nothing usable -- blank, missing, NA, or
+# not a single color.
 .theme_element_fill <- function(th, element) {
   fill <- tryCatch(ggplot2::calc_element(element, th)$fill, error = function(e) NULL)
   if (is.null(fill)) {
@@ -1213,11 +1217,30 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   if (is.null(fill) || length(fill) != 1L || is.na(fill)) {
     return(NULL)
   }
-  alpha <- tryCatch(grDevices::col2rgb(fill, alpha = TRUE)[4, 1], error = function(e) NA_real_)
-  if (is.na(alpha) || alpha < 255) {
-    return(NULL)
-  }
   fill
+}
+
+# Paint `fill` onto `backdrop` and return the resulting color. A fill that is
+# absent or fully transparent paints nothing, so the backdrop shows through
+# unchanged -- theme_void's plot.background is literally transparent black, which
+# taken at face value would be the darkest background there is. A partly
+# transparent fill is blended, so a 90%-opaque near-black panel is read as the
+# near-black the eye sees rather than discarded for not being opaque.
+.composite_over <- function(fill, backdrop) {
+  if (is.null(fill)) {
+    return(backdrop)
+  }
+  rgba <- tryCatch(grDevices::col2rgb(fill, alpha = TRUE)[, 1], error = function(e) NULL)
+  if (is.null(rgba) || anyNA(rgba) || rgba[4] == 0) {
+    return(backdrop)
+  }
+  if (rgba[4] == 255) {
+    return(fill)
+  }
+  under <- tryCatch(grDevices::col2rgb(backdrop)[, 1], error = function(e) c(255, 255, 255))
+  opacity <- rgba[4] / 255
+  blended <- rgba[1:3] * opacity + under * (1 - opacity)
+  grDevices::rgb(blended[1], blended[2], blended[3], maxColorValue = 255)
 }
 
 `%||%` <- function(x, y) if (is.null(x)) y else x

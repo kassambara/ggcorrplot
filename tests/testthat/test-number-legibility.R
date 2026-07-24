@@ -229,3 +229,46 @@ test_that("every stock ggplot2 theme is classified by its own background", {
   expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark))
   expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark()))
 })
+
+test_that("a partly transparent background is composited, not discarded", {
+  # Discarding every non-opaque fill was too blunt: it was meant for theme_void's
+  # fully transparent plot.background, but it also threw away a 90%-opaque
+  # near-black panel and called it light, darkening the text onto near-black.
+  dark_90 <- ggplot2::theme_grey() + ggplot2::theme(
+    panel.background = ggplot2::element_rect(
+      fill = grDevices::adjustcolor("grey10", alpha.f = 0.9)
+    )
+  )
+  expect_false(ggcorrplot:::.panel_is_light(dark_90))
+  # half-opaque black over the default light panel still comes out dark
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_grey() + ggplot2::theme(
+      panel.background = ggplot2::element_rect(
+        fill = grDevices::adjustcolor("black", alpha.f = 0.5)
+      )
+    )
+  ))
+  # ... while a fully transparent one paints nothing and the backdrop shows through
+  expect_true(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "#00000000"))
+  ))
+})
+
+test_that("compositing follows device, then plot background, then panel", {
+  composite <- ggcorrplot:::.composite_over
+  # nothing painted -> the backdrop is unchanged
+  expect_identical(composite(NULL, "white"), "white")
+  expect_identical(composite("#00000000", "white"), "white")
+  # opaque -> the fill itself
+  expect_identical(composite("black", "white"), "black")
+  # half-opaque black over white is mid-grey (0x80 is 128/255, not exactly a half)
+  expect_identical(composite("#00000080", "white"), "#7F7F7F")
+  # and a transparent panel lets a dark plot background through
+  expect_false(ggcorrplot:::.panel_is_light(
+    ggplot2::theme_minimal() + ggplot2::theme(
+      panel.background = ggplot2::element_rect(fill = "#00000000"),
+      plot.background = ggplot2::element_rect(fill = "grey10")
+    )
+  ))
+})
