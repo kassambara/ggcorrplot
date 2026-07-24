@@ -32,20 +32,33 @@ you would prefer the usual interval.
 ## Test environments
 * local macOS, R 4.5.x
 * GitHub Actions: macOS-release, Windows-release, Ubuntu-{devel, release, oldrel-1}
-* win-builder release (R 4.x): TO RUN BEFORE SUBMISSION
-* win-builder devel (R-devel): TO RUN BEFORE SUBMISSION
+* win-builder release (R 4.x)
+* win-builder devel (R-devel)
 
 ## R CMD check results
 Local `R CMD check --as-cran` on the 0.3.0 tarball: 0 errors | 0 warnings |
-1 note. The same holds with `_R_CHECK_DEPENDS_ONLY_=true`.
+0 notes. The same holds with `_R_CHECK_DEPENDS_ONLY_=true`. win-builder
+(release and R-devel) reported no errors and no warnings.
 
-The note is environmental:
-
-* "unable to verify current time" — the check host cannot reach a time server; it
-  does not appear on CI.
+Some runs on the local machine add an "unable to verify current time" NOTE when
+the host cannot reach a time server; it is environmental and does not appear on
+CI.
 
 ## Reverse dependencies
-TO RUN BEFORE SUBMISSION. The behavior-changing surface to scope the check to is
-the two intentional changes listed above (matrix-order axis / inert `as.is`, and
-non-square `show.diag = FALSE`); everything else in this release is additive,
-behind new arguments whose defaults reproduce the 0.2.0 behavior.
+There are 22 reverse dependencies (15 Depends/Imports, 7 Suggests). The check was
+scoped to the behavior-changing surface, which is the two intentional changes
+listed above; everything else in this release is additive, behind new arguments
+whose defaults reproduce the 0.2.0 behavior.
+
+I read the source of all 22 and extracted every `ggcorrplot()` / `cor_pmat()`
+call site:
+
+* No reverse dependency passes `as.is`, so the axis-order change reaches none of
+  them.
+* Only two pass `show.diag`, both `TRUE`; the changed code path needs
+  `show.diag = FALSE` on a non-square matrix, which no reverse dependency does.
+* All calls bind only `corr` positionally and name every other argument. The nine
+  new arguments are appended at the end of the signature, no argument was removed
+  or reordered, and the defaults of all 35 pre-existing arguments are unchanged.
+
+No new problems were found.

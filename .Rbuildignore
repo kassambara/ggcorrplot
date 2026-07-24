@@ -8,6 +8,7 @@
 ^docs$
 ^tools$
 ^_pkgdown\.yml$
+^pkgdown$
 tests\^spelling
 ^\.github$
 ^\.claude$
