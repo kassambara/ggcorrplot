@@ -1,6 +1,8 @@
 bw
 cex
 correlogram
+corrplot
+edgeless
 english
 erroring
 ggplot
@@ -14,10 +16,13 @@ insig
 misalign
 mitchelfruin
 mtcars
+omics
 pch
 pmat
+RdBu
 rstatix
 sig
 sthda
+theming
 unrounded
 www
