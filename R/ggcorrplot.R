@@ -1164,9 +1164,10 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # the theme's inheritance before falling back to the raw element. A background we
 # cannot resolve at all counts as light, which is the default device background.
 #
-# This can only see the theme passed as `ggtheme`. A theme added afterwards with
-# `+` arrives long after the scale is built, so a dark theme must be passed here
-# to be taken into account; that limitation is documented on the arguments.
+# This sees the theme passed as `ggtheme`, resolved against the active default, so
+# a globally theme_set() background counts too. A theme added to the finished plot
+# with `+` arrives long after the scale is built, so a dark theme must be passed
+# here to be taken into account; that limitation is documented on the arguments.
 #
 # The threshold is where the two branches break even FOR THE NEAR-ZERO STOP -- the
 # pale middle of the ramp, which is the one the floor exists to rescue and the one
@@ -1184,8 +1185,11 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
       # elements it leaves out come from the active default. Resolve against that
       # default first, or a theme setting nothing but a dark plot.background looks
       # dark while the panel actually drawn is the default's light grey (and a
-      # globally theme_set() dark default looks light).
-      if (inherits(th, "theme")) th <- ggplot2::theme_get() + th
+      # globally theme_set() dark default looks light). Anything that is not a
+      # theme at all (NULL, a stray value, a function returning one) is ignored
+      # when the plot is assembled, so what gets drawn is the active default on
+      # its own -- read that, rather than falling through to the bare page.
+      th <- if (inherits(th, "theme")) ggplot2::theme_get() + th else ggplot2::theme_get()
       # What a cell actually sits on, painted in the order the device paints it:
       # the white page, then plot.background, then panel.background. Compositing
       # rather than picking one element is what makes a partly transparent
@@ -1243,7 +1247,6 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   grDevices::rgb(blended[1], blended[2], blended[3], maxColorValue = 255)
 }
 
-`%||%` <- function(x, y) if (is.null(x)) y else x
 
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
 # the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).

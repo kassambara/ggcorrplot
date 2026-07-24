@@ -103,7 +103,8 @@ test_that("the legibility floor applies to a light panel only", {
   expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark))
   # a theme object, not just a theme function
   expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark()))
-  # anything unresolvable falls back to "light", i.e. the default behaviour
+  # anything that is not a theme is read from the active default instead, which
+  # here is the stock light one -- see the dedicated test below
   expect_true(ggcorrplot:::.panel_is_light(NULL))
   expect_true(ggcorrplot:::.panel_is_light("not a theme"))
 })
@@ -186,6 +187,24 @@ test_that("the light/dark threshold sits at the near-zero stop break-even", {
     ggplot2::theme_minimal() +
       ggplot2::theme(panel.background = ggplot2::element_rect(fill = "grey70"))
   ))
+})
+
+test_that("a ggtheme that is not a theme still reads the active default", {
+  # NULL and friends are ignored when the plot is assembled, so what gets drawn is
+  # the active default on its own. Falling through to the bare page instead would
+  # call a globally-set dark theme light and darken the text onto it.
+  old <- ggplot2::theme_set(
+    ggplot2::theme_grey() +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "grey10"))
+  )
+  on.exit(ggplot2::theme_set(old), add = TRUE)
+  expect_false(ggcorrplot:::.panel_is_light(NULL))
+  expect_false(ggcorrplot:::.panel_is_light("not a theme"))
+  expect_false(ggcorrplot:::.panel_is_light(42))
+  # and under a light default the same inputs read light
+  ggplot2::theme_set(ggplot2::theme_grey())
+  expect_true(ggcorrplot:::.panel_is_light(NULL))
+  expect_true(ggcorrplot:::.panel_is_light("not a theme"))
 })
 
 test_that("resolving the background never errors, whatever ggtheme holds", {

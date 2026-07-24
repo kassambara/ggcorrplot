@@ -259,6 +259,18 @@ test_that("the mixed diagonal names only ever sit on genuine self-pairs", {
   ma <- round(cor(mtcars[, 1:5]), 2)
   ma[1, ] <- NA
   expect_diagonal_is_self_paired(ma)
+  # a whole column blank, so the two axes see DIFFERENT variable sets: Var1 still
+  # meets all three, Var2 only the first two. Every other fixture here is
+  # symmetric, where each axis's appearance order happens to match matrix order --
+  # so only this one can catch one axis being re-levelled without the other.
+  mc <- matrix(
+    c(1, 0.5, NA, 0.5, 1, NA, 0.3, 0.4, NA), 3, 3,
+    byrow = TRUE, dimnames = list(c("A", "B", "C"), c("A", "B", "C"))
+  )
+  expect_diagonal_is_self_paired(mc)
+  p <- ggcorrplot(mc, lower.method = "number", upper.method = "circle")
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
+  expect_identical(axis_labels(p, "x"), colnames(mc))
 })
 
 test_that("an unnamed ragged matrix orders the mixed axes numerically, not by appearance", {
