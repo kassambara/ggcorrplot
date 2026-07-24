@@ -23,6 +23,12 @@ called out in NEWS.md:
 Every other pre-existing argument combination produces byte-identical output to
 0.2.0.
 
+This follows 0.2.0 closer than usual because the two changes above correct cases
+where the plot was silently wrong rather than erroring: `hc.order = TRUE` was
+ignored for matrices with numeric-looking variable names, and `show.diag = FALSE`
+blanked the wrong cells of a non-square matrix. I am happy to hold the release if
+you would prefer the usual interval.
+
 ## Test environments
 * local macOS, R 4.5.x
 * GitHub Actions: macOS-release, Windows-release, Ubuntu-{devel, release, oldrel-1}

@@ -61,6 +61,14 @@
   `as.is = TRUE`, which previously produced an alphabetically-ordered axis, now
   follows the matrix order like every other call. Reported by @cabaez (#37).
 
+- `show.diag = FALSE` on a non-square matrix no longer blanks the wrong cells.
+  The diagonal has no positional meaning for an m x n matrix, yet the removal
+  wiped `min(m, n)` cells along the leading diagonal; it now removes only the
+  genuine self-pairs (a row and column naming the same variable), leaving a
+  matrix with disjoint row and column variables untouched. Square matrices, and
+  non-square matrices without dimnames, are unaffected. Follows up the non-square
+  support requested by @mt1022 (#5) and @qalid7 (#10).
+
 ## Minor changes
 
 - Added an introductory vignette, `vignette("ggcorrplot")`, walking through the
@@ -80,16 +88,6 @@
 
 - The help page and the README now link to the Datanovia correlation tutorials
   for worked examples of the plot and of the p-value matrix.
-
-## Bug fixes
-
-- `show.diag = FALSE` on a non-square matrix no longer blanks the wrong cells.
-  The diagonal has no positional meaning for an m x n matrix, yet the removal
-  wiped `min(m, n)` cells along the leading diagonal; it now removes only the
-  genuine self-pairs (a row and column naming the same variable), leaving a
-  matrix with disjoint row and column variables untouched. Square matrices, and
-  non-square matrices without dimnames, are unaffected. Follows up the non-square
-  support requested by @mt1022 (#5) and @qalid7 (#10).
 
 # ggcorrplot 0.2.0
 
