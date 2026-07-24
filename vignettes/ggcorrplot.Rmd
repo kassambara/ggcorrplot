@@ -121,8 +121,9 @@ ggcorrplot(corr,
 )
 ```
 
-With `"number"`, the coefficient text is colored on the same scale as the fill,
-so values near zero fade out and the strong correlations stand out.
+With `"number"`, the coefficient text is colored by its value on a darkened copy
+of the fill ramp, so the polarity still reads at a glance while a near-zero
+coefficient stays legible against the panel.
 
 # Add the coefficients
 

@@ -182,9 +182,11 @@ ratio), which can look better with many long variable names.}
 
 \item{lower.method, upper.method}{character, an optional per-triangle glyph for
 a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-as text, colored by its value on a darkened copy of the fill ramp -- same
-hues, so warm still reads as positive and cool as negative, but dark enough
-that a coefficient near zero stays readable against the panel). When either
+as text, colored by its value on the fill ramp, darkened where the panel is
+light -- same hues, so warm still reads as positive and cool as negative, but
+dark enough that a coefficient near zero stays readable rather than washing
+out into the panel. A dark \code{ggtheme}, whose panel already contrasts with
+the pale middle of the ramp, keeps the ramp as given). When either
 is set, the plot switches to a mixed layout
 where the lower and upper triangles are drawn separately and the variable
 names are drawn on the diagonal; a triangle left \code{NULL} uses

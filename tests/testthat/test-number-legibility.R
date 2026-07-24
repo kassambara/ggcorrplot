@@ -27,8 +27,8 @@ test_that("the text ramp clears 4.5:1 contrast on white while the input ramp doe
 })
 
 test_that("a stop already dark enough is returned untouched", {
-  # only the pale middle of a diverging ramp moves; the saturated ends keep their
-  # exact values, so the warm/cool polarity is unchanged.
+  # a stop already at or below the cap is untouched, so a saturated dark end of
+  # the ramp keeps its exact value and the warm/cool polarity is unchanged.
   expect_identical(ggcorrplot:::.legible_text_colors("blue"), "blue")
   expect_identical(ggcorrplot:::.legible_text_colors("#053061"), "#053061")
   expect_identical(ggcorrplot:::.legible_text_colors("black"), "black")
@@ -73,4 +73,58 @@ test_that("near-zero coefficients are drawn legibly rather than invisibly", {
   drawn <- ggplot2::ggplot_build(p)$data
   number_cols <- unlist(lapply(drawn[seq_len(2)], function(d) d$colour))
   expect_true(all(contrast_on_white(number_cols) >= 4.5))
+})
+
+test_that("a partly transparent stop is left alone rather than made opaque", {
+  # col2rgb() drops alpha unless asked for it, so darkening a translucent stop
+  # would have re-emitted it opaque -- leaving one text layer with mixed alpha
+  # while the fill kept a uniform one. Its luminance over the panel also depends
+  # on what it is composited with, so the contrast target does not apply.
+  translucent <- c("#0000FF80", "#FFFFFF80", "#FF000080")
+  expect_identical(ggcorrplot:::.legible_text_colors(translucent), translucent)
+  expect_identical(ggcorrplot:::.legible_text_colors("transparent"), "transparent")
+  # an explicitly opaque colour is still darkened
+  expect_false(identical(ggcorrplot:::.legible_text_colors("#FFFFFFFF"), "#FFFFFFFF"))
+  # and the drawn text keeps one uniform alpha across the whole ramp
+  p <- ggcorrplot(round(stats::cor(mtcars[, 1:4]), 2),
+    lower.method = "number", upper.method = "circle", colors = translucent
+  )
+  drawn <- ggplot2::ggplot_build(p)$data[[1]]$colour
+  expect_length(unique(substr(drawn, 8, 9)), 1L)
+})
+
+test_that("the legibility floor applies to a light panel only", {
+  # Darkening assumes dark text reads against the panel. On a dark theme the pale
+  # middle of the ramp is already the readable end, so darkening it there would
+  # bury the text instead -- the ramp is left as given.
+  expect_true(ggcorrplot:::.panel_is_light(ggplot2::theme_minimal))
+  expect_true(ggcorrplot:::.panel_is_light(ggplot2::theme_bw))
+  expect_true(ggcorrplot:::.panel_is_light(ggplot2::theme_gray))
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark))
+  # a theme object, not just a theme function
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark()))
+  # anything unresolvable falls back to "light", i.e. the default behaviour
+  expect_true(ggcorrplot:::.panel_is_light(NULL))
+  expect_true(ggcorrplot:::.panel_is_light("not a theme"))
+})
+
+test_that("a dark theme keeps the ramp as given, so its numbers stay readable", {
+  contrast <- function(a, b) {
+    la <- relative_luminance(a)
+    lb <- relative_luminance(b)
+    (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+  }
+  set.seed(42)
+  x <- matrix(stats::rnorm(300 * 6), 300, 6,
+              dimnames = list(NULL, paste0("item", seq_len(6))))
+  weak <- round(stats::cor(x), 2)
+  drawn <- function(th) {
+    p <- ggcorrplot(weak, lower.method = "number", upper.method = "number", ggtheme = th)
+    unique(ggplot2::ggplot_build(p)$data[[1]]$colour)
+  }
+  # theme_dark's panel is grey50: the undarkened pale middle reads against it
+  dark_cols <- drawn(ggplot2::theme_dark)
+  expect_true(all(vapply(dark_cols, contrast, numeric(1), "grey50") >= 3.5))
+  # and the default light panel still gets the darkened ramp
+  expect_false(identical(sort(dark_cols), sort(drawn(ggplot2::theme_minimal))))
 })

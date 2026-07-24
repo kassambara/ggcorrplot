@@ -26,9 +26,11 @@
 #'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-#'   as text, colored by its value on a darkened copy of the fill ramp -- same
-#'   hues, so warm still reads as positive and cool as negative, but dark enough
-#'   that a coefficient near zero stays readable against the panel). When either
+#'   as text, colored by its value on the fill ramp, darkened where the panel is
+#'   light -- same hues, so warm still reads as positive and cool as negative, but
+#'   dark enough that a coefficient near zero stays readable rather than washing
+#'   out into the panel. A dark \code{ggtheme}, whose panel already contrasts with
+#'   the pale middle of the ramp, keeps the ramp as given). When either
 #'   is set, the plot switches to a mixed layout
 #'   where the lower and upper triangles are drawn separately and the variable
 #'   names are drawn on the diagonal; a triangle left \code{NULL} uses
@@ -511,8 +513,9 @@ ggcorrplot <- function(corr,
     # correlogram reads as removed/non-significant, so an unreadable number is
     # misleading, not merely faint. Darken the ramp for the text only, keeping
     # each stop's hue (so warm = positive / cool = negative still reads at a
-    # glance) but capping its luminance.
-    text_colors <- .legible_text_colors(colors)
+    # glance) but capping its luminance -- and only when the panel is light, since
+    # on a dark panel the pale middle is already the readable end.
+    text_colors <- if (.panel_is_light(ggtheme)) .legible_text_colors(colors) else colors
     if (length(colors) == 3) {
       p <- p + ggplot2::scale_colour_gradient2(
         low = text_colors[1], high = text_colors[3], mid = text_colors[2],
@@ -923,8 +926,9 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   label
 }
 
-# Significance stars for a vector of p-values: "***" p < 0.001, "**" p < 0.01,
-# "*" p < 0.05, "" otherwise (and "" for NA). Shared by the sig.stars label
+# Significance stars for a vector of p-values: "***" p <= 0.001, "**" p <= 0.01,
+# "*" p <= 0.05, "" otherwise (and "" for NA). The cut() breaks below are
+# right-closed, so each threshold is inclusive. Shared by the sig.stars label
 # suffix and the standalone insig = "stars" glyph so both use one definition.
 .sig_stars <- function(pvalue) {
   stars <- as.character(cut(pvalue,
@@ -1102,17 +1106,25 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # an unmodified near-zero coefficient renders invisible.
 #
 # Relative luminance is the WCAG definition (linearised sRGB, Rec. 709 weights).
-# A color already at or below the cap is returned unchanged, so the saturated
-# ends of the ramp (blue, red) keep their exact values and only the pale middle
-# moves; scaling the linear channels by a common factor preserves the hue. The
+# A color already at or below the cap is returned unchanged (a saturated blue, a
+# dark ramp end); everything else is scaled down, the pale middle by far the most
+# and a stop only just over the cap barely at all. Scaling the linear channels by
+# a common factor preserves the hue. The
 # cap keeps the contrast ratio against white above 4.5:1, the usual threshold for
 # small text, with enough headroom that rounding to 8-bit channels cannot push a
 # stop back under it.
+#
+# A partly transparent stop is left alone: its luminance over the panel depends on
+# what it is composited with, so darkening it by its opaque value would neither
+# honour the contrast target nor keep the ramp's alpha uniform. Whatever the
+# caller asked for is drawn unchanged, exactly as the fill scale draws it.
 .legible_text_colors <- function(colors, max_luminance = 0.179) {
-  lin <- function(u) ifelse(u <= 0.03928, u / 12.92, ((u + 0.055) / 1.055)^2.4)
   unlist(lapply(colors, function(col) {
-    rgb01 <- grDevices::col2rgb(col)[, 1] / 255
-    chan <- lin(rgb01)
+    rgba <- grDevices::col2rgb(col, alpha = TRUE)[, 1] / 255
+    if (is.na(rgba[4]) || rgba[4] < 1) {
+      return(col)
+    }
+    chan <- .linearise_srgb(rgba[1:3])
     lum <- sum(c(0.2126, 0.7152, 0.0722) * chan)
     if (is.na(lum) || lum <= max_luminance) {
       return(col)
@@ -1122,6 +1134,38 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     srgb <- ifelse(chan <= 0.0031308, chan * 12.92, 1.055 * chan^(1 / 2.4) - 0.055)
     grDevices::rgb(srgb[1], srgb[2], srgb[3])
   }), use.names = FALSE)
+}
+
+# sRGB -> linear light, the first half of the WCAG relative-luminance definition.
+.linearise_srgb <- function(u) {
+  ifelse(u <= 0.03928, u / 12.92, ((u + 0.055) / 1.055)^2.4)
+}
+
+.relative_luminance <- function(col) {
+  chan <- .linearise_srgb(grDevices::col2rgb(col)[, 1] / 255)
+  sum(c(0.2126, 0.7152, 0.0722) * chan)
+}
+
+# Is the panel light enough that DARK text reads against it? The legibility floor
+# only helps there: on a dark panel the ramp's pale middle is already the
+# READABLE end (white on grey50 clears 3.9:1), and darkening it would bury the
+# text instead. So the floor is applied to a light panel only, and a dark theme
+# keeps the plain ramp. A theme that draws no panel rectangle (theme_minimal, the
+# default, and theme_void) leaves the plot on the white device background, so an
+# absent or unresolvable fill counts as light.
+.panel_is_light <- function(ggtheme) {
+  fill <- tryCatch(
+    {
+      th <- if (is.function(ggtheme)) ggtheme() else ggtheme
+      th$panel.background$fill
+    },
+    error = function(e) NULL
+  )
+  if (is.null(fill) || length(fill) != 1L || is.na(fill)) {
+    return(TRUE)
+  }
+  lum <- tryCatch(.relative_luminance(fill), error = function(e) NA_real_)
+  is.na(lum) || lum > 0.4
 }
 
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
