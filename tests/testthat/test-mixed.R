@@ -201,6 +201,9 @@ test_that("a fully-NA variable is not resurrected as an empty band in a mixed la
   present <- colnames(m)[colSums(!is.na(m)) > 0]
   expect_setequal(labs, present)
   expect_false(colnames(m)[2] %in% labs) # the all-NA variable is gone
+  # both axes must drop it together; pinning only one leaves a phantom band on the
+  # other, and a continuous axis would still report matching break labels
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
 })
 
 test_that("an unnamed matrix still draws a discrete positional axis in a mixed layout", {
@@ -208,6 +211,9 @@ test_that("an unnamed matrix still draws a discrete positional axis in a mixed l
   dimnames(m) <- NULL
   p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
   expect_s3_class(p$data$Var1, "factor")
+  # Var2 too: left as the integers melt produces, the y axis silently goes
+  # continuous while its break labels still read "1", "2", ...
+  expect_s3_class(p$data$Var2, "factor")
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
 })
 
@@ -216,4 +222,83 @@ test_that("mixed composes with hc.order without error and stays full", {
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
   # reordered axis is still shared between x and y
   expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
+})
+
+test_that("a ragged NA pattern keeps both axes on one matrix-ordered scale", {
+  # melt(na.rm = TRUE) drops NA cells, so the order the variables first APPEAR in
+  # the melted frame is not the matrix order once the NA pattern is ragged. Taking
+  # the two axes independently from that appearance order put them out of step and
+  # landed the diagonal name region on cells that are not self-pairs -- a silent
+  # mislabel on a plot that renders cleanly. Both axes must stay in matrix order.
+  m <- round(cor(mtcars)[1:4, 1:4], 2)
+  m["cyl", "mpg"] <- NA
+  m["mpg", "cyl"] <- NA
+  p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
+  expect_identical(axis_labels(p, "x"), colnames(m))
+})
+
+test_that("the mixed diagonal names only ever sit on genuine self-pairs", {
+  # the failure this guards is positional, so assert on the drawn cells: every
+  # label in the name layer must sit where its own row and column meet.
+  expect_diagonal_is_self_paired <- function(m) {
+    p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
+    b <- ggplot2::ggplot_build(p)
+    name_layer <- b$data[[length(b$data)]] # regions are added lower, upper, diagonal
+    xl <- axis_labels(p, "x")
+    yl <- axis_labels(p, "y")
+    expect_identical(xl[name_layer$x], yl[name_layer$y])
+    expect_identical(as.character(name_layer$label), xl[name_layer$x])
+  }
+  # a pair of variables that never co-occur -> one NA cell per triangle
+  d <- mtcars[, 1:4]
+  d[1:16, 1] <- NA
+  d[17:32, 2] <- NA
+  expect_diagonal_is_self_paired(round(suppressWarnings(
+    cor(d, use = "pairwise.complete.obs")
+  ), 2))
+  # a zero-variance column -> cor() returns NA for every pair involving it
+  dc <- mtcars[, 1:4]
+  dc[, 2] <- 1
+  expect_diagonal_is_self_paired(suppressWarnings(round(cor(dc), 2)))
+  # an asymmetric NA pattern (row blanked, column kept)
+  ma <- round(cor(mtcars[, 1:5]), 2)
+  ma[1, ] <- NA
+  expect_diagonal_is_self_paired(ma)
+  # a whole column blank, so the two axes see DIFFERENT variable sets: Var1 still
+  # meets all three, Var2 only the first two. Every other fixture here is
+  # symmetric, where each axis's appearance order happens to match matrix order --
+  # so only this one can catch one axis being re-levelled without the other.
+  mc <- matrix(
+    c(1, 0.5, NA, 0.5, 1, NA, 0.3, 0.4, NA), 3, 3,
+    byrow = TRUE, dimnames = list(c("A", "B", "C"), c("A", "B", "C"))
+  )
+  expect_diagonal_is_self_paired(mc)
+  p <- ggcorrplot(mc, lower.method = "number", upper.method = "circle")
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
+  expect_identical(axis_labels(p, "x"), colnames(mc))
+})
+
+test_that("an unnamed ragged matrix orders the mixed axes numerically, not by appearance", {
+  m <- round(cor(mtcars)[1:4, 1:4], 2)
+  m[2, 1] <- NA
+  m[1, 2] <- NA
+  dimnames(m) <- NULL
+  p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
+  expect_identical(axis_labels(p, "x"), as.character(1:4))
+})
+
+test_that("tl.col and tl.cex reach the mixed diagonal names", {
+  # tl.col was once accepted and silently dropped (#44); the mixed name region
+  # takes its colour and size from these arguments, so pin them.
+  p <- ggcorrplot(corr, lower.method = "number", upper.method = "circle")
+  expect_identical(p$layers[[3]]$aes_params$colour, "black")
+  expect_equal(p$layers[[3]]$aes_params$size, 12 / 3)
+  q <- ggcorrplot(corr,
+    lower.method = "number", upper.method = "circle",
+    tl.col = "steelblue", tl.cex = 18
+  )
+  expect_identical(q$layers[[3]]$aes_params$colour, "steelblue")
+  expect_equal(q$layers[[3]]$aes_params$size, 18 / 3)
 })

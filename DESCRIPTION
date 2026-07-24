@@ -26,6 +26,7 @@ Depends:
     R (>= 3.3),
     ggplot2 (>= 3.3.6)
 Imports:
+    grDevices,
     reshape2,
     stats
 Suggests:

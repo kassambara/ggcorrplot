@@ -28,7 +28,7 @@ It can:
   - compute the matrix of **correlation p-values** with `cor_pmat()`.
 
 Learn more at
-<https://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2>.
+<https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r>.
 
 ## Installation
 
@@ -169,10 +169,10 @@ ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat, insig = "blank"
 
 `insig = "stars"` flips the emphasis: instead of crossing out the
 non-significant cells, it marks the **significant** ones with
-significance stars (`***`, `**`, `*` for p \< 0.001, 0.01, 0.05). With
-the default `lab = FALSE` this is a standalone significance map; with
-`lab = TRUE` the stars are appended to the coefficients
-(e.g. `-0.85***`).
+significance stars (`***`, `**`, `*` for p \<= 0.001, 0.01, 0.05 – fixed
+thresholds, not `sig.level`). With the default `lab = FALSE` this is a
+standalone significance map; with `lab = TRUE` the stars are appended to
+the coefficients (e.g. `-0.85***`).
 
 ``` r
 ggcorrplot(corr, p.mat = p.mat, insig = "stars")

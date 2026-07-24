@@ -31,7 +31,8 @@
   Defaults to `NULL` (use `colors`), leaving existing calls unchanged.
 
 - New value `insig = "stars"` to mark the significant cells with significance
-  stars (`***`/`**`/`*` for p < 0.001/0.01/0.05) instead of crossing out the
+  stars (`***`/`**`/`*` for p <= 0.001/0.01/0.05 -- fixed thresholds, not
+  `sig.level`) instead of crossing out the
   insignificant ones. Works without `lab`, so `ggcorrplot(corr, p.mat = p.mat,
   insig = "stars")` is a standalone significance map. The default `insig = "pch"`
   is unchanged.

@@ -3,3 +3,5 @@
 export(cor_pmat)
 export(ggcorrplot)
 import(ggplot2)
+importFrom(grDevices,col2rgb)
+importFrom(grDevices,rgb)

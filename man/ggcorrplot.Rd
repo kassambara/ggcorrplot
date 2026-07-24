@@ -67,7 +67,12 @@ matrix.}
 \item{ggtheme}{ggplot2 function or theme object. Default value is
 `theme_minimal`. Allowed values are the official ggplot2 themes including
 theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
-objects are also allowed (e.g., `theme_classic()`).}
+objects are also allowed (e.g., `theme_classic()`). A mixed "number" region
+reads the background from this argument, resolved against the default theme
+in force when \code{ggcorrplot()} is called, to decide how dark to draw the
+coefficient text (see \code{lower.method}/\code{upper.method}). So a dark
+theme belongs here rather than added to the returned plot with \code{+}, and
+a \code{\link[ggplot2]{theme_set}} issued after the call is not seen.}
 
 \item{title}{character, title of the graph.}
 
@@ -107,23 +112,28 @@ labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.}
 
 \item{sig.stars}{logical value. If \code{TRUE} and a \code{p.mat} is
 supplied, significance stars are appended to the coefficient labels
-(\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
-e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
-\code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
-\code{insig = "pch"} markers are not drawn.}
+(\code{***} for p <= 0.001, \code{**} for p <= 0.01, \code{*} for
+p <= 0.05), e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default
+is \code{FALSE}. When \code{TRUE}, significance is shown by the stars and
+the \code{insig = "pch"} markers are not drawn. These three thresholds are
+fixed and are not affected by \code{sig.level}.}
 
 \item{p.mat}{matrix of p-value. If NULL, arguments sig.level, insig, pch,
 pch.col, pch.cex is invalid.}
 
 \item{sig.level}{significant level, if the p-value in p-mat is bigger than
 sig.level, then the corresponding correlation coefficient is regarded as
-insignificant.}
+insignificant. This governs which cells \code{insig = "pch"} marks and
+\code{insig = "blank"} wipes; the star thresholds used by
+\code{insig = "stars"} and \code{sig.stars} are fixed (see those arguments)
+and do not follow \code{sig.level}.}
 
 \item{insig}{character, how to convey significance from \code{p.mat}: "pch"
 (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 instead marks the SIGNIFICANT cells with significance stars
-(\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+(\code{***}/\code{**}/\code{*} for p <= 0.001/0.01/0.05 -- fixed thresholds,
+not \code{sig.level}). With the default
 \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
 by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
 they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
@@ -176,15 +186,21 @@ small or too large. Has no effect when \code{method = "square"}.}
 ratio), which can look better with many long variable names.}
 
 \item{lower.method, upper.method}{character, an optional per-triangle glyph for
-a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-as text, colored by its value on the same scale as the fill, so coefficients
-near zero are faint). When either is set, the plot switches to a mixed layout
-where the lower and upper triangles are drawn separately and the variable
-names are drawn on the diagonal; a triangle left \code{NULL} uses
-\code{method}. Both default to \code{NULL} (single-method plot, unchanged).
-In a mixed layout the single-method significance and label overlays
-(\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig}, \code{pch*}) do
-not apply; show coefficients with a "number" triangle instead.}
+  a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
+  as text, colored by its value on the fill ramp). When either is set, the plot
+  switches to a mixed layout where the lower and upper triangles are drawn
+  separately and the variable names are drawn on the diagonal; a triangle left
+  \code{NULL} uses \code{method}. Both default to \code{NULL} (single-method
+  plot, unchanged). In a mixed layout the single-method significance and label
+  overlays (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig},
+  \code{pch*}) do not apply; show coefficients with a "number" triangle instead.
+
+  Over a light background the "number" text is drawn on a darkened copy of the
+  ramp -- same hues, so warm still reads as positive and cool as negative, but
+  dark enough that a coefficient near zero stays readable instead of washing
+  out. Over a dark background the ramp is used as given, its pale middle being
+  what reads there. The background is taken from \code{ggtheme}; a theme added
+  to the returned plot with \code{+} arrives too late to be seen.}
 
 \item{hc.rect}{integer or \code{NULL} (default). If an integer \code{k}, draws
 \code{k} rectangles (no fill) around the clusters obtained by cutting the

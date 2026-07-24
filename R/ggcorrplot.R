@@ -1,5 +1,6 @@
 #' Visualization of a correlation matrix using ggplot2
 #' @import ggplot2
+#' @importFrom grDevices col2rgb rgb
 #' @description \itemize{ \item ggcorrplot(): A graphical display of a
 #'   correlation matrix using ggplot2. \item cor_pmat(): Compute a correlation
 #'   matrix p-values. }
@@ -25,21 +26,32 @@
 #'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-#'   as text, colored by its value on the same scale as the fill, so coefficients
-#'   near zero are faint). When either is set, the plot switches to a mixed layout
-#'   where the lower and upper triangles are drawn separately and the variable
-#'   names are drawn on the diagonal; a triangle left \code{NULL} uses
-#'   \code{method}. Both default to \code{NULL} (single-method plot, unchanged).
-#'   In a mixed layout the single-method significance and label overlays
-#'   (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig}, \code{pch*}) do
-#'   not apply; show coefficients with a "number" triangle instead.
+#'   as text, colored by its value on the fill ramp). When either is set, the plot
+#'   switches to a mixed layout where the lower and upper triangles are drawn
+#'   separately and the variable names are drawn on the diagonal; a triangle left
+#'   \code{NULL} uses \code{method}. Both default to \code{NULL} (single-method
+#'   plot, unchanged). In a mixed layout the single-method significance and label
+#'   overlays (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig},
+#'   \code{pch*}) do not apply; show coefficients with a "number" triangle instead.
+#'
+#'   Over a light background the "number" text is drawn on a darkened copy of the
+#'   ramp -- same hues, so warm still reads as positive and cool as negative, but
+#'   dark enough that a coefficient near zero stays readable instead of washing
+#'   out. Over a dark background the ramp is used as given, its pale middle being
+#'   what reads there. The background is taken from \code{ggtheme}; a theme added
+#'   to the returned plot with \code{+} arrives too late to be seen.
 #' @param type character, "full" (default), "lower" or "upper" display. A mixed
 #'   layout (see \code{lower.method}/\code{upper.method}) always uses the full
 #'   matrix.
 #' @param ggtheme ggplot2 function or theme object. Default value is
 #'   `theme_minimal`. Allowed values are the official ggplot2 themes including
 #'   theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
-#'   objects are also allowed (e.g., `theme_classic()`).
+#'   objects are also allowed (e.g., `theme_classic()`). A mixed "number" region
+#'   reads the background from this argument, resolved against the default theme
+#'   in force when \code{ggcorrplot()} is called, to decide how dark to draw the
+#'   coefficient text (see \code{lower.method}/\code{upper.method}). So a dark
+#'   theme belongs here rather than added to the returned plot with \code{+}, and
+#'   a \code{\link[ggplot2]{theme_set}} issued after the call is not seen.
 #' @param title character, title of the graph.
 #' @param show.legend logical, if TRUE the legend is displayed.
 #' @param legend.title a character string for the legend title. lower
@@ -90,20 +102,25 @@
 #'   labels. Default is \code{"plain"}. Used when \code{lab = TRUE}.
 #' @param sig.stars logical value. If \code{TRUE} and a \code{p.mat} is
 #'   supplied, significance stars are appended to the coefficient labels
-#'   (\code{***} for p < 0.001, \code{**} for p < 0.01, \code{*} for p < 0.05),
-#'   e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default is
-#'   \code{FALSE}. When \code{TRUE}, significance is shown by the stars and the
-#'   \code{insig = "pch"} markers are not drawn.
+#'   (\code{***} for p <= 0.001, \code{**} for p <= 0.01, \code{*} for
+#'   p <= 0.05), e.g. \code{"-0.85**"}. Only used when \code{lab = TRUE}. Default
+#'   is \code{FALSE}. When \code{TRUE}, significance is shown by the stars and
+#'   the \code{insig = "pch"} markers are not drawn. These three thresholds are
+#'   fixed and are not affected by \code{sig.level}.
 #' @param p.mat matrix of p-value. If NULL, arguments sig.level, insig, pch,
 #'   pch.col, pch.cex is invalid.
 #' @param sig.level significant level, if the p-value in p-mat is bigger than
 #'   sig.level, then the corresponding correlation coefficient is regarded as
-#'   insignificant.
+#'   insignificant. This governs which cells \code{insig = "pch"} marks and
+#'   \code{insig = "blank"} wipes; the star thresholds used by
+#'   \code{insig = "stars"} and \code{sig.stars} are fixed (see those arguments)
+#'   and do not follow \code{sig.level}.
 #' @param insig character, how to convey significance from \code{p.mat}: "pch"
 #'   (default), "blank" or "stars". "pch" adds a character (see \code{pch}) on the
 #'   glyphs of the insignificant cells; "blank" wipes those glyphs away; "stars"
 #'   instead marks the SIGNIFICANT cells with significance stars
-#'   (\code{***}/\code{**}/\code{*} for p < 0.001/0.01/0.05). With the default
+#'   (\code{***}/\code{**}/\code{*} for p <= 0.001/0.01/0.05 -- fixed thresholds,
+#'   not \code{sig.level}). With the default
 #'   \code{lab = FALSE} the stars are drawn on their own (in \code{pch.col}, sized
 #'   by \code{lab_size}) as a standalone significance map; with \code{lab = TRUE}
 #'   they are appended to the coefficient labels (e.g. \code{"-0.85***"}, as with
@@ -396,14 +413,27 @@ ggcorrplot <- function(corr,
 
   # heatmap
   if (mixed) {
-    # Re-level the axes to exactly the variables PRESENT after melting, in matrix
-    # order. .build_corr_df() has already coerced named matrices to matrix-order
-    # factors; here we (a) coerce an unnamed matrix (integer axis) to a
-    # position-based factor, and (b) drop any level that is absent from the data
-    # (e.g. an all-NA variable) so the mixed layout -- which pins the discrete
-    # axes with drop = FALSE -- does not resurrect it as an empty band.
-    corr$Var1 <- factor(as.character(corr$Var1), levels = as.character(unique(corr$Var1)))
-    corr$Var2 <- factor(as.character(corr$Var2), levels = as.character(unique(corr$Var2)))
+    # Pin BOTH axes to ONE level order, taken from the matrix order that
+    # .build_corr_df() already established: its factor levels for a named matrix,
+    # or the sorted integer indices for an unnamed one (which melts to 1..n).
+    # Deriving the two axes independently from the order the cells happen to
+    # appear in after melt() dropped the NA cells puts them out of step whenever
+    # the NA pattern is ragged -- cor(x, use = "pairwise.complete.obs") with a
+    # non-co-occurring pair, or a zero-variance column, both produce one -- and
+    # then the region split below compares positions on two different axes, so
+    # the diagonal name region lands on cells that are not self-pairs and
+    # silently mislabels them. A level absent from the data on BOTH axes (an
+    # all-NA variable) is dropped so the drop = FALSE axes do not resurrect it as
+    # an empty band; a variable that still has data on one axis is kept.
+    lvls <- if (is.factor(corr$Var1)) {
+      levels(corr$Var1)
+    } else {
+      as.character(sort(unique(c(corr$Var1, corr$Var2))))
+    }
+    present <- unique(c(as.character(corr$Var1), as.character(corr$Var2)))
+    lvls <- lvls[lvls %in% present]
+    corr$Var1 <- factor(as.character(corr$Var1), levels = lvls)
+    corr$Var2 <- factor(as.character(corr$Var2), levels = lvls)
 
     # One glyph per region, each drawn from its own subset of the cells. The base
     # plot carries no global fill so the text glyphs ("number"/"name") are not
@@ -484,14 +514,23 @@ ggcorrplot <- function(corr,
   if (mixed && "number" %in% c(lower.method, upper.method)) {
     has_fill_glyph <- any(c(lower.method, upper.method) %in% c("square", "circle"))
     colour_name <- if (has_fill_glyph) ggplot2::waiver() else legend.title
+    # Text needs contrast that a fill does not: the fill ramp is centered on
+    # white, so mapping the coefficient TEXT onto it unchanged makes every
+    # near-zero coefficient invisible against the panel -- and a blank cell in a
+    # correlogram reads as removed/non-significant, so an unreadable number is
+    # misleading, not merely faint. Darken the ramp for the text only, keeping
+    # each stop's hue (so warm = positive / cool = negative still reads at a
+    # glance) but capping its luminance -- and only when the panel is light, since
+    # on a dark panel the pale middle is already the readable end.
+    text_colors <- if (.panel_is_light(ggtheme)) .legible_text_colors(colors) else colors
     if (length(colors) == 3) {
       p <- p + ggplot2::scale_colour_gradient2(
-        low = colors[1], high = colors[3], mid = colors[2],
+        low = text_colors[1], high = text_colors[3], mid = text_colors[2],
         midpoint = 0, limit = legend.limit, space = "Lab", name = colour_name
       )
     } else {
       p <- p + ggplot2::scale_colour_gradientn(
-        colours = colors, limits = legend.limit, name = colour_name
+        colours = text_colors, limits = legend.limit, name = colour_name
       )
     }
     if (has_fill_glyph) p <- p + ggplot2::guides(colour = "none")
@@ -894,8 +933,9 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
   label
 }
 
-# Significance stars for a vector of p-values: "***" p < 0.001, "**" p < 0.01,
-# "*" p < 0.05, "" otherwise (and "" for NA). Shared by the sig.stars label
+# Significance stars for a vector of p-values: "***" p <= 0.001, "**" p <= 0.01,
+# "*" p <= 0.05, "" otherwise (and "" for NA). The cut() breaks below are
+# right-closed, so each threshold is inclusive. Shared by the sig.stars label
 # suffix and the standalone insig = "stars" glyph so both use one definition.
 .sig_stars <- function(pvalue) {
   stars <- as.character(cut(pvalue,
@@ -1067,6 +1107,149 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
     )
   )
 }
+# Darken a vector of colors just enough to be readable as TEXT on a white panel,
+# keeping each color's hue. Used only for the mixed "number" glyph, whose text is
+# mapped onto the same diverging ramp as the fill: that ramp is white at zero, so
+# an unmodified near-zero coefficient renders invisible.
+#
+# Relative luminance is the WCAG definition (linearised sRGB, Rec. 709 weights).
+# A color already at or below the cap is returned unchanged (a saturated blue, a
+# dark ramp end); everything else is scaled down, the pale middle by far the most
+# and a stop only just over the cap barely at all. Scaling the linear channels by
+# a common factor preserves the hue. The
+# cap keeps the contrast ratio against white above 4.5:1, the usual threshold for
+# small text, with enough headroom that rounding to 8-bit channels cannot push a
+# stop back under it.
+#
+# A partly transparent stop is left alone: its luminance over the panel depends on
+# what it is composited with, so darkening it by its opaque value would neither
+# honour the contrast target nor keep the ramp's alpha uniform. Whatever the
+# caller asked for is drawn unchanged, exactly as the fill scale draws it.
+.legible_text_colors <- function(colors, max_luminance = 0.179) {
+  unlist(lapply(colors, function(col) {
+    rgba <- grDevices::col2rgb(col, alpha = TRUE)[, 1] / 255
+    if (is.na(rgba[4]) || rgba[4] < 1) {
+      return(col)
+    }
+    chan <- .linearise_srgb(rgba[1:3])
+    lum <- sum(c(0.2126, 0.7152, 0.0722) * chan)
+    if (is.na(lum) || lum <= max_luminance) {
+      return(col)
+    }
+    chan <- chan * (max_luminance / lum)
+    # back to sRGB
+    srgb <- ifelse(chan <= 0.0031308, chan * 12.92, 1.055 * chan^(1 / 2.4) - 0.055)
+    grDevices::rgb(srgb[1], srgb[2], srgb[3])
+  }), use.names = FALSE)
+}
+
+# sRGB -> linear light, the first half of the WCAG relative-luminance definition.
+.linearise_srgb <- function(u) {
+  ifelse(u <= 0.03928, u / 12.92, ((u + 0.055) / 1.055)^2.4)
+}
+
+.relative_luminance <- function(col) {
+  chan <- .linearise_srgb(grDevices::col2rgb(col)[, 1] / 255)
+  sum(c(0.2126, 0.7152, 0.0722) * chan)
+}
+
+# Is the background behind the glyphs light enough that DARK text reads against
+# it? The legibility floor only helps there: on a dark background the ramp's pale
+# middle is already the READABLE end (white on grey50 clears 3.9:1), and darkening
+# it would bury the text instead. So the floor is applied over a light background
+# only, and a dark theme keeps the plain ramp.
+#
+# What sits behind a cell is panel.background when the theme draws one, and
+# plot.background when it does not -- theme_minimal (our default) and theme_void
+# blank the panel, so a dark recipe built on them carries its color on
+# plot.background. Both are consulted, in that order, and each is resolved through
+# the theme's inheritance before falling back to the raw element. A background we
+# cannot resolve at all counts as light, which is the default device background.
+#
+# This sees the theme passed as `ggtheme`, resolved against the active default, so
+# a globally theme_set() background counts too. A theme added to the finished plot
+# with `+` arrives long after the scale is built, so a dark theme must be passed
+# here to be taken into account; that limitation is documented on the arguments.
+#
+# The threshold is where the two branches break even FOR THE NEAR-ZERO STOP -- the
+# pale middle of the ramp, which is the one the floor exists to rescue and the one
+# that vanishes first. It is not a promise about the ramp as a whole: against a
+# mid-grey panel a white-centred diverging ramp always has some intermediate stop
+# at roughly the panel's own luminance, so neither branch reads well there and no
+# threshold rescues it. Away from mid-grey, in both directions, the branch this
+# picks is comfortably the better one.
+.panel_is_light <- function(ggtheme, threshold = 0.44) {
+  fill <- tryCatch(
+    {
+      th <- if (is.function(ggtheme)) ggtheme() else ggtheme
+      # ggplot2 draws theme_get() + this theme, so a PARTIAL theme -- one that sets
+      # a background without carrying a base theme -- is only half the story: the
+      # elements it leaves out come from the active default. Resolve against that
+      # default first, or a theme setting nothing but a dark plot.background looks
+      # dark while the panel actually drawn is the default's light grey (and a
+      # globally theme_set() dark default looks light). Anything that is not a
+      # theme at all (NULL, a stray value, a function returning one) is ignored
+      # when the plot is assembled, so what gets drawn is the active default on
+      # its own -- read that, rather than falling through to the bare page.
+      th <- if (inherits(th, "theme")) ggplot2::theme_get() + th else ggplot2::theme_get()
+      # What a cell actually sits on, painted in the order the device paints it:
+      # the white page, then plot.background, then panel.background. Compositing
+      # rather than picking one element is what makes a partly transparent
+      # background come out as the color the eye sees.
+      .composite_over(
+        .theme_element_fill(th, "panel.background"),
+        .composite_over(.theme_element_fill(th, "plot.background"), "white")
+      )
+    },
+    error = function(e) NULL
+  )
+  if (is.null(fill)) {
+    return(TRUE)
+  }
+  lum <- tryCatch(.relative_luminance(fill), error = function(e) NA_real_)
+  is.na(lum) || lum > threshold
+}
+
+# The fill of one theme element, exactly as the theme gives it (alpha included):
+# resolved through the theme's inheritance where that works (a fill set on `rect`
+# reaches `panel.background` that way), and read off the element directly
+# otherwise. NULL when the element paints nothing usable -- blank, missing, NA, or
+# not a single color.
+.theme_element_fill <- function(th, element) {
+  fill <- tryCatch(ggplot2::calc_element(element, th)$fill, error = function(e) NULL)
+  if (is.null(fill)) {
+    fill <- tryCatch(th[[element]]$fill, error = function(e) NULL)
+  }
+  if (is.null(fill) || length(fill) != 1L || is.na(fill)) {
+    return(NULL)
+  }
+  fill
+}
+
+# Paint `fill` onto `backdrop` and return the resulting color. A fill that is
+# absent or fully transparent paints nothing, so the backdrop shows through
+# unchanged -- theme_void's plot.background is literally transparent black, which
+# taken at face value would be the darkest background there is. A partly
+# transparent fill is blended, so a 90%-opaque near-black panel is read as the
+# near-black the eye sees rather than discarded for not being opaque.
+.composite_over <- function(fill, backdrop) {
+  if (is.null(fill)) {
+    return(backdrop)
+  }
+  rgba <- tryCatch(grDevices::col2rgb(fill, alpha = TRUE)[, 1], error = function(e) NULL)
+  if (is.null(rgba) || anyNA(rgba) || rgba[4] == 0) {
+    return(backdrop)
+  }
+  if (rgba[4] == 255) {
+    return(fill)
+  }
+  under <- tryCatch(grDevices::col2rgb(backdrop)[, 1], error = function(e) c(255, 255, 255))
+  opacity <- rgba[4] / 255
+  blended <- rgba[1:3] * opacity + under * (1 - opacity)
+  grDevices::rgb(blended[1], blended[2], blended[3], maxColorValue = 255)
+}
+
+
 # hc.order correlation matrix. Returns the whole hclust object (its $order gives
 # the reordering; the tree itself is needed to draw cluster rectangles, hc.rect).
 .hc_cormat_order <- function(cormat, hc.method = "complete") {
