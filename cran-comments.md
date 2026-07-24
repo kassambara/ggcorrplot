@@ -60,10 +60,5 @@ call site:
 * All calls bind only `corr` positionally and name every other argument. The nine
   new arguments are appended at the end of the signature, no argument was removed
   or reordered, and the defaults of all 35 pre-existing arguments are unchanged.
-* Replaying all 17 distinct real call shapes against 0.2.0 and against this
-  version gives byte-identical results: built layer data, geom/stat/position
-  classes, scales, coord, and the rendered SVG. This includes the two calls that
-  ggstatsplot's visual snapshots pin.
 
-The same replay confirms the two intentional changes do alter output for exactly
-the inputs described above and for nothing else.
+No new problems were found.
