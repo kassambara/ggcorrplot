@@ -36,7 +36,8 @@ It can:
   significant** cells (including a standalone **significance map**), and
 - compute the matrix of **correlation p-values** with `cor_pmat()`.
 
-Learn more at <https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r>.
+Learn more in [ggcorrplot: Correlation Matrix Heatmap in R with
+ggplot2](https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r).
 
 ## Installation
 
@@ -163,7 +164,11 @@ ggcorrplot(corr, p.mat = p.mat, insig = "stars")
 ## Colors and theme
 
 `ggcorrplot()` returns a ggplot object, so any ggplot2 theme applies. `colors`
-sets the low / mid / high gradient.
+sets the low / mid / high gradient. For the ggplot2 side of this, see [ggplot2
+Colours in R: Change Colours by
+Group](https://www.datanovia.com/learn/data-visualization/ggplot2/colors) and
+[ggplot2 Themes in R: Customize the
+Look](https://www.datanovia.com/learn/data-visualization/ggplot2/themes).
 
 ```{r colors, fig.width = 5.6, fig.height = 5.4}
 ggcorrplot(corr,
@@ -172,3 +177,12 @@ ggcorrplot(corr,
   colors = c("#6D9EC1", "white", "#E46726")
 )
 ```
+
+## Related tutorials
+
+- [ggcorrplot: Correlation Matrix Heatmap in R with
+  ggplot2](https://www.datanovia.com/learn/biostatistics/correlation/ggcorrplot-in-r)
+- [Correlation Matrix in R: Compute, Visualize &
+  P-values](https://www.datanovia.com/learn/biostatistics/correlation/correlation-matrix-in-r)
+- [Correlogram in R: Visualize a Correlation Matrix with
+  corrplot](https://www.datanovia.com/learn/biostatistics/correlation/correlogram-in-r)
