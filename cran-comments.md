@@ -32,17 +32,17 @@ you would prefer the usual interval.
 ## Test environments
 * local macOS, R 4.5.x
 * GitHub Actions: macOS-release, Windows-release, Ubuntu-{devel, release, oldrel-1}
-* win-builder release (R 4.x): TO RUN BEFORE SUBMISSION
-* win-builder devel (R-devel): TO RUN BEFORE SUBMISSION
+* win-builder release (R 4.x)
+* win-builder devel (R-devel)
 
 ## R CMD check results
 Local `R CMD check --as-cran` on the 0.3.0 tarball: 0 errors | 0 warnings |
-1 note. The same holds with `_R_CHECK_DEPENDS_ONLY_=true`.
+0 notes. The same holds with `_R_CHECK_DEPENDS_ONLY_=true`. win-builder
+(release and R-devel) reported no errors and no warnings.
 
-The note is environmental:
-
-* "unable to verify current time" — the check host cannot reach a time server; it
-  does not appear on CI.
+Some runs on the local machine add an "unable to verify current time" NOTE when
+the host cannot reach a time server; it is environmental and does not appear on
+CI.
 
 ## Reverse dependencies
 There are 22 reverse dependencies (15 Depends/Imports, 7 Suggests). The check was
