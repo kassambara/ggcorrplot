@@ -26,21 +26,20 @@
 #'   to \code{"grey90"}. Only used when \code{cell.grid = TRUE}.
 #' @param lower.method,upper.method character, an optional per-triangle glyph for
 #'   a mixed layout: one of "square", "circle" or "number" (the coefficient drawn
-#'   as text, colored by its value on the fill ramp, darkened over a light
-#'   background -- same hues, so warm still reads as positive and cool as negative,
-#'   but dark enough that a coefficient near zero stays readable rather than
-#'   washing out. Over a dark background, whose contrast with the pale middle of
-#'   the ramp is already what makes the text readable, the ramp is used as given.
-#'   The background is read from \code{ggtheme}, so pass a dark theme there rather
-#'   than adding it to the returned plot with \code{+}, which happens too late to
-#'   be seen). When either
-#'   is set, the plot switches to a mixed layout
-#'   where the lower and upper triangles are drawn separately and the variable
-#'   names are drawn on the diagonal; a triangle left \code{NULL} uses
-#'   \code{method}. Both default to \code{NULL} (single-method plot, unchanged).
-#'   In a mixed layout the single-method significance and label overlays
-#'   (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig}, \code{pch*}) do
-#'   not apply; show coefficients with a "number" triangle instead.
+#'   as text, colored by its value on the fill ramp). When either is set, the plot
+#'   switches to a mixed layout where the lower and upper triangles are drawn
+#'   separately and the variable names are drawn on the diagonal; a triangle left
+#'   \code{NULL} uses \code{method}. Both default to \code{NULL} (single-method
+#'   plot, unchanged). In a mixed layout the single-method significance and label
+#'   overlays (\code{lab}, \code{sig.stars}, \code{p.mat}, \code{insig},
+#'   \code{pch*}) do not apply; show coefficients with a "number" triangle instead.
+#'
+#'   Over a light background the "number" text is drawn on a darkened copy of the
+#'   ramp -- same hues, so warm still reads as positive and cool as negative, but
+#'   dark enough that a coefficient near zero stays readable instead of washing
+#'   out. Over a dark background the ramp is used as given, its pale middle being
+#'   what reads there. The background is taken from \code{ggtheme}; a theme added
+#'   to the returned plot with \code{+} arrives too late to be seen.
 #' @param type character, "full" (default), "lower" or "upper" display. A mixed
 #'   layout (see \code{lower.method}/\code{upper.method}) always uses the full
 #'   matrix.
@@ -1168,10 +1167,25 @@ cor_pmat <- function(x, ..., use = c("pairwise.complete.obs", "everything")) {
 # This can only see the theme passed as `ggtheme`. A theme added afterwards with
 # `+` arrives long after the scale is built, so a dark theme must be passed here
 # to be taken into account; that limitation is documented on the arguments.
+#
+# The threshold is where the two branches break even FOR THE NEAR-ZERO STOP -- the
+# pale middle of the ramp, which is the one the floor exists to rescue and the one
+# that vanishes first. It is not a promise about the ramp as a whole: against a
+# mid-grey panel a white-centred diverging ramp always has some intermediate stop
+# at roughly the panel's own luminance, so neither branch reads well there and no
+# threshold rescues it. Away from mid-grey, in both directions, the branch this
+# picks is comfortably the better one.
 .panel_is_light <- function(ggtheme, threshold = 0.44) {
   fill <- tryCatch(
     {
       th <- if (is.function(ggtheme)) ggtheme() else ggtheme
+      # ggplot2 draws theme_get() + this theme, so a PARTIAL theme -- one that sets
+      # a background without carrying a base theme -- is only half the story: the
+      # elements it leaves out come from the active default. Resolve against that
+      # default first, or a theme setting nothing but a dark plot.background looks
+      # dark while the panel actually drawn is the default's light grey (and a
+      # globally theme_set() dark default looks light).
+      if (inherits(th, "theme")) th <- ggplot2::theme_get() + th
       .theme_element_fill(th, "panel.background") %||%
         .theme_element_fill(th, "plot.background")
     },

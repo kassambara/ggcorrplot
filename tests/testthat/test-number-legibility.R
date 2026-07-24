@@ -173,9 +173,11 @@ test_that("a transparent background is not mistaken for a dark one", {
   ))
 })
 
-test_that("the light/dark threshold sits at the break-even luminance", {
-  # below the crossover the plain ramp reads better against the panel, above it the
-  # darkened one does; the gate must agree with that on both sides.
+test_that("the light/dark threshold sits at the near-zero stop break-even", {
+  # The crossover is the one for the pale middle of the ramp -- the stop the floor
+  # exists to rescue. Against a mid-grey panel some intermediate stop always sits at
+  # roughly the panel's own luminance whichever branch is taken, so this pins the
+  # boundary, not a legibility promise for mid-grey panels.
   expect_false(ggcorrplot:::.panel_is_light(
     ggplot2::theme_minimal() +
       ggplot2::theme(panel.background = ggplot2::element_rect(fill = "grey67"))
@@ -192,4 +194,38 @@ test_that("resolving the background never errors, whatever ggtheme holds", {
     result <- ggcorrplot:::.panel_is_light(value)
     expect_true(is.logical(result) && length(result) == 1L && !is.na(result))
   }
+})
+
+test_that("a partial ggtheme is resolved against the active default theme", {
+  # ggplot2 draws theme_get() + ggtheme, so a theme that sets only a background
+  # carries none of the elements the default supplies. Judging it on its own made a
+  # bare dark plot.background look dark while the panel actually drawn was the
+  # default's light grey -- and the text was then left pale on a pale panel.
+  bare_dark_plot_bg <- ggplot2::theme(
+    plot.background = ggplot2::element_rect(fill = "grey15", colour = NA)
+  )
+  expect_true(ggcorrplot:::.panel_is_light(bare_dark_plot_bg))
+  # the same background on a complete theme really is dark
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_minimal() + bare_dark_plot_bg))
+})
+
+test_that("a globally set dark theme is taken into account", {
+  old <- ggplot2::theme_set(ggplot2::theme_dark())
+  on.exit(ggplot2::theme_set(old), add = TRUE)
+  # nothing passed: the default theme is what gets drawn
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme()))
+  # an explicit light theme still wins over the global default
+  expect_true(ggcorrplot:::.panel_is_light(ggplot2::theme_minimal))
+})
+
+test_that("every stock ggplot2 theme is classified by its own background", {
+  light <- c("theme_minimal", "theme_bw", "theme_gray", "theme_light",
+             "theme_classic", "theme_void", "theme_linedraw", "theme_test")
+  for (name in light) {
+    fun <- get(name, envir = asNamespace("ggplot2"))
+    expect_true(ggcorrplot:::.panel_is_light(fun), info = name)
+    expect_true(ggcorrplot:::.panel_is_light(fun()), info = name)
+  }
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark))
+  expect_false(ggcorrplot:::.panel_is_light(ggplot2::theme_dark()))
 })
