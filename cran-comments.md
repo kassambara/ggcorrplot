@@ -45,7 +45,25 @@ The note is environmental:
   does not appear on CI.
 
 ## Reverse dependencies
-TO RUN BEFORE SUBMISSION. The behavior-changing surface to scope the check to is
-the two intentional changes listed above (matrix-order axis / inert `as.is`, and
-non-square `show.diag = FALSE`); everything else in this release is additive,
-behind new arguments whose defaults reproduce the 0.2.0 behavior.
+There are 22 reverse dependencies (15 Depends/Imports, 7 Suggests). The check was
+scoped to the behavior-changing surface, which is the two intentional changes
+listed above; everything else in this release is additive, behind new arguments
+whose defaults reproduce the 0.2.0 behavior.
+
+I read the source of all 22 and extracted every `ggcorrplot()` / `cor_pmat()`
+call site:
+
+* No reverse dependency passes `as.is`, so the axis-order change reaches none of
+  them.
+* Only two pass `show.diag`, both `TRUE`; the changed code path needs
+  `show.diag = FALSE` on a non-square matrix, which no reverse dependency does.
+* All calls bind only `corr` positionally and name every other argument. The nine
+  new arguments are appended at the end of the signature, no argument was removed
+  or reordered, and the defaults of all 35 pre-existing arguments are unchanged.
+* Replaying all 17 distinct real call shapes against 0.2.0 and against this
+  version gives byte-identical results: built layer data, geom/stat/position
+  classes, scales, coord, and the rendered SVG. This includes the two calls that
+  ggstatsplot's visual snapshots pin.
+
+The same replay confirms the two intentional changes do alter output for exactly
+the inputs described above and for nothing else.
