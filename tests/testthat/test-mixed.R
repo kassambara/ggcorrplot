@@ -201,6 +201,9 @@ test_that("a fully-NA variable is not resurrected as an empty band in a mixed la
   present <- colnames(m)[colSums(!is.na(m)) > 0]
   expect_setequal(labs, present)
   expect_false(colnames(m)[2] %in% labs) # the all-NA variable is gone
+  # both axes must drop it together; pinning only one leaves a phantom band on the
+  # other, and a continuous axis would still report matching break labels
+  expect_identical(axis_labels(p, "x"), axis_labels(p, "y"))
 })
 
 test_that("an unnamed matrix still draws a discrete positional axis in a mixed layout", {
@@ -208,6 +211,9 @@ test_that("an unnamed matrix still draws a discrete positional axis in a mixed l
   dimnames(m) <- NULL
   p <- ggcorrplot(m, lower.method = "number", upper.method = "circle")
   expect_s3_class(p$data$Var1, "factor")
+  # Var2 too: left as the integers melt produces, the y axis silently goes
+  # continuous while its break labels still read "1", "2", ...
+  expect_s3_class(p$data$Var2, "factor")
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
 })
 

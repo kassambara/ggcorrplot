@@ -47,9 +47,11 @@
 #'   `theme_minimal`. Allowed values are the official ggplot2 themes including
 #'   theme_gray, theme_bw, theme_minimal, theme_classic, theme_void, .... Theme
 #'   objects are also allowed (e.g., `theme_classic()`). A mixed "number" region
-#'   reads the background from this argument to decide how dark to draw the
-#'   coefficient text (see \code{lower.method}/\code{upper.method}), so a dark
-#'   theme belongs here rather than added to the returned plot with \code{+}.
+#'   reads the background from this argument, resolved against the default theme
+#'   in force when \code{ggcorrplot()} is called, to decide how dark to draw the
+#'   coefficient text (see \code{lower.method}/\code{upper.method}). So a dark
+#'   theme belongs here rather than added to the returned plot with \code{+}, and
+#'   a \code{\link[ggplot2]{theme_set}} issued after the call is not seen.
 #' @param title character, title of the graph.
 #' @param show.legend logical, if TRUE the legend is displayed.
 #' @param legend.title a character string for the legend title. lower
