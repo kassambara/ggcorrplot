@@ -30,12 +30,11 @@ Every other pre-existing argument combination produces byte-identical output to
 * win-builder devel (R-devel): TO RUN BEFORE SUBMISSION
 
 ## R CMD check results
-Local `R CMD check --as-cran`: 0 errors | 0 warnings | 2 notes.
+Local `R CMD check --as-cran` on the 0.3.0 tarball: 0 errors | 0 warnings |
+1 note. The same holds with `_R_CHECK_DEPENDS_ONLY_=true`.
 
-Both notes are environmental and are expected to clear on the submitted tarball:
+The note is environmental:
 
-* "Version contains large components" — the development version number
-  (0.2.0.9000). This clears once the version is set to 0.3.0 for submission.
 * "unable to verify current time" — the check host cannot reach a time server; it
   does not appear on CI.
 

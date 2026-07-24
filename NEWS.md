@@ -1,4 +1,4 @@
-# ggcorrplot 0.2.0.9000
+# ggcorrplot 0.3.0
 
 ## New features
 
@@ -77,6 +77,9 @@
   construction are now factored into internal helpers, with no change to the
   output of any existing call. This is groundwork for forthcoming per-triangle
   layout options.
+
+- The help page and the README now link to the Datanovia correlation tutorials
+  for worked examples of the plot and of the p-value matrix.
 
 ## Bug fixes
 
