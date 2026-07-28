@@ -13,6 +13,7 @@ tests\^spelling
 ^\.github$
 ^\.claude$
 ^CLAUDE\.md$
+^Makefile$
 ^TODO\.md$
 Rplots\.pdf$
 ^CRAN-SUBMISSION$
